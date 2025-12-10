@@ -13,11 +13,33 @@ set -e
 if [ $# -eq 0 ]; then
     echo "=== Neovim Installer ==="
     echo ""
-    echo "1) Install latest stable (cleans up old versions)"
-    echo "2) Install nightly (cleans up old versions)"
-    echo "3) Install specific version (cleans up old versions)"
+
+    # Show current version if installed
+    if command -v nvim &> /dev/null; then
+        CURRENT_VERSION=$(nvim --version | head -n1)
+        echo "Currently installed: $CURRENT_VERSION"
+    else
+        echo "Currently installed: Not found"
+    fi
+
+    # Show latest available version
+    LATEST_VERSION=$(curl -s "https://api.github.com/repos/neovim/neovim/releases/latest" | grep -oP '"tag_name": "\K(.*)(?=")')
+    echo "Latest stable:       $LATEST_VERSION (tested/reliable)"
+
+    # Try to get nightly version
+    NIGHTLY_INFO=$(curl -s "https://api.github.com/repos/neovim/neovim/releases/tags/nightly" 2>/dev/null | grep -oP '"name": "\K(.*)(?=")' | head -1)
+    if [ -n "$NIGHTLY_INFO" ]; then
+        echo "Nightly build:       $NIGHTLY_INFO (bleeding-edge/experimental)"
+    else
+        echo "Nightly build:       Available (bleeding-edge/experimental)"
+    fi
+    echo ""
+
+    echo "1) Install latest stable - tested, reliable official release"
+    echo "2) Install nightly - cutting-edge features, may have bugs"
+    echo "3) Install specific version - choose any older release"
     echo "4) List available versions"
-    echo "5) Show latest version"
+    echo "5) Show version comparison"
     echo "6) Exit"
     echo ""
     read -p "Choose an option (1-6): " choice
@@ -45,20 +67,27 @@ if [ $# -eq 0 ]; then
             ;;
         4)
             echo ""
-            echo "Available Neovim versions:"
+            echo "Available Neovim versions (20 most recent):"
+            echo ""
             curl -s "https://api.github.com/repos/neovim/neovim/releases?per_page=20" | \
                 grep -oP '"tag_name": "\K(.*)(?=")' | \
                 grep -v "nightly" | \
-                head -20
+                head -20 | \
+                nl -w2 -s') '
             echo ""
             echo "Plus: nightly, stable (latest)"
             exit 0
             ;;
         5)
             echo ""
-            echo "Latest stable version:"
-            curl -s "https://api.github.com/repos/neovim/neovim/releases/latest" | \
-                grep -oP '"tag_name": "\K(.*)(?=")'
+            if command -v nvim &> /dev/null; then
+                CURRENT=$(nvim --version | head -n1)
+                echo "Currently installed: $CURRENT"
+            else
+                echo "Currently installed: Not found"
+            fi
+            LATEST=$(curl -s "https://api.github.com/repos/neovim/neovim/releases/latest" | grep -oP '"tag_name": "\K(.*)(?=")')
+            echo "Latest available:    $LATEST"
             exit 0
             ;;
         6)
