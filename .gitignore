@@ -1,0 +1,14 @@
+# Plugin directories (lazy.nvim installs plugins here)
+lazy-lock.json.backup
+
+# Neovim data/cache
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Spell files
+spell/
+
+# Debug logs
+*.log
