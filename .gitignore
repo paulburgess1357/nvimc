@@ -12,3 +12,25 @@ spell/
 
 # Debug logs
 *.log
+
+# C++ build artifacts
+build/
+compile_commands.json
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.out
+app.log
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# IDE/Editor
+.vscode/
+.idea/
+*.code-workspace
