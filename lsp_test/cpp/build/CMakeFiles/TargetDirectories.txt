@@ -1,0 +1,3 @@
+/home/paul/.config/nvim-custom/lsp_test/cpp/build/CMakeFiles/clangd_test.dir
+/home/paul/.config/nvim-custom/lsp_test/cpp/build/CMakeFiles/edit_cache.dir
+/home/paul/.config/nvim-custom/lsp_test/cpp/build/CMakeFiles/rebuild_cache.dir
