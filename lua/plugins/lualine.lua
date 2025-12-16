@@ -32,5 +32,21 @@ return {
       lualine_y = { "progress" },
       lualine_z = { "location" },
     },
+    winbar = {
+      lualine_z = {
+        {
+          "filename",
+          path = 3, -- Absolute path
+        },
+      },
+    },
+    inactive_winbar = {
+      lualine_z = {
+        {
+          "filename",
+          path = 3,
+        },
+      },
+    },
   },
 }
