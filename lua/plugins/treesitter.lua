@@ -17,6 +17,7 @@ return {
         "bash",
         "markdown",
         "markdown_inline",
+        "ruby",
       },
       -- Install parsers synchronously (only applied to `ensure_installed`)
       sync_install = false,

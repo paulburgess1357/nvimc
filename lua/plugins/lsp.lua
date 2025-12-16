@@ -88,6 +88,7 @@ return {
         "lua_ls",
         "clangd",
         "pyright",
+        "ruby_lsp",
       },
       -- Automatically enable all installed servers
       automatic_enable = true,
