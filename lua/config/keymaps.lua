@@ -38,3 +38,12 @@ keymap.set("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
 
 -- Quit
 keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
+
+-- Terminal
+keymap.set("n", "<C-/>", function()
+  require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
+end, { desc = "Terminal (cwd)" })
+keymap.set("n", "<C-_>", function()
+  require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
+end, { desc = "Terminal (cwd)" })
+keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })

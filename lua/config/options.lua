@@ -9,8 +9,11 @@ vim.opt.relativenumber = true
 -- Tabs and indentation
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
+vim.opt.softtabstop = 2
 vim.opt.expandtab = true
 vim.opt.autoindent = true
+vim.opt.smartindent = true
+vim.opt.cindent = true
 
 -- Line wrapping
 vim.opt.wrap = false
@@ -20,6 +23,7 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
+vim.opt.magic = false -- Literal search with /, no regex escaping needed
 
 -- Appearance
 vim.opt.termguicolors = true
