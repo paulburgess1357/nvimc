@@ -13,23 +13,21 @@ return {
       update_in_insert = false,
       virtual_text = {
         spacing = 4,
-        source = "if_many",
+        source = false,
         prefix = "",
+        format = function(diagnostic)
+          if diagnostic.source then
+            return string.format("[%s] %s", diagnostic.source, diagnostic.message)
+          end
+          return diagnostic.message
+        end,
       },
       float = {
-        source = "if_many",
+        source = true,
         border = "rounded",
         focusable = false,
       },
       severity_sort = true,
-      signs = {
-        text = {
-          [vim.diagnostic.severity.ERROR] = "",
-          [vim.diagnostic.severity.WARN] = "",
-          [vim.diagnostic.severity.HINT] = "",
-          [vim.diagnostic.severity.INFO] = "",
-        },
-      },
     })
 
     return opts
