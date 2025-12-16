@@ -1,6 +1,6 @@
 return {
   "saghen/blink.cmp",
-  version = "*",
+  dependencies = { "rafamadriz/friendly-snippets" },
   opts = {
     keymap = {
       preset = "default",
@@ -43,5 +43,11 @@ return {
         border = "rounded",
       },
     },
+    fuzzy = {
+      use_typo_resistance = true,
+      use_frecency = true,
+      use_proximity = true,
+    },
   },
+  opts_extend = { "sources.default" },
 }
