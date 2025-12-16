@@ -25,6 +25,10 @@ keymap.set("n", "<leader>wd", "<cmd>close<CR>", { desc = "Delete window" })
 keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 keymap.set("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
 
+-- Buffer management
+keymap.set("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
+keymap.set("n", "<leader>bD", "<cmd>bdelete!<CR>", { desc = "Delete buffer (force)" })
+
 -- Move lines up/down
 keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
 keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
