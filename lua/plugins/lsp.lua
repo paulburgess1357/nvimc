@@ -23,23 +23,23 @@ return {
             vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
           end
 
-          -- Navigation
-          map("gd", vim.lsp.buf.definition, "Go to definition")
+          -- Navigation (using fzf-lua)
+          map("gd", function() require("fzf-lua").lsp_definitions() end, "Go to definition")
           map("gD", vim.lsp.buf.declaration, "Go to declaration")
-          map("gr", vim.lsp.buf.references, "Go to references")
-          map("gI", vim.lsp.buf.implementation, "Go to implementation")
-          map("gy", vim.lsp.buf.type_definition, "Go to type definition")
+          map("gr", function() require("fzf-lua").lsp_references() end, "Go to references")
+          map("gI", function() require("fzf-lua").lsp_implementations() end, "Go to implementation")
+          map("gy", function() require("fzf-lua").lsp_typedefs() end, "Go to type definition")
 
           -- Documentation
           map("K", vim.lsp.buf.hover, "Hover documentation")
           map("gK", vim.lsp.buf.signature_help, "Signature help")
 
-          -- Code actions
-          map("<leader>ca", vim.lsp.buf.code_action, "Code action")
+          -- Code actions (using fzf-lua)
+          map("<leader>ca", function() require("fzf-lua").lsp_code_actions() end, "Code action")
           map("<leader>cr", vim.lsp.buf.rename, "Rename symbol")
 
-          -- Diagnostics
-          map("<leader>cd", vim.diagnostic.open_float, "Line diagnostics")
+          -- Diagnostics (using fzf-lua)
+          map("<leader>cd", function() require("fzf-lua").diagnostics_document() end, "Document diagnostics")
           map("[d", vim.diagnostic.goto_prev, "Previous diagnostic")
           map("]d", vim.diagnostic.goto_next, "Next diagnostic")
 

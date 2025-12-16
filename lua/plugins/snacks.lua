@@ -213,5 +213,20 @@ return {
       end,
       desc = "Terminal (cwd)",
     },
+    -- Notifications
+    {
+      "<leader>n",
+      function()
+        require("snacks").notifier.show_history()
+      end,
+      desc = "Notification History",
+    },
+    {
+      "<leader>un",
+      function()
+        require("snacks").notifier.hide()
+      end,
+      desc = "Dismiss All Notifications",
+    },
   },
 }
