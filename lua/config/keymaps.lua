@@ -9,11 +9,17 @@ keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
 keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
 keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
--- Window resizing
-keymap.set("n", "<C-Up>", "<cmd>resize +2<CR>", { desc = "Increase window height" })
-keymap.set("n", "<C-Down>", "<cmd>resize -2<CR>", { desc = "Decrease window height" })
-keymap.set("n", "<C-Left>", "<cmd>vertical resize -2<CR>", { desc = "Decrease window width" })
-keymap.set("n", "<C-Right>", "<cmd>vertical resize +2<CR>", { desc = "Increase window width" })
+-- Window resizing (intuitive - Alt+hjkl)
+local resize = require("utils.resize")
+keymap.set("n", "<A-h>", resize.resize_left, { desc = "Resize window left" })
+keymap.set("n", "<A-l>", resize.resize_right, { desc = "Resize window right" })
+keymap.set("n", "<A-k>", resize.resize_up, { desc = "Resize window up" })
+keymap.set("n", "<A-j>", resize.resize_down, { desc = "Resize window down" })
+
+-- Window splitting
+keymap.set("n", "<leader>-", "<cmd>split<CR>", { desc = "Split horizontally" })
+keymap.set("n", "<leader>|", "<cmd>vsplit<CR>", { desc = "Split vertically" })
+keymap.set("n", "<leader>wd", "<cmd>close<CR>", { desc = "Delete window" })
 
 -- Buffer navigation
 keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
