@@ -17,7 +17,11 @@ require("config.options")
 require("config.keymaps")
 
 -- Load plugins
-require("lazy").setup("plugins", {
+require("lazy").setup({
+  { import = "plugins.coding" },
+  { import = "plugins.editor" },
+  { import = "plugins.ui" },
+}, {
   change_detection = {
     notify = false,
   },
