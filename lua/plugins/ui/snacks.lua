@@ -1,4 +1,6 @@
--- Dashboard header color theme
+-- Snacks.nvim: Collection of small QoL plugins (dashboard, indent guides, notifications).
+-- Provides a unified configuration for common UI enhancements with minimal overhead.
+
 local header_theme = "aurora"
 
 local color_themes = {

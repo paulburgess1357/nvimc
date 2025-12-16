@@ -1,10 +1,11 @@
+-- Vim-illuminate: Highlights other uses of the word under the cursor.
+-- Uses LSP, treesitter, and regex providers for accurate symbol matching.
 return {
   "RRethy/vim-illuminate",
   event = "VeryLazy",
   opts = {
-    delay = 200,
-    large_file_cutoff = 20000,
-    max_lines = 100,
+    delay = 100,
+    large_file_cutoff = 10000,
     under_cursor = true,
     providers = {
       "lsp",
@@ -18,6 +19,7 @@ return {
       "alpha",
       "NvimTree",
       "neo-tree",
+      "minifiles",
       "dashboard",
       "TelescopePrompt",
       "lazy",
@@ -28,10 +30,9 @@ return {
   config = function(_, opts)
     require("illuminate").configure(opts)
 
-    -- Set highlight colors
-    vim.api.nvim_set_hl(0, "IlluminatedWordText", { bg = "#3A3A4A", underline = true })
-    vim.api.nvim_set_hl(0, "IlluminatedWordRead", { bg = "#3A3A4A", underline = true })
-    vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { bg = "#4A4A5A", underline = true, bold = true })
+    vim.api.nvim_set_hl(0, "IlluminatedWordText", { underline = true })
+    vim.api.nvim_set_hl(0, "IlluminatedWordRead", { underline = true })
+    vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { underline = true, bold = true })
   end,
   keys = {
     {

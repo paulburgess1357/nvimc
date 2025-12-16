@@ -1,19 +1,22 @@
+-- Gitsigns.nvim: Git integration showing line changes in the sign column.
+-- Provides inline blame, hunk staging/reset, and diff preview functionality.
 return {
   "lewis6991/gitsigns.nvim",
   event = "VeryLazy",
   opts = {
-    attach_to_untracked = true,
     signs = {
-      add = { text = "│" },
-      change = { text = "│" },
+      add = { text = "┃" },
+      change = { text = "┃" },
       delete = { text = "_" },
       topdelete = { text = "‾" },
       changedelete = { text = "~" },
       untracked = { text = "┆" },
     },
+    signs_staged_enable = true,
+    attach_to_untracked = true,
     current_line_blame = false,
     on_attach = function(bufnr)
-      local gs = package.loaded.gitsigns
+      local gs = require("gitsigns")
 
       local function map(mode, l, r, opts)
         opts = opts or {}
@@ -21,28 +24,22 @@ return {
         vim.keymap.set(mode, l, r, opts)
       end
 
-      -- Navigation
       map("n", "]h", function()
         if vim.wo.diff then
-          return "]h"
+          vim.cmd.normal({ "]c", bang = true })
+        else
+          gs.nav_hunk("next")
         end
-        vim.schedule(function()
-          gs.next_hunk()
-        end)
-        return "<Ignore>"
-      end, { expr = true, desc = "Next git hunk" })
+      end, { desc = "Next git hunk" })
 
       map("n", "[h", function()
         if vim.wo.diff then
-          return "[h"
+          vim.cmd.normal({ "[c", bang = true })
+        else
+          gs.nav_hunk("prev")
         end
-        vim.schedule(function()
-          gs.prev_hunk()
-        end)
-        return "<Ignore>"
-      end, { expr = true, desc = "Prev git hunk" })
+      end, { desc = "Prev git hunk" })
 
-      -- Actions
       map("n", "<leader>hs", gs.stage_hunk, { desc = "Stage hunk" })
       map("n", "<leader>hr", gs.reset_hunk, { desc = "Reset hunk" })
       map("v", "<leader>hs", function()

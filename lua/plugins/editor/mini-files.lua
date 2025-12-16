@@ -1,16 +1,14 @@
+-- Mini.files: File explorer with Miller columns navigation (like macOS Finder).
+-- Provides intuitive directory browsing with preview and vim-like keybindings.
 return {
-  -- mini.files: File explorer with column view (Miller columns)
   {
     "echasnovski/mini.files",
     version = false,
     opts = {
-      -- Content display options
       content = {
-        filter = nil, -- Predicate for which entries to display
-        sort = nil,   -- Function to sort entries
+        filter = nil,
+        sort = nil,
       },
-
-      -- Keymappings within mini.files buffer
       mappings = {
         close = "q",
         go_in = "l",
@@ -25,26 +23,21 @@ return {
         trim_left = "<",
         trim_right = ">",
       },
-
-      -- General options
       options = {
-        permanent_delete = true,          -- Delete permanently instead of to trash
-        use_as_default_explorer = true,   -- Replace netrw as default file explorer
+        permanent_delete = true,
+        use_as_default_explorer = true,
       },
-
-      -- Window configuration
       windows = {
-        max_number = math.huge,  -- Maximum number of windows to show
-        preview = true,          -- Show preview of file/directory under cursor
-        width_focus = 50,        -- Width of focused window
-        width_nofocus = 20,      -- Width of non-focused windows
-        width_preview = 100,     -- Width of preview window
+        max_number = math.huge,
+        preview = true,
+        width_focus = 50,
+        width_nofocus = 20,
+        width_preview = 100,
       },
     },
     config = function(_, opts)
       require("mini.files").setup(opts)
 
-      -- Remap Enter to behave like 'l' (open/expand entry)
       vim.api.nvim_create_autocmd("User", {
         pattern = "MiniFilesBufferCreate",
         callback = function(args)

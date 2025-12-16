@@ -1,6 +1,9 @@
+-- Blink.cmp: High-performance autocompletion engine written in Rust.
+-- Provides fuzzy matching with typo resistance, frecency, and proximity scoring.
 return {
   "saghen/blink.cmp",
   dependencies = { "rafamadriz/friendly-snippets" },
+  version = "*",
   opts = {
     keymap = {
       preset = "default",
@@ -44,9 +47,7 @@ return {
       },
     },
     fuzzy = {
-      use_typo_resistance = true,
-      use_frecency = true,
-      use_proximity = true,
+      implementation = "prefer_rust_with_warning",
     },
   },
   opts_extend = { "sources.default" },

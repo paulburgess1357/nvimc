@@ -1,5 +1,8 @@
+-- Bufferline.nvim: Snazzy buffer line with tab-like buffer display.
+-- Shows open buffers as tabs with LSP diagnostic indicators and close buttons.
 return {
   "akinsho/bufferline.nvim",
+  version = "*",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   event = "VeryLazy",
   opts = {
@@ -14,7 +17,7 @@ return {
       end,
       offsets = {
         {
-          filetype = "neo-tree",
+          filetype = "minifiles",
           text = "File Explorer",
           highlight = "Directory",
           separator = true,
@@ -22,6 +25,8 @@ return {
       },
       separator_style = "slant",
       always_show_bufferline = true,
+      show_buffer_close_icons = true,
+      show_close_icon = false,
     },
   },
   keys = {

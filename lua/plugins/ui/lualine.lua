@@ -1,4 +1,5 @@
--- Lualine: Fast and customizable statusline
+-- Lualine.nvim: Fast and customizable statusline written in Lua.
+-- Displays mode, git branch, diagnostics, and file info with minimal overhead.
 return {
   "nvim-lualine/lualine.nvim",
   dependencies = {
@@ -7,16 +8,11 @@ return {
   },
   opts = {
     options = {
-      theme = "onedark",
+      theme = "auto",
       icons_enabled = true,
       component_separators = { left = "|", right = "|" },
       section_separators = { left = "", right = "" },
       globalstatus = true,
-      refresh = {
-        statusline = 100,
-        tabline = 100,
-        winbar = 100,
-      },
     },
     sections = {
       lualine_a = { "mode" },
@@ -31,22 +27,6 @@ return {
       lualine_x = { "encoding", "fileformat", "filetype" },
       lualine_y = { "progress" },
       lualine_z = { "location" },
-    },
-    winbar = {
-      lualine_z = {
-        {
-          "filename",
-          path = 3, -- Absolute path
-        },
-      },
-    },
-    inactive_winbar = {
-      lualine_z = {
-        {
-          "filename",
-          path = 3,
-        },
-      },
     },
   },
 }

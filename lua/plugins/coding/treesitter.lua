@@ -1,12 +1,12 @@
+-- Treesitter: Advanced syntax highlighting, indentation, and code understanding.
+-- Provides accurate parsing for 100+ languages with incremental selection support.
 return {
-  -- Treesitter: Advanced syntax parsing and highlighting
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    lazy = false, -- Treesitter should not be lazy-loaded
+    lazy = false,
     main = "nvim-treesitter.configs",
     opts = {
-      -- Languages to auto-install
       ensure_installed = {
         "c",
         "cpp",
@@ -19,27 +19,21 @@ return {
         "markdown_inline",
         "ruby",
       },
-      -- Install parsers synchronously (only applied to `ensure_installed`)
       sync_install = false,
-      -- Automatically install missing parsers when entering buffer
       auto_install = true,
-      -- Syntax highlighting
       highlight = {
         enable = true,
-        -- Disable for very large files
-        disable = function(lang, buf)
+        disable = function(_, buf)
           local max_filesize = 100 * 1024 -- 100 KB
-          local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+          local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
           if ok and stats and stats.size > max_filesize then
             return true
           end
         end,
       },
-      -- Indentation based on treesitter
       indent = {
         enable = true,
       },
-      -- Incremental selection
       incremental_selection = {
         enable = true,
         keymaps = {

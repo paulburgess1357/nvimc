@@ -1,21 +1,20 @@
+-- LSP: Language Server Protocol support for code intelligence.
+-- Provides auto-completion, go-to-definition, diagnostics, and code actions.
 return {
-  -- Mason: LSP installer
-  -- Provides a UI to install and manage LSP servers, linters, and formatters
+  -- Mason: Package manager for LSP servers, linters, and formatters
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {},
   },
 
-  -- LSP configurations
-  -- Provides default configurations for various language servers
+  -- LSP configurations and keybindings
   {
     "neovim/nvim-lspconfig",
     dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
+      "mason-org/mason.nvim",
+      "mason-org/mason-lspconfig.nvim",
     },
     config = function()
-      -- LSP keybindings (set when LSP attaches to buffer)
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
         callback = function(event)
@@ -40,8 +39,8 @@ return {
 
           -- Diagnostics (using fzf-lua)
           map("<leader>cd", function() require("fzf-lua").diagnostics_document() end, "Document diagnostics")
-          map("[d", vim.diagnostic.goto_prev, "Previous diagnostic")
-          map("]d", vim.diagnostic.goto_next, "Next diagnostic")
+          map("[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "Previous diagnostic")
+          map("]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "Next diagnostic")
 
           -- Format
           map("<leader>cf", function()
@@ -61,7 +60,7 @@ return {
           "--function-arg-placeholders=true",
           "--enable-config",
         },
-        filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto", "h", "hpp", "hxx", "cc", "cxx" },
+        filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
         root_markers = {
           ".clangd",
           ".clang-tidy",
@@ -74,23 +73,20 @@ return {
     end,
   },
 
-  -- Mason-LSPconfig bridge
-  -- Automatically enables LSP servers installed via Mason
+  -- Mason-LSPconfig: Bridge between Mason and lspconfig
   {
-    "williamboman/mason-lspconfig.nvim",
+    "mason-org/mason-lspconfig.nvim",
     dependencies = {
-      "williamboman/mason.nvim",
+      "mason-org/mason.nvim",
       "neovim/nvim-lspconfig",
     },
     opts = {
-      -- LSP servers to auto-install
       ensure_installed = {
         "lua_ls",
         "clangd",
         "pyright",
         "ruby_lsp",
       },
-      -- Automatically enable all installed servers
       automatic_enable = true,
     },
   },
