@@ -2,7 +2,11 @@ return {
   "folke/which-key.nvim",
   event = "VeryLazy",
   opts = {
-    preset = "modern",
+    preset = "helix",
+    win = {
+      border = "rounded",
+      padding = { 1, 2 },
+    },
   },
   keys = {
     {
@@ -39,6 +43,21 @@ return {
       desc = "Grep (root)",
     },
     -- Diagnostic toggles
+    {
+      "<leader><leader>s",
+      function()
+        -- Toggle diagnostic signs on/off
+        local config = vim.diagnostic.config()
+        local new_signs = not config.signs
+
+        vim.diagnostic.config({
+          signs = new_signs,
+        })
+
+        vim.notify("Diagnostic signs " .. (new_signs and "enabled" or "disabled"))
+      end,
+      desc = "Toggle Diagnostic Signs",
+    },
     {
       "<leader><leader>d",
       function()

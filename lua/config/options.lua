@@ -52,3 +52,6 @@ vim.opt.swapfile = false
 -- Update time
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
+
+-- Confirm before quitting with unsaved changes
+vim.opt.confirm = true
