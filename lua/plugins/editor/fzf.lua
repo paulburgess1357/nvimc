@@ -22,6 +22,16 @@ return {
     local actions = require("fzf-lua.actions")
     return {
       "default-title",
+      keymap = {
+        fzf = {
+          ["ctrl-j"] = "down",
+          ["ctrl-k"] = "up",
+        },
+        builtin = {
+          ["<C-d>"] = "preview-page-down",
+          ["<C-u>"] = "preview-page-up",
+        },
+      },
       winopts = {
         height = 0.85,
         width = 0.80,
