@@ -6,6 +6,9 @@ return {
   cmd = { "FzfLua" },
   config = function(_, opts)
     require("fzf-lua").setup(opts)
+    vim.api.nvim_create_user_command("Symbols", function()
+      require("fzf-lua").lsp_document_symbols()
+    end, { desc = "Document symbols" })
   end,
   opts = function()
     local actions = require("fzf-lua.actions")
