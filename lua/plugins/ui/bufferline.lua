@@ -6,6 +6,14 @@ return {
   dependencies = { "nvim-tree/nvim-web-devicons" },
   event = "VeryLazy",
   opts = {
+    highlights = {
+      fill = {
+        bg = {
+          attribute = "bg",
+          highlight = "Normal",
+        },
+      },
+    },
     options = {
       mode = "buffers",
       close_command = "bdelete! %d",
@@ -23,7 +31,7 @@ return {
           separator = true,
         },
       },
-      separator_style = "slant",
+      separator_style = "thin",
       always_show_bufferline = true,
       show_buffer_close_icons = true,
       show_close_icon = false,
