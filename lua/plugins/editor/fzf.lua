@@ -6,12 +6,17 @@ return {
   cmd = { "FzfLua" },
   config = function(_, opts)
     require("fzf-lua").setup(opts)
-    vim.api.nvim_create_user_command("Symbols", function()
-      require("fzf-lua").lsp_document_symbols()
-    end, { desc = "Document symbols" })
-    vim.api.nvim_create_user_command("Marks", function()
-      require("fzf-lua").marks()
-    end, { desc = "Marks" })
+    local fzf = require("fzf-lua")
+    local cmd = vim.api.nvim_create_user_command
+    cmd("Symbols", fzf.lsp_document_symbols, { desc = "Document symbols" })
+    cmd("Marks", fzf.marks, { desc = "Marks" })
+    cmd("Files", fzf.files, { desc = "Find files" })
+    cmd("Buffers", fzf.buffers, { desc = "Buffers" })
+    cmd("Rg", fzf.live_grep, { desc = "Live grep" })
+    cmd("Grep", fzf.live_grep, { desc = "Live grep" })
+    cmd("Help", fzf.help_tags, { desc = "Help tags" })
+    cmd("Commands", fzf.commands, { desc = "Commands" })
+    cmd("Keymaps", fzf.keymaps, { desc = "Keymaps" })
   end,
   opts = function()
     local actions = require("fzf-lua.actions")
