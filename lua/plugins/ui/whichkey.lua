@@ -23,6 +23,51 @@ return {
       { "<leader><leader>", group = "Custom", icon = "" },
     },
   },
+  config = function(_, opts)
+    local wk = require("which-key")
+    wk.setup(opts)
+
+    -- Snacks toggles with icons
+    local Snacks = require("snacks")
+
+    local static_desc = { enabled = "", disabled = "" }
+
+    -- UI toggles
+    Snacks.toggle.option("wrap", { name = "Wrap", wk_desc = static_desc }):map("<leader>uw")
+    Snacks.toggle.option("relativenumber", { name = "Relative Number", wk_desc = static_desc }):map("<leader>ul")
+    Snacks.toggle.option("spell", { name = "Spell", wk_desc = static_desc }):map("<leader>us")
+
+    -- Diagnostic signs toggle
+    Snacks.toggle({
+      name = "Diagnostic Signs",
+      wk_desc = static_desc,
+      get = function()
+        return vim.diagnostic.config().signs ~= false
+      end,
+      set = function(state)
+        vim.diagnostic.config({ signs = state })
+      end,
+    }):map("<leader><leader>s")
+
+    -- Diagnostic virtual text toggle
+    Snacks.toggle({
+      name = "Virtual Text",
+      wk_desc = static_desc,
+      get = function()
+        return vim.diagnostic.config().virtual_text ~= false
+      end,
+      set = function(state)
+        vim.diagnostic.config({
+          virtual_text = state and {
+            spacing = 4,
+            source = "if_many",
+            prefix = "",
+          } or false,
+        })
+      end,
+    }):map("<leader><leader>v")
+
+  end,
   keys = {
     -- Custom menu (<leader><leader>)
     {
@@ -52,57 +97,6 @@ return {
         require("fzf-lua").live_grep({ cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":h:h") })
       end,
       desc = "Grep (parent)",
-    },
-    {
-      "<leader><leader>s",
-      function()
-        local config = vim.diagnostic.config()
-        local new_signs = not config.signs
-        vim.diagnostic.config({ signs = new_signs })
-        vim.notify("Diagnostic signs " .. (new_signs and "enabled" or "disabled"))
-      end,
-      desc = "Toggle diagnostic signs",
-    },
-    {
-      "<leader><leader>v",
-      function()
-        local config = vim.diagnostic.config()
-        local new_virtual_text = not config.virtual_text
-        vim.diagnostic.config({
-          virtual_text = new_virtual_text and {
-            spacing = 4,
-            source = "if_many",
-            prefix = "",
-          } or false,
-        })
-        vim.notify("Diagnostic virtual text " .. (new_virtual_text and "enabled" or "disabled"))
-      end,
-      desc = "Toggle virtual text",
-    },
-    -- UI toggles
-    {
-      "<leader>uw",
-      function()
-        vim.wo.wrap = not vim.wo.wrap
-        vim.notify("Wrap " .. (vim.wo.wrap and "enabled" or "disabled"))
-      end,
-      desc = "Toggle word wrap",
-    },
-    {
-      "<leader>ul",
-      function()
-        vim.wo.relativenumber = not vim.wo.relativenumber
-        vim.notify("Relative numbers " .. (vim.wo.relativenumber and "enabled" or "disabled"))
-      end,
-      desc = "Toggle relative numbers",
-    },
-    {
-      "<leader>us",
-      function()
-        vim.wo.spell = not vim.wo.spell
-        vim.notify("Spell check " .. (vim.wo.spell and "enabled" or "disabled"))
-      end,
-      desc = "Toggle spell check",
     },
     -- Help
     {

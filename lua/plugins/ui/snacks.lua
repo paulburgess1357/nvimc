@@ -181,6 +181,13 @@ return {
         style = "terminal",
       },
     },
+
+    -- Toggle with which-key integration
+    toggle = {
+      enabled = true,
+      which_key = true,
+      notify = true,
+    },
   },
   init = function()
     local function set_gradient_colors()
