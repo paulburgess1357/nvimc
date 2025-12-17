@@ -9,6 +9,9 @@ return {
     vim.api.nvim_create_user_command("Symbols", function()
       require("fzf-lua").lsp_document_symbols()
     end, { desc = "Document symbols" })
+    vim.api.nvim_create_user_command("Marks", function()
+      require("fzf-lua").marks()
+    end, { desc = "Marks" })
   end,
   opts = function()
     local actions = require("fzf-lua.actions")
