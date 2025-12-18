@@ -1,14 +1,14 @@
 -- Treesitter: Advanced syntax highlighting, indentation, and code understanding.
--- Provides accurate parsing for 100+ languages with incremental selection support.
+-- New main branch API (Neovim 0.11+). Requires: tar, curl, tree-sitter-cli, C compiler.
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    branch = "master",
+    branch = "main",
     build = ":TSUpdate",
     lazy = false,
-    main = "nvim-treesitter.configs",
-    opts = {
-      ensure_installed = {
+    config = function()
+      -- Install parsers
+      require("nvim-treesitter").install({
         "c",
         "cpp",
         "lua",
@@ -19,36 +19,29 @@ return {
         "markdown",
         "markdown_inline",
         "ruby",
-        -- Added to match LSP servers
         "json",
         "yaml",
         "toml",
         "dockerfile",
-      },
-      sync_install = false,
-      auto_install = true,
-      highlight = {
-        enable = true,
-        disable = function(_, buf)
+      })
+
+      -- Enable highlighting and indentation for all filetypes
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          -- Skip large files
           local max_filesize = 100 * 1024 -- 100 KB
-          local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
+          local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(args.buf))
           if ok and stats and stats.size > max_filesize then
-            return true
+            return
           end
+
+          -- Enable highlighting (silently fail if no parser)
+          pcall(vim.treesitter.start, args.buf)
+
+          -- Enable indentation
+          vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end,
-      },
-      indent = {
-        enable = true,
-      },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = "gnn",
-          node_incremental = "grn",
-          scope_incremental = "grc",
-          node_decremental = "grm",
-        },
-      },
-    },
+      })
+    end,
   },
 }
