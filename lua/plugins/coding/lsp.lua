@@ -1,6 +1,9 @@
 -- LSP: Language Server Protocol support for code intelligence.
 -- Provides auto-completion, go-to-definition, diagnostics, and code actions.
 return {
+  -- SchemaStore: JSON/YAML schema catalog for validation
+  { "b0o/SchemaStore.nvim", lazy = true },
+
   -- Mason: Package manager for LSP servers, linters, and formatters
   {
     "mason-org/mason.nvim",
@@ -35,7 +38,7 @@ return {
 
           -- Code actions (using fzf-lua)
           map("<leader>ca", function() require("fzf-lua").lsp_code_actions() end, "Code action")
-          map("<leader>cr", vim.lsp.buf.rename, "Rename symbol")
+          -- Rename is handled by inc-rename.nvim
 
           -- Diagnostics (using fzf-lua)
           map("<leader>cd", function() require("fzf-lua").diagnostics_document() end, "Document diagnostics")
@@ -70,6 +73,27 @@ return {
           ".git",
         },
       }
+
+      -- JSON LSP with SchemaStore
+      vim.lsp.config.jsonls = {
+        settings = {
+          json = {
+            schemas = require("schemastore").json.schemas(),
+            validate = { enable = true },
+          },
+        },
+      }
+
+      -- YAML LSP with SchemaStore
+      vim.lsp.config.yamlls = {
+        settings = {
+          yaml = {
+            schemaStore = { enable = false, url = "" },
+            schemas = require("schemastore").yaml.schemas(),
+            validate = true,
+          },
+        },
+      }
     end,
   },
 
@@ -82,10 +106,19 @@ return {
     },
     opts = {
       ensure_installed = {
+        -- Languages
         "lua_ls",
         "clangd",
         "pyright",
         "ruby_lsp",
+        "bashls",
+        -- Config/Data
+        "jsonls",
+        "yamlls",
+        "taplo",
+        -- Containers
+        "dockerls",
+        "docker_compose_language_service",
       },
       automatic_enable = true,
     },
