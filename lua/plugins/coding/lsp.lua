@@ -29,12 +29,17 @@ return {
 			"mason-org/mason-lspconfig.nvim",
 		},
 		config = function()
-			-- Diagnostic display configuration
-			vim.api.nvim_set_hl(0, "DiagnosticVirtualTextError", { fg = "#db4b4b", bg = "NONE" })
-			vim.api.nvim_set_hl(0, "DiagnosticVirtualTextWarn", { fg = "#e0af68", bg = "NONE" })
-			vim.api.nvim_set_hl(0, "DiagnosticVirtualTextInfo", { fg = "#0db9d7", bg = "NONE" })
-			vim.api.nvim_set_hl(0, "DiagnosticVirtualTextHint", { fg = "#1abc9c", bg = "NONE" })
+			-- Use bright diagnostic colors for virtual text (no background)
+			local function set_virtual_text_hl()
+				for _, level in ipairs({ "Error", "Warn", "Info", "Hint" }) do
+					local diag_fg = vim.api.nvim_get_hl(0, { name = "Diagnostic" .. level }).fg
+					vim.api.nvim_set_hl(0, "DiagnosticVirtualText" .. level, { fg = diag_fg })
+				end
+			end
+			set_virtual_text_hl()
+			vim.api.nvim_create_autocmd("ColorScheme", { callback = set_virtual_text_hl })
 
+			-- Diagnostic display configuration
 			vim.diagnostic.config({
 				underline = true,
 				update_in_insert = false,
@@ -77,11 +82,11 @@ return {
 			vim.keymap.set("n", "gl", function()
 				-- Get diagnostics for current line and find most severe
 				local diagnostics = vim.diagnostic.get(0, { lnum = vim.api.nvim_win_get_cursor(0)[1] - 1 })
-				local severity_colors = {
-					[vim.diagnostic.severity.ERROR] = "#db4b4b",
-					[vim.diagnostic.severity.WARN] = "#e0af68",
-					[vim.diagnostic.severity.INFO] = "#0db9d7",
-					[vim.diagnostic.severity.HINT] = "#1abc9c",
+				local severity_hl = {
+					[vim.diagnostic.severity.ERROR] = "DiagnosticError",
+					[vim.diagnostic.severity.WARN] = "DiagnosticWarn",
+					[vim.diagnostic.severity.INFO] = "DiagnosticInfo",
+					[vim.diagnostic.severity.HINT] = "DiagnosticHint",
 				}
 				local highest_severity = vim.diagnostic.severity.HINT
 				for _, d in ipairs(diagnostics) do
@@ -89,9 +94,10 @@ return {
 						highest_severity = d.severity
 					end
 				end
-				-- Set border color to match severity
+				-- Set border color from theme's diagnostic highlight
 				local normal_bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
-				vim.api.nvim_set_hl(0, "FloatBorder", { fg = severity_colors[highest_severity], bg = normal_bg })
+				local diag_fg = vim.api.nvim_get_hl(0, { name = severity_hl[highest_severity] }).fg
+				vim.api.nvim_set_hl(0, "FloatBorder", { fg = diag_fg, bg = normal_bg })
 				vim.diagnostic.open_float({ scope = "line", border = "rounded", source = true, focusable = false })
 			end, { desc = "Line Diagnostics" })
 
