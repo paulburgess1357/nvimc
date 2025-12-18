@@ -13,6 +13,6 @@ return {
 		code_only = true,
 		enable_images = false,
 		smart_copy = true,
-		cache_expiry_days = 13,
+		cache_expiry_days = 14,
 	},
 }
