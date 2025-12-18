@@ -18,6 +18,39 @@ return {
 			"mason-org/mason-lspconfig.nvim",
 		},
 		config = function()
+			-- Diagnostic display configuration
+			vim.api.nvim_set_hl(0, "DiagnosticVirtualTextError", { fg = "#db4b4b", bg = "NONE" })
+			vim.api.nvim_set_hl(0, "DiagnosticVirtualTextWarn", { fg = "#e0af68", bg = "NONE" })
+			vim.api.nvim_set_hl(0, "DiagnosticVirtualTextInfo", { fg = "#0db9d7", bg = "NONE" })
+			vim.api.nvim_set_hl(0, "DiagnosticVirtualTextHint", { fg = "#1abc9c", bg = "NONE" })
+
+			vim.diagnostic.config({
+				underline = true,
+				update_in_insert = false,
+				virtual_text = {
+					spacing = 4,
+					source = false,
+					prefix = "",
+					format = function(diagnostic)
+						if diagnostic.source then
+							return string.format("[%s] %s", diagnostic.source, diagnostic.message)
+						end
+						return diagnostic.message
+					end,
+				},
+				float = {
+					source = true,
+					border = "rounded",
+					focusable = false,
+				},
+				severity_sort = true,
+			})
+
+			-- Global diagnostic keymap (doesn't need LSP attached)
+			vim.keymap.set("n", "gl", function()
+				vim.diagnostic.open_float({ scope = "line", border = "rounded", source = true, focusable = false })
+			end, { desc = "Line Diagnostics" })
+
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
 				callback = function(event)
@@ -61,10 +94,7 @@ return {
 						vim.diagnostic.jump({ count = 1, float = true })
 					end, "Next diagnostic")
 
-					-- Format
-					map("<leader>cf", function()
-						vim.lsp.buf.format({ async = true })
-					end, "Format buffer")
+					-- Format is handled by conform.nvim
 				end,
 			})
 

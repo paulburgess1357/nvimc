@@ -211,14 +211,14 @@ return {
     {
       "<C-/>",
       function()
-        require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
+        Snacks.terminal(nil, { cwd = vim.fn.getcwd() })
       end,
       desc = "Terminal (cwd)",
     },
     {
       "<C-_>",
       function()
-        require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
+        Snacks.terminal(nil, { cwd = vim.fn.getcwd() })
       end,
       desc = "Terminal (cwd)",
     },
@@ -226,14 +226,14 @@ return {
     {
       "<leader>n",
       function()
-        require("snacks").notifier.show_history()
+        Snacks.notifier.show_history()
       end,
       desc = "Notification History",
     },
     {
       "<leader>un",
       function()
-        require("snacks").notifier.hide()
+        Snacks.notifier.hide()
       end,
       desc = "Dismiss All Notifications",
     },

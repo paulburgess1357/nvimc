@@ -3,6 +3,7 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "master",
     build = ":TSUpdate",
     lazy = false,
     main = "nvim-treesitter.configs",
@@ -18,6 +19,11 @@ return {
         "markdown",
         "markdown_inline",
         "ruby",
+        -- Added to match LSP servers
+        "json",
+        "yaml",
+        "toml",
+        "dockerfile",
       },
       sync_install = false,
       auto_install = true,
