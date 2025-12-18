@@ -39,5 +39,5 @@ return {
 	scrollbar = { enabled = true },
 
 	-- Custom
-	leetneo = { enabled = true, branch = "master" },
+	leetneo = { enabled = false, branch = "master" },
 }
