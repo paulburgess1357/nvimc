@@ -55,3 +55,10 @@ vim.opt.timeoutlen = 300
 
 -- Confirm before quitting with unsaved changes
 vim.opt.confirm = true
+
+-- Highlight on yank
+vim.api.nvim_create_autocmd("TextYankPost", {
+  callback = function()
+    vim.highlight.on_yank({ higroup = "Visual", timeout = 150 })
+  end,
+})
