@@ -57,6 +57,22 @@ return {
 				severity_sort = true,
 			})
 
+			-- Match diagnostic float background to editor Normal background
+			local function sync_float_bg()
+				local normal_bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
+				if normal_bg then
+					local float_hl = vim.api.nvim_get_hl(0, { name = "NormalFloat" })
+					float_hl.bg = normal_bg
+					vim.api.nvim_set_hl(0, "NormalFloat", float_hl)
+
+					local border_hl = vim.api.nvim_get_hl(0, { name = "FloatBorder" })
+					border_hl.bg = normal_bg
+					vim.api.nvim_set_hl(0, "FloatBorder", border_hl)
+				end
+			end
+			sync_float_bg()
+			vim.api.nvim_create_autocmd("ColorScheme", { callback = sync_float_bg })
+
 			-- Global diagnostic keymap (doesn't need LSP attached)
 			vim.keymap.set("n", "gl", function()
 				vim.diagnostic.open_float({ scope = "line", border = "rounded", source = true, focusable = false })
