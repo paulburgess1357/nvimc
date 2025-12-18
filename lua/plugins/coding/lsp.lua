@@ -75,6 +75,23 @@ return {
 
 			-- Global diagnostic keymap (doesn't need LSP attached)
 			vim.keymap.set("n", "gl", function()
+				-- Get diagnostics for current line and find most severe
+				local diagnostics = vim.diagnostic.get(0, { lnum = vim.api.nvim_win_get_cursor(0)[1] - 1 })
+				local severity_colors = {
+					[vim.diagnostic.severity.ERROR] = "#db4b4b",
+					[vim.diagnostic.severity.WARN] = "#e0af68",
+					[vim.diagnostic.severity.INFO] = "#0db9d7",
+					[vim.diagnostic.severity.HINT] = "#1abc9c",
+				}
+				local highest_severity = vim.diagnostic.severity.HINT
+				for _, d in ipairs(diagnostics) do
+					if d.severity < highest_severity then
+						highest_severity = d.severity
+					end
+				end
+				-- Set border color to match severity
+				local normal_bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
+				vim.api.nvim_set_hl(0, "FloatBorder", { fg = severity_colors[highest_severity], bg = normal_bg })
 				vim.diagnostic.open_float({ scope = "line", border = "rounded", source = true, focusable = false })
 			end, { desc = "Line Diagnostics" })
 
