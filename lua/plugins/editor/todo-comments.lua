@@ -1,7 +1,10 @@
 -- todo-comments.nvim: Highlight and search TODO, FIXME, HACK, and other comment tags.
 -- Integrates with fzf-lua for searching todos across the project.
+local cfg = require("config.plugins").todocomments or {}
 return {
   "folke/todo-comments.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   event = "VeryLazy",
   dependencies = { "nvim-lua/plenary.nvim" },
   opts = {

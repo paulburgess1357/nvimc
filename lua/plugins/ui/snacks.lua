@@ -1,5 +1,6 @@
 -- Snacks.nvim: Collection of small QoL plugins (dashboard, indent guides, notifications).
 -- Provides a unified configuration for common UI enhancements with minimal overhead.
+local cfg = require("config.plugins").snacks or {}
 
 local header_theme = "aurora"
 
@@ -26,6 +27,8 @@ local color_themes = {
 
 return {
   "folke/snacks.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   priority = 1000,
   lazy = false,
   opts = {

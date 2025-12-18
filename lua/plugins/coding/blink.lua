@@ -1,7 +1,10 @@
 -- Blink.cmp: High-performance autocompletion engine written in Rust.
 -- Provides fuzzy matching with typo resistance, frecency, and proximity scoring.
+local cfg = require("config.plugins").blink or {}
 return {
   "saghen/blink.cmp",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   dependencies = { "rafamadriz/friendly-snippets" },
   version = "*",
   opts = {

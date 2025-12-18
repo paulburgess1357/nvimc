@@ -1,7 +1,10 @@
 -- Satellite.nvim: Decorative scrollbar with diagnostic and git integration.
 -- Shows cursor position, search results, diagnostics, and git changes in the scrollbar.
+local cfg = require("config.plugins").scrollbar or {}
 return {
   "lewis6991/satellite.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   event = "VeryLazy",
   opts = {
     current_only = false,

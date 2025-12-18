@@ -1,8 +1,11 @@
 -- Mini.files: File explorer with Miller columns navigation (like macOS Finder).
 -- Provides intuitive directory browsing with preview and vim-like keybindings.
+local cfg = require("config.plugins").minifiles or {}
 return {
   {
     "echasnovski/mini.files",
+    enabled = cfg.enabled ~= false,
+    branch = cfg.branch,
     version = false,
     opts = {
       content = {

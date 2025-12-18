@@ -1,7 +1,10 @@
 -- render-markdown.nvim: Render markdown with inline formatting in the buffer.
 -- Displays headings, code blocks, tables, and callouts with visual styling.
+local cfg = require("config.plugins").rendermarkdown or {}
 return {
   "MeanderingProgrammer/render-markdown.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   ft = { "markdown" },
   dependencies = {
     "nvim-treesitter/nvim-treesitter",

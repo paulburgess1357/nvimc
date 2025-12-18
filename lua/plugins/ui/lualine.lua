@@ -1,7 +1,10 @@
 -- Lualine.nvim: Fast and customizable statusline written in Lua.
 -- Displays mode, git branch, diagnostics, and file info with minimal overhead.
+local cfg = require("config.plugins").lualine or {}
 return {
   "nvim-lualine/lualine.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   dependencies = {
     "nvim-tree/nvim-web-devicons",
     "SmiteshP/nvim-navic",

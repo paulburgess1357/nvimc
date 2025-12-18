@@ -1,7 +1,10 @@
 -- Bufferline.nvim: Snazzy buffer line with tab-like buffer display.
 -- Shows open buffers as tabs with LSP diagnostic indicators and close buttons.
+local cfg = require("config.plugins").bufferline or {}
 return {
   "akinsho/bufferline.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   version = "*",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   event = "VeryLazy",

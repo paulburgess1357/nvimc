@@ -1,9 +1,11 @@
 -- Treesitter: Advanced syntax highlighting, indentation, and code understanding.
 -- New main branch API (Neovim 0.11+). Requires: tar, curl, tree-sitter-cli, C compiler.
+local cfg = require("config.plugins").treesitter or {}
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    branch = "main",
+    enabled = cfg.enabled ~= false,
+    branch = cfg.branch,
     build = ":TSUpdate",
     lazy = false,
     config = function()

@@ -1,7 +1,10 @@
 -- Conform.nvim: Lightweight formatter plugin with format-on-save support.
 -- Runs formatters sequentially and falls back to LSP formatting when needed.
+local cfg = require("config.plugins").conform or {}
 return {
   "stevearc/conform.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   event = "BufWritePre",
   opts = {
     formatters_by_ft = {

@@ -1,7 +1,10 @@
 -- Fzf-lua: Fuzzy finder powered by fzf for files, grep, LSP, and more.
 -- Provides fast, native fuzzy searching with preview and LSP integration.
+local cfg = require("config.plugins").fzf or {}
 return {
   "ibhagwan/fzf-lua",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   dependencies = { "nvim-tree/nvim-web-devicons" },
   cmd = { "FzfLua" },
   config = function(_, opts)

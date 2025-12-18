@@ -1,7 +1,10 @@
 -- Vim-illuminate: Highlights other uses of the word under the cursor.
 -- Uses LSP, treesitter, and regex providers for accurate symbol matching.
+local cfg = require("config.plugins").illuminate or {}
 return {
   "RRethy/vim-illuminate",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   event = "VeryLazy",
   opts = {
     delay = 100,

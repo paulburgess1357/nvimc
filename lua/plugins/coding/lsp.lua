@@ -1,18 +1,29 @@
 -- LSP: Language Server Protocol support for code intelligence.
 -- Provides auto-completion, go-to-definition, diagnostics, and code actions.
+local plugins = require("config.plugins")
+local lsp_cfg = plugins.lsp or {}
+local mason_cfg = plugins.mason or {}
 return {
 	-- SchemaStore: JSON/YAML schema catalog for validation
-	{ "b0o/SchemaStore.nvim", lazy = true },
+	{
+		"b0o/SchemaStore.nvim",
+		enabled = lsp_cfg.enabled ~= false,
+		lazy = true,
+	},
 
 	-- Mason: Package manager for LSP servers, linters, and formatters
 	{
 		"mason-org/mason.nvim",
+		enabled = mason_cfg.enabled ~= false,
+		branch = mason_cfg.branch,
 		opts = {},
 	},
 
 	-- LSP configurations and keybindings
 	{
 		"neovim/nvim-lspconfig",
+		enabled = lsp_cfg.enabled ~= false,
+		branch = lsp_cfg.branch,
 		dependencies = {
 			"mason-org/mason.nvim",
 			"mason-org/mason-lspconfig.nvim",
@@ -148,6 +159,8 @@ return {
 	-- Mason-LSPconfig: Bridge between Mason and lspconfig
 	{
 		"mason-org/mason-lspconfig.nvim",
+		enabled = mason_cfg.enabled ~= false,
+		branch = mason_cfg.branch,
 		dependencies = {
 			"mason-org/mason.nvim",
 			"neovim/nvim-lspconfig",

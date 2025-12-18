@@ -5,8 +5,11 @@
 -- Uses ~/.cache/nvim-cppcheck/[project-name]-[hash]/ for faster incremental analysis.
 -- Always start neovim from your project root for consistent caching.
 -- To clear: rm -rf ~/.cache/nvim-cppcheck/
+local cfg = require("config.plugins").lint or {}
 return {
   "mfussenegger/nvim-lint",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   event = { "BufReadPre", "BufNewFile" },
   config = function()
     local lint = require("lint")

@@ -1,7 +1,10 @@
 -- Which-key.nvim: Displays available keybindings in a popup as you type.
 -- Helps discover and remember keymaps with visual hints and groupings.
+local cfg = require("config.plugins").whichkey or {}
 return {
   "folke/which-key.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   event = "VeryLazy",
   opts = {
     preset = "helix",

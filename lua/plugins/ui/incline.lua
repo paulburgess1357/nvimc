@@ -1,7 +1,10 @@
 -- Incline.nvim: Floating statuslines for each window showing filename.
 -- Lightweight alternative to winbar that only takes up the space it needs.
+local cfg = require("config.plugins").incline or {}
 return {
   "b0o/incline.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   event = "VeryLazy",
   dependencies = {
     "nvim-tree/nvim-web-devicons",

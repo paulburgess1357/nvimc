@@ -1,7 +1,10 @@
 -- Noice.nvim: Replaces the UI for messages, cmdline, and popupmenu.
 -- Provides a modern command palette and improved notification experience.
+local cfg = require("config.plugins").noice or {}
 return {
   "folke/noice.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   event = "VeryLazy",
   dependencies = {
     "MunifTanjim/nui.nvim",

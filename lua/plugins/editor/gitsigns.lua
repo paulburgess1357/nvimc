@@ -1,7 +1,10 @@
 -- Gitsigns.nvim: Git integration showing line changes in the sign column.
 -- Provides inline blame, hunk staging/reset, and diff preview functionality.
+local cfg = require("config.plugins").gitsigns or {}
 return {
   "lewis6991/gitsigns.nvim",
+  enabled = cfg.enabled ~= false,
+  branch = cfg.branch,
   event = "VeryLazy",
   opts = {
     signs = {
