@@ -1,0 +1,15 @@
+# shellcheck configuration
+# Place this in your project root
+
+# Disable specific warnings
+disable=SC2034  # Variable appears unused
+disable=SC2086  # Double quote to prevent globbing
+disable=SC1091  # Not following sourced files
+
+# Enable optional checks
+enable=add-default-case
+enable=avoid-nullary-conditions
+enable=check-unassigned-uppercase
+enable=deprecate-which
+enable=quote-safe-variables
+enable=require-variable-braces

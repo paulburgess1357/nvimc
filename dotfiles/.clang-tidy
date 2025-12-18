@@ -1,0 +1,26 @@
+Checks: >
+  -*,
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  bugprone-*,
+  readability-*,
+  misc-*,
+  portability-*,
+  security-*,
+  hicpp-*,
+  # ── explicit removals ──────────────────────────────
+  -modernize-use-trailing-return-type,
+
+HeaderFilterRegex: ".*"
+FormatStyle: file
+CheckOptions:
+  - key: cppcoreguidelines-avoid-magic-numbers.IgnoreNumbers
+    value: "0,1,7,26"
+  - key: readability-identifier-naming.ClassCase
+    value: "CamelCase"
+  - key: readability-identifier-naming.FunctionCase
+    value: "camelBack"
+# WarningsAsErrors: '*'

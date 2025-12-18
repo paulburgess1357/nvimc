@@ -1,0 +1,20 @@
+# Dockerfile linting configuration
+# Place this in your project root
+
+ignored:
+  - DL3008  # Pin versions in apt get install
+  - DL3009  # Delete the apt-get lists after installing something
+  - DL3015  # Avoid additional packages by specifying `--no-install-recommends`
+  - SC2086  # Double quote to prevent globbing and word splitting
+
+trustedRegistries:
+  - docker.io
+  - gcr.io
+  - registry.access.redhat.com
+  - quay.io
+
+override:
+  error: []
+  warning: []
+  info: []
+  style: []

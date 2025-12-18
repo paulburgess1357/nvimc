@@ -1,0 +1,16 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+ColumnLimit: 140
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+# keep single-statement loops on one line
+AllowShortLoopsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+
+# never put a space before '(' anywhere
+SpaceBeforeParens: Never
+
+# Stop one line reformmating for functions and constructors
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
