@@ -29,7 +29,7 @@ return {
 	-- UI
 	colorscheme = { enabled = true },
 	lualine = { enabled = true },
-	bufferline = { enabled = true },
+	bufferline = { enabled = false },
 	whichkey = { enabled = true },
 	snacks = { enabled = true },
 	noice = { enabled = true },

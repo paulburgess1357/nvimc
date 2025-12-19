@@ -26,8 +26,8 @@ keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 keymap.set("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
 
 -- Buffer management
-keymap.set("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
-keymap.set("n", "<leader>bD", "<cmd>bdelete!<CR>", { desc = "Delete buffer (force)" })
+keymap.set("n", "<leader>bd", function() Snacks.bufdelete() end, { desc = "Delete buffer" })
+keymap.set("n", "<leader>bD", function() Snacks.bufdelete({ force = true }) end, { desc = "Delete buffer (force)" })
 
 -- Move lines up/down
 keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
