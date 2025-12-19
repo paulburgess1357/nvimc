@@ -49,6 +49,9 @@ keymap.set("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
 -- Quit
 keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
 
+-- Comment toggle (visual mode only)
+keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Toggle comment" })
+
 -- Terminal
 keymap.set("n", "<C-/>", function()
   require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
@@ -57,3 +60,4 @@ keymap.set("n", "<C-_>", function()
   require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
 end, { desc = "Terminal (cwd)" })
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+
