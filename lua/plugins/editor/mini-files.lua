@@ -3,7 +3,7 @@
 local cfg = require("config.plugins").minifiles or {}
 return {
 	{
-		"echasnovski/mini.files",
+		"nvim-mini/mini.files",
 		enabled = cfg.enabled ~= false,
 		branch = cfg.branch,
 		version = false,

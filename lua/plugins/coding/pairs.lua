@@ -2,7 +2,7 @@
 -- Automatically inserts closing pair when typing opening character.
 local cfg = require("config.plugins").pairs or {}
 return {
-	"echasnovski/mini.pairs",
+	"nvim-mini/mini.pairs",
 	enabled = cfg.enabled ~= false,
 	branch = cfg.branch,
 	event = "InsertEnter",
