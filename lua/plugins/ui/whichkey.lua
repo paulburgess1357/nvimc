@@ -81,6 +81,24 @@ return {
 				vim.g.disable_autoformat = not state
 			end,
 		}):map("<leader><leader>a")
+
+		-- Hardtime toggle
+		Snacks.toggle({
+			name = "Hardtime",
+			wk_desc = static_desc,
+			get = function()
+				local ok, config = pcall(require, "hardtime.config")
+				return ok and config.config and config.config.enabled
+			end,
+			set = function(state)
+				local hardtime = require("hardtime")
+				if state then
+					hardtime.enable()
+				else
+					hardtime.disable()
+				end
+			end,
+		}):map("<leader><leader>t")
 	end,
 	keys = {
 		-- Custom menu (<leader><leader>)
