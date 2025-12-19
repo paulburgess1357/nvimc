@@ -28,6 +28,7 @@ return {
     cppcheck.args = {
       "--enable=all",
       "--inconclusive",
+      "--check-level=exhaustive",
       function()
         return vim.bo.filetype == "cpp" and "--language=c++" or "--language=c"
       end,
