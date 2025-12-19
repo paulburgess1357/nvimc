@@ -82,20 +82,19 @@ return {
 			end,
 		}):map("<leader><leader>a")
 
-		-- Hardtime toggle
+		-- Hardtime toggle (uses vim.g like conform)
 		Snacks.toggle({
 			name = "Hardtime",
 			wk_desc = static_desc,
 			get = function()
-				local ok, config = pcall(require, "hardtime.config")
-				return ok and config.config and config.config.enabled
+				return not vim.g.disable_hardtime
 			end,
 			set = function(state)
-				local hardtime = require("hardtime")
+				vim.g.disable_hardtime = not state
 				if state then
-					hardtime.enable()
+					require("hardtime").enable()
 				else
-					hardtime.disable()
+					require("hardtime").disable()
 				end
 			end,
 		}):map("<leader><leader>t")
