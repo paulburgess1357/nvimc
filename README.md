@@ -34,6 +34,7 @@ Modern Neovim configuration for Neovim 0.11+.
 - **todo-comments.nvim** - TODO highlighting
 - **marks.nvim** - Visual marks
 - **render-markdown.nvim** - Markdown rendering
+- **hardtime.nvim** - Break bad habits with motion hints
 
 ### UI
 
@@ -46,3 +47,14 @@ Modern Neovim configuration for Neovim 0.11+.
 - **nvim-navic** - Breadcrumb navigation
 - **rainbow-delimiters.nvim** - Colored brackets
 - **satellite.nvim** - Scrollbar
+
+## Custom Menu (`Space Space`)
+
+- `a` - Toggle format on save
+- `t` - Toggle hardtime
+- `s` - Toggle diagnostic signs
+- `v` - Toggle virtual text
+- `f` - Find files (cwd)
+- `g` - Grep (cwd)
+- `h` - Find files (home)
+- `j` - Grep (home)
