@@ -26,8 +26,12 @@ keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 keymap.set("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
 
 -- Buffer management
-keymap.set("n", "<leader>bd", function() Snacks.bufdelete() end, { desc = "Delete buffer" })
-keymap.set("n", "<leader>bD", function() Snacks.bufdelete({ force = true }) end, { desc = "Delete buffer (force)" })
+keymap.set("n", "<leader>bd", function()
+	Snacks.bufdelete()
+end, { desc = "Delete buffer" })
+keymap.set("n", "<leader>bD", function()
+	Snacks.bufdelete({ force = true })
+end, { desc = "Delete buffer (force)" })
 
 -- Move lines up/down
 keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
@@ -49,15 +53,14 @@ keymap.set("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
 -- Quit
 keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
 
--- Comment toggle (visual mode only)
-keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Toggle comment" })
+-- Comment (visual mode only)
+keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Comment" })
 
 -- Terminal
 keymap.set("n", "<C-/>", function()
-  require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
+	require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
 end, { desc = "Terminal (cwd)" })
 keymap.set("n", "<C-_>", function()
-  require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
+	require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
 end, { desc = "Terminal (cwd)" })
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
-
