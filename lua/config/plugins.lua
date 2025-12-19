@@ -35,7 +35,6 @@ return {
 	incline = { enabled = true },
 	navic = { enabled = true },
 	rainbowdelimiters = { enabled = true },
-	scrollbar = { enabled = true },
 
 	-- Custom
 	leetneo = { enabled = false, branch = "master" },

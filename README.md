@@ -46,7 +46,6 @@ Modern Neovim configuration for Neovim 0.11+.
 - **incline.nvim** - Floating filename statuslines
 - **nvim-navic** - Breadcrumb navigation
 - **rainbow-delimiters.nvim** - Colored brackets
-- **satellite.nvim** - Scrollbar
 
 ## Custom Menu (`Space Space`)
 
