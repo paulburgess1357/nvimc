@@ -32,7 +32,6 @@ Modern Neovim configuration for Neovim 0.11+.
 - **nvim-spider** - CamelCase word motions
 - **vim-illuminate** - Highlight references
 - **todo-comments.nvim** - TODO highlighting
-- **marks.nvim** - Visual marks
 - **render-markdown.nvim** - Markdown rendering
 - **hardtime.nvim** - Break bad habits with motion hints
 
@@ -46,6 +45,7 @@ Modern Neovim configuration for Neovim 0.11+.
 - **incline.nvim** - Floating filename statuslines
 - **nvim-navic** - Breadcrumb navigation
 - **rainbow-delimiters.nvim** - Colored brackets
+- **nvim-scrollview** - Scrollbar with diagnostics/search/marks
 
 ## Custom Menu (`Space Space`)
 

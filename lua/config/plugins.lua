@@ -23,7 +23,6 @@ return {
 	spider = { enabled = true },
 	illuminate = { enabled = true },
 	todocomments = { enabled = true },
-	marks = { enabled = true },
 	rendermarkdown = { enabled = true },
 
 	-- UI
@@ -35,6 +34,7 @@ return {
 	incline = { enabled = true },
 	navic = { enabled = true },
 	rainbowdelimiters = { enabled = true },
+	scrollview = { enabled = true },
 
 	-- Custom
 	leetneo = { enabled = false, branch = "master" },

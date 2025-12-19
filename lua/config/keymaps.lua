@@ -1,7 +1,7 @@
 local keymap = vim.keymap
 
 -- Clear search highlights
-keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>hello")
 
 -- Window navigation
 keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
