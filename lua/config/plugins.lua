@@ -39,7 +39,7 @@ return {
 	whichkey = { enabled = true },
 	snacks = { enabled = true },
 	noice = { enabled = true },
-	incline = { enabled = true },
+	incline = { enabled = false },
 	rainbowdelimiters = { enabled = true },
 	scrollview = { enabled = true },
 	aerial = { enabled = true },
