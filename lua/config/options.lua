@@ -29,6 +29,8 @@ vim.opt.magic = false -- Literal search with /, no regex escaping needed
 vim.opt.termguicolors = true
 vim.opt.signcolumn = "yes"
 vim.opt.cursorline = true
+vim.opt.showmode = false -- Hide native mode indicator (lualine shows it)
+vim.opt.cmdheight = 0 -- Hide command line (noice handles it in a popup)
 
 -- Backspace
 vim.opt.backspace = "indent,eol,start"
