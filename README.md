@@ -10,6 +10,24 @@ Modern Neovim configuration for Neovim 0.11+.
 - fzf
 - ripgrep (rg)
 - fd
+- Nerd Font (for icons)
+
+## Installation
+
+```bash
+# Clone the config
+git clone https://github.com/yourusername/nvim-custom ~/.config/nvim-custom
+
+# Install Neovim (optional helper script)
+./install/install-neovim.sh
+
+# Set up the alias
+./install/setup-alias.sh
+source ~/.bashrc
+
+# Launch with custom config
+nvimc
+```
 
 ## Plugins
 
@@ -46,14 +64,107 @@ Modern Neovim configuration for Neovim 0.11+.
 - **nvim-navic** - Breadcrumb navigation
 - **rainbow-delimiters.nvim** - Colored brackets
 - **nvim-scrollview** - Scrollbar with diagnostics/search/marks
+- **aerial.nvim** - Code outline sidebar
 
-## Custom Menu (`Space Space`)
+## Key Bindings
 
-- `a` - Toggle format on save
-- `t` - Toggle hardtime
-- `s` - Toggle diagnostic signs
-- `v` - Toggle virtual text
-- `f` - Find files (cwd)
-- `g` - Grep (cwd)
-- `h` - Find files (home)
-- `j` - Grep (home)
+### General
+
+| Key | Action |
+|-----|--------|
+| `Space` | Leader key |
+| `Esc` | Clear search highlights |
+
+### Navigation
+
+| Key | Action |
+|-----|--------|
+| `<C-h/j/k/l>` | Window navigation |
+| `<S-h/l>` | Buffer prev/next |
+| `{` / `}` | Previous/next symbol |
+| `]]` / `[[` | Next/prev reference |
+
+### Find (Space f)
+
+| Key | Action |
+|-----|--------|
+| `ff` | Files |
+| `fr` | Recent files |
+| `fb` | Buffers |
+| `fh` | Help |
+| `fk` | Keymaps |
+| `fm` | Marks |
+
+### Search (Space s)
+
+| Key | Action |
+|-----|--------|
+| `sg` | Grep |
+| `sw` | Word under cursor |
+| `sb` | Current buffer |
+| `ss` | Document symbols |
+| `so` | Outline symbols (aerial) |
+| `st` | Todo comments |
+
+### Code (Space c)
+
+| Key | Action |
+|-----|--------|
+| `ca` | Code action |
+| `cr` | Rename |
+| `cf` | Format |
+| `cd` | Document diagnostics |
+| `cl` | Trigger lint |
+
+### Git (Space g/h)
+
+| Key | Action |
+|-----|--------|
+| `gf` | Git files |
+| `gc` | Commits |
+| `gb` | Branches |
+| `gs` | Status |
+| `hs` | Stage hunk |
+| `hr` | Reset hunk |
+| `hp` | Preview hunk |
+| `hb` | Blame line |
+
+### Other
+
+| Key | Action |
+|-----|--------|
+| `<leader>o` | Toggle outline |
+| `<leader>e` | File explorer (current file) |
+| `<leader>E` | File explorer (cwd) |
+| `<leader>w` | Save |
+| `<leader>q` | Quit |
+| `<leader>-` | Split horizontal |
+| `<leader>\|` | Split vertical |
+| `gl` | Line diagnostics |
+
+## Commands
+
+| Command | Action |
+|---------|--------|
+| `:Symbols` | Document symbols (fzf) |
+| `:Aerials` | Toggle outline sidebar |
+| `:Files` | Find files |
+| `:Rg` / `:Grep` | Live grep |
+| `:Buffers` | Buffer list |
+
+## Custom Menu (Space Space)
+
+| Key | Action |
+|-----|--------|
+| `a` | Toggle format on save |
+| `t` | Toggle hardtime |
+| `s` | Toggle diagnostic signs |
+| `v` | Toggle virtual text |
+| `f` | Find files (cwd) |
+| `g` | Grep (cwd) |
+| `h` | Find files (home) |
+| `j` | Grep (home) |
+
+## Configuration
+
+All plugins can be enabled/disabled from `lua/config/plugins.lua`.
