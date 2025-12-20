@@ -50,7 +50,7 @@ return {
 
 		-- Create autocmd to trigger linting
 		local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
-		vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave", "BufEnter" }, {
+		vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter" }, {
 			group = lint_augroup,
 			callback = function()
 				-- Only lint if buffer is modifiable

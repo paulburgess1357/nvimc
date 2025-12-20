@@ -6,6 +6,11 @@
 -- If branch is omitted, uses plugin default
 
 return {
+	-- Global settings
+	settings = {
+		large_file_kb = 100, -- Disable treesitter/illuminate for files larger than this (KB)
+	},
+
 	-- Coding
 	treesitter = { enabled = true, branch = "main" },
 	lsp = { enabled = true },
@@ -38,6 +43,6 @@ return {
 	aerial = { enabled = true },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false, branch = "master" },
-	store = { enabled = false },
+	leetneo = { enabled = true, branch = "master" },
+	store = { enabled = true },
 }

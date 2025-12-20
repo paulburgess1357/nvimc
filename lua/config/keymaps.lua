@@ -57,10 +57,4 @@ keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
 keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Comment" })
 
 -- Terminal
-keymap.set("n", "<C-/>", function()
-	require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
-end, { desc = "Terminal (cwd)" })
-keymap.set("n", "<C-_>", function()
-	require("snacks").terminal(nil, { cwd = vim.fn.getcwd() })
-end, { desc = "Terminal (cwd)" })
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })

@@ -4,7 +4,7 @@ return {
 	"m4xshen/hardtime.nvim",
 	enabled = cfg.enabled ~= false,
 	branch = cfg.branch,
-	lazy = false,
+	event = "VeryLazy",
 	dependencies = { "MunifTanjim/nui.nvim" },
 	opts = {
 		enabled = true, -- Toggle with <leader><leader>h
