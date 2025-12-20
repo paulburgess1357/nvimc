@@ -58,13 +58,12 @@ nvimc
 - **onedark.nvim** - Colorscheme
 - **lualine.nvim** - Statusline
 - **which-key.nvim** - Keybinding hints
-- **snacks.nvim** - Dashboard, indent guides, notifications, terminal
-- **noice.nvim** - Modern UI for cmdline/popupmenu
+- **snacks.nvim** - Dashboard, indent guides, terminal
+- **noice.nvim** - Modern UI for cmdline, messages, notifications (with nvim-notify)
 - **incline.nvim** - Floating filename statuslines
-- **nvim-navic** - Breadcrumb navigation
 - **rainbow-delimiters.nvim** - Colored brackets
 - **nvim-scrollview** - Scrollbar with diagnostics/search/marks
-- **aerial.nvim** - Code outline sidebar
+- **aerial.nvim** - Code outline sidebar and breadcrumbs
 
 ## Key Bindings
 
@@ -136,6 +135,8 @@ nvimc
 | `<leader>o` | Toggle outline |
 | `<leader>e` | File explorer (current file) |
 | `<leader>E` | File explorer (cwd) |
+| `<leader>n` | Notification history |
+| `<leader>un` | Dismiss notifications |
 | `<leader>w` | Save |
 | `<leader>q` | Quit |
 | `<leader>-` | Split horizontal |
