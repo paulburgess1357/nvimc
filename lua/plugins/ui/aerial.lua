@@ -21,6 +21,7 @@ return {
 			default_direction = "left",
 		},
 		attach_mode = "global",
+		autojump = true,
 		filter_kind = false,
 		show_guides = true,
 		guides = {
