@@ -9,7 +9,7 @@ return {
 	-- Global settings
 	settings = {
 		treesitter_max_kb = 100, -- Disable treesitter for files larger than this (KB)
-		illuminate_max_lines = 10000, -- Disable illuminate for files with more lines
+		illuminate_max_lines = 20000, -- nil = no limit
 		bigfile_max_mb = 1.5, -- Snacks bigfile threshold (MB)
 		aerial_max_lines = 50000, -- Disable aerial for files with more lines
 	},

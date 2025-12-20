@@ -10,7 +10,7 @@ return {
 	event = "VeryLazy",
 	opts = {
 		delay = 100,
-		large_file_cutoff = settings.illuminate_max_lines or 10000,
+		large_file_cutoff = settings.illuminate_max_lines, -- nil = no limit
 		under_cursor = true,
 		providers = {
 			"lsp",
