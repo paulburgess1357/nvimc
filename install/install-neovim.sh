@@ -130,6 +130,7 @@ echo "Checking for existing Neovim installations..."
 # Check various possible locations
 CLEANUP_PATHS=(
     "$INSTALL_DIR/nvim-linux64"
+    "$INSTALL_DIR/nvim-linux-x86_64"
     "$INSTALL_DIR/nvim"
     "$INSTALL_DIR/share/nvim"
     "/usr/local/nvim-linux64"
@@ -151,13 +152,27 @@ fi
 echo ""
 echo "Installing Neovim ${VERSION}..."
 
-# Determine download URL
+# Determine download URL and archive name based on version
+# v0.11.5+ uses nvim-linux-x86_64.tar.gz, older versions use nvim-linux64.tar.gz
 if [ "$VERSION" = "stable" ]; then
-    URL="https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz"
+    ARCHIVE="nvim-linux-x86_64.tar.gz"
+    EXTRACT_DIR="nvim-linux-x86_64"
+    URL="https://github.com/neovim/neovim/releases/latest/download/${ARCHIVE}"
 elif [ "$VERSION" = "nightly" ]; then
-    URL="https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz"
+    ARCHIVE="nvim-linux-x86_64.tar.gz"
+    EXTRACT_DIR="nvim-linux-x86_64"
+    URL="https://github.com/neovim/neovim/releases/download/nightly/${ARCHIVE}"
 else
-    URL="https://github.com/neovim/neovim/releases/download/${VERSION}/nvim-linux64.tar.gz"
+    # Check if version is >= 0.11.5 (new naming) or older (old naming)
+    VERSION_NUM=$(echo "$VERSION" | sed 's/^v//' | sed 's/\.//g')
+    if [ "$VERSION_NUM" -ge 0115 ] 2>/dev/null; then
+        ARCHIVE="nvim-linux-x86_64.tar.gz"
+        EXTRACT_DIR="nvim-linux-x86_64"
+    else
+        ARCHIVE="nvim-linux64.tar.gz"
+        EXTRACT_DIR="nvim-linux64"
+    fi
+    URL="https://github.com/neovim/neovim/releases/download/${VERSION}/${ARCHIVE}"
 fi
 
 # Create temp directory
@@ -166,20 +181,20 @@ cd "$TMP_DIR"
 
 # Download and extract
 echo "Downloading from ${URL}..."
-curl -LO "$URL"
-tar xzf nvim-linux64.tar.gz
+curl -fLO "$URL"
+tar xzf "$ARCHIVE"
 
 # Install to ~/.local (no sudo required)
 INSTALL_DIR="$HOME/.local"
 mkdir -p "$INSTALL_DIR"
 
 echo "Installing to ${INSTALL_DIR}..."
-rm -rf "$INSTALL_DIR/nvim-linux64"
-mv nvim-linux64 "$INSTALL_DIR/"
+rm -rf "$INSTALL_DIR/nvim-linux64" "$INSTALL_DIR/nvim-linux-x86_64"
+mv "$EXTRACT_DIR" "$INSTALL_DIR/"
 
 # Create symlink
 mkdir -p "$INSTALL_DIR/bin"
-ln -sf "$INSTALL_DIR/nvim-linux64/bin/nvim" "$INSTALL_DIR/bin/nvim"
+ln -sf "$INSTALL_DIR/${EXTRACT_DIR}/bin/nvim" "$INSTALL_DIR/bin/nvim"
 
 # Cleanup
 cd -
