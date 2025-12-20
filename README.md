@@ -58,8 +58,8 @@ nvimc
 - **onedark.nvim** - Colorscheme
 - **lualine.nvim** - Statusline
 - **which-key.nvim** - Keybinding hints
-- **snacks.nvim** - Dashboard, indent guides, notifications
-- **noice.nvim** - Modern UI for messages/cmdline
+- **snacks.nvim** - Dashboard, indent guides, notifications, terminal
+- **noice.nvim** - Modern UI for cmdline/popupmenu
 - **incline.nvim** - Floating filename statuslines
 - **nvim-navic** - Breadcrumb navigation
 - **rainbow-delimiters.nvim** - Colored brackets
@@ -168,3 +168,5 @@ nvimc
 ## Configuration
 
 All plugins can be enabled/disabled from `lua/config/plugins.lua`.
+
+Global settings (like large file limits) are in the `settings` table at the top of that file.
