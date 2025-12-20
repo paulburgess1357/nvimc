@@ -28,7 +28,7 @@ return {
 			backend = "nui",
 		},
 		messages = {
-			enabled = true,
+			enabled = false, -- using snacks.notifier
 		},
 		presets = {
 			bottom_search = true,
