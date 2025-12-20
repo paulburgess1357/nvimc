@@ -22,6 +22,7 @@ return {
 		},
 		attach_mode = "global",
 		autojump = true,
+		disable_max_lines = 50000,
 		filter_kind = false,
 		show_guides = true,
 		guides = {
