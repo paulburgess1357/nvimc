@@ -7,7 +7,7 @@ return {
 	branch = cfg.branch,
 	dependencies = {
 		"nvim-tree/nvim-web-devicons",
-		"SmiteshP/nvim-navic",
+		"stevearc/aerial.nvim",
 	},
 	opts = function()
 		local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
@@ -35,8 +35,9 @@ return {
 				lualine_c = {
 					"filename",
 					{
-						"navic",
-						color_correction = "static",
+						"aerial",
+						sep = " > ",
+						colored = true,
 					},
 				},
 				lualine_x = { "encoding", "fileformat", "filetype" },

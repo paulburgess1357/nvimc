@@ -12,8 +12,7 @@ vim.opt.shiftwidth = 2
 vim.opt.softtabstop = 2
 vim.opt.expandtab = true
 vim.opt.autoindent = true
-vim.opt.smartindent = true
-vim.opt.cindent = true
+-- Note: smartindent/cindent removed - treesitter and filetype indent handle this
 
 -- Line wrapping
 vim.opt.wrap = false
