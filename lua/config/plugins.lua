@@ -38,6 +38,6 @@ return {
 	aerial = { enabled = true },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = true, branch = "master" },
-	store = { enabled = true },
+	leetneo = { enabled = false, branch = "master" },
+	store = { enabled = false },
 }
