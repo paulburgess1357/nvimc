@@ -157,22 +157,9 @@ return {
 			},
 		},
 
-		-- Notification system
+		-- Notification system (disabled - using noice)
 		notifier = {
-			enabled = true,
-			timeout = 3000,
-			width = { min = 40, max = 0.4 },
-			height = { min = 1, max = 0.6 },
-			margin = { top = 0, right = 1, bottom = 0 },
-			padding = true,
-			sort = { "level", "added" },
-			icons = {
-				error = " ",
-				warn = " ",
-				info = " ",
-				debug = " ",
-				trace = " ",
-			},
+			enabled = false,
 		},
 
 		-- Smooth scrolling (disabled - can lag on large buffers)
@@ -227,21 +214,6 @@ return {
 				Snacks.terminal(nil, { cwd = vim.fn.getcwd() })
 			end,
 			desc = "Terminal (cwd)",
-		},
-		-- Notifications
-		{
-			"<leader>n",
-			function()
-				Snacks.notifier.show_history()
-			end,
-			desc = "Notification History",
-		},
-		{
-			"<leader>un",
-			function()
-				Snacks.notifier.hide()
-			end,
-			desc = "Dismiss All Notifications",
 		},
 	},
 }
