@@ -37,7 +37,6 @@ return {
 	snacks = { enabled = true },
 	noice = { enabled = true },
 	incline = { enabled = true },
-	navic = { enabled = false }, -- replaced by aerial's lualine component
 	rainbowdelimiters = { enabled = true },
 	scrollview = { enabled = true },
 	aerial = { enabled = true },
