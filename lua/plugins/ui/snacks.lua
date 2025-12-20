@@ -1,6 +1,8 @@
 -- Snacks.nvim: Collection of small QoL plugins (dashboard, indent guides, notifications).
 -- Provides a unified configuration for common UI enhancements with minimal overhead.
-local cfg = require("config.plugins").snacks or {}
+local plugins = require("config.plugins")
+local cfg = plugins.snacks or {}
+local settings = plugins.settings or {}
 
 local header_theme = "aurora"
 
@@ -36,7 +38,7 @@ return {
 		bigfile = {
 			enabled = true,
 			notify = true,
-			size = 1.5 * 1024 * 1024, -- 1.5MB
+			size = (settings.bigfile_max_mb or 1.5) * 1024 * 1024,
 			-- Disable features for big files
 			setup = function(ctx)
 				vim.cmd([[NoMatchParen]])

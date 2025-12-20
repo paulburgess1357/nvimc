@@ -28,7 +28,28 @@ return {
 			backend = "nui",
 		},
 		messages = {
-			enabled = false, -- using snacks.notifier
+			enabled = true, -- needed for confirm dialogs
+		},
+		-- Route regular messages to mini (hidden) but keep confirm dialogs in popup
+		routes = {
+			-- Skip regular messages (snacks.notifier handles notifications)
+			{
+				filter = {
+					event = "msg_show",
+					kind = { "", "echo", "echomsg" },
+				},
+				opts = { skip = true },
+			},
+			-- Skip search count messages
+			{
+				filter = { event = "msg_show", kind = "search_count" },
+				opts = { skip = true },
+			},
+			-- Skip written messages
+			{
+				filter = { event = "msg_show", find = "written" },
+				opts = { skip = true },
+			},
 		},
 		presets = {
 			bottom_search = true,

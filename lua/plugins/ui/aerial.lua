@@ -1,6 +1,8 @@
 -- aerial.nvim: Code outline sidebar showing symbols from LSP/treesitter.
 -- Navigate and jump to functions, classes, and other code structures.
-local cfg = require("config.plugins").aerial or {}
+local plugins = require("config.plugins")
+local cfg = plugins.aerial or {}
+local settings = plugins.settings or {}
 return {
 	"stevearc/aerial.nvim",
 	enabled = cfg.enabled ~= false,
@@ -22,7 +24,7 @@ return {
 		},
 		attach_mode = "global",
 		autojump = true,
-		disable_max_lines = 50000,
+		disable_max_lines = settings.aerial_max_lines or 50000,
 		filter_kind = false,
 		show_guides = true,
 		guides = {
