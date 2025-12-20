@@ -43,17 +43,7 @@ return {
 			vim.diagnostic.config({
 				underline = true,
 				update_in_insert = false,
-				virtual_text = {
-					spacing = 4,
-					source = false,
-					prefix = "",
-					format = function(diagnostic)
-						if diagnostic.source then
-							return string.format("[%s] %s", diagnostic.source, diagnostic.message)
-						end
-						return diagnostic.message
-					end,
-				},
+				virtual_text = false,
 				float = {
 					source = true,
 					border = "rounded",
