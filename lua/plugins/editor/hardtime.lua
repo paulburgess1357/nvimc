@@ -7,7 +7,7 @@ return {
 	event = "VeryLazy",
 	dependencies = { "MunifTanjim/nui.nvim" },
 	opts = {
-		enabled = true, -- Toggle with <leader><leader>h
+		enabled = true, -- Toggle with <leader><leader>t
 		max_time = 1000,
 		max_count = 3,
 		disable_mouse = false,
