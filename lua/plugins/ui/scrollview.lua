@@ -6,7 +6,7 @@ return {
 	branch = cfg.branch,
 	event = "VeryLazy",
 	opts = {
-		scrollview_visibility = "always",
+		visibility = "always",
 		current_only = true,
 		signs_on_startup = { "diagnostics", "search", "marks", "keywords", "changelist" },
 		diagnostics_error_symbol = "●",
