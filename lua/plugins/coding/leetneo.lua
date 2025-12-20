@@ -14,5 +14,8 @@ return {
 		enable_images = false,
 		smart_copy = true,
 		cache_expiry_days = 13,
+		-- Folding
+		fold_marker_start = "▼",
+		fold_marker_end = "▲",
 	},
 }
