@@ -35,9 +35,9 @@ return {
 	navic = { enabled = true },
 	rainbowdelimiters = { enabled = true },
 	scrollview = { enabled = true },
-	store = { enabled = false },
 	aerial = { enabled = true },
 
-	-- Custom
-	leetneo = { enabled = false, branch = "master" },
+	-- Personal (auto-disabled on push via .git/hooks/pre-push)
+	leetneo = { enabled = true, branch = "master" },
+	store = { enabled = true },
 }
