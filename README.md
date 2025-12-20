@@ -60,7 +60,6 @@ nvimc
 - **which-key.nvim** - Keybinding hints
 - **snacks.nvim** - Dashboard, indent guides, terminal
 - **noice.nvim** - Modern UI for cmdline, messages, notifications (with nvim-notify)
-- **incline.nvim** - Floating filename statuslines
 - **rainbow-delimiters.nvim** - Colored brackets
 - **nvim-scrollview** - Scrollbar with diagnostics/search/marks
 - **aerial.nvim** - Code outline sidebar and breadcrumbs
