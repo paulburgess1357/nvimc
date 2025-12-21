@@ -1,31 +1,49 @@
--- nvim-lint: Asynchronous linter plugin complementary to LSP.
--- Runs external linters and displays diagnostics in neovim.
---
--- CPPCHECK CACHE:
--- Uses ~/.cache/nvim-cppcheck/[project-name]-[hash]/ for faster incremental analysis.
--- Always start neovim from your project root for consistent caching.
--- To clear: rm -rf ~/.cache/nvim-cppcheck/
+-- nvim-lint: Asynchronous linters that LSP doesn't cover.
+-- Install: cppcheck (system), shellcheck/hadolint (Mason)
 local cfg = require("config.plugins").lint or {}
+
+-- Cppcheck cache (avoids recalculating path on every lint)
+local cppcheck_cache = {}
+local function get_cppcheck_cache_dir()
+	local cwd = vim.fn.getcwd()
+	if cppcheck_cache[cwd] then
+		return cppcheck_cache[cwd]
+	end
+	local name = vim.fn.fnamemodify(cwd, ":t")
+	local hash = vim.fn.sha256(cwd):sub(1, 8)
+	local dir = vim.fn.expand("~/.cache/nvim-cppcheck/" .. name .. "-" .. hash)
+	vim.fn.mkdir(dir, "p")
+	cppcheck_cache[cwd] = dir
+	return dir
+end
+
 return {
 	"mfussenegger/nvim-lint",
 	enabled = cfg.enabled ~= false,
-	branch = cfg.branch,
 	event = { "BufReadPre", "BufNewFile" },
+	keys = {
+		{
+			"<leader>cl",
+			function()
+				require("lint").try_lint()
+			end,
+			desc = "Lint file",
+		},
+	},
 	config = function()
 		local lint = require("lint")
 
-		-- Configure linters by filetype
+		-- Only linters that LSP doesn't provide
 		lint.linters_by_ft = {
 			c = { "cppcheck" },
 			cpp = { "cppcheck" },
 			sh = { "shellcheck" },
 			bash = { "shellcheck" },
+			dockerfile = { "hadolint" },
 		}
 
-		-- Customize cppcheck arguments
-		-- Uses the default nvim-lint parser template: {file}:{line}:{column}: [{id}] {severity}: {message}
-		local cppcheck = lint.linters.cppcheck
-		cppcheck.args = {
+		-- Cppcheck configuration
+		lint.linters.cppcheck.args = {
 			"--enable=all",
 			"--inconclusive",
 			"--check-level=exhaustive",
@@ -38,35 +56,18 @@ return {
 			"--quiet",
 			"--template={file}:{line}:{column}: [{id}] {severity}: {message}",
 			function()
-				-- Use project-specific cache directory
-				local project_root = vim.fn.getcwd()
-				local project_name = vim.fn.fnamemodify(project_root, ":t")
-				local path_hash = vim.fn.sha256(project_root):sub(1, 8)
-				local cache_dir = vim.fn.expand("~/.cache/nvim-cppcheck/" .. project_name .. "-" .. path_hash)
-				vim.fn.mkdir(cache_dir, "p")
-				return "--cppcheck-build-dir=" .. cache_dir
+				return "--cppcheck-build-dir=" .. get_cppcheck_cache_dir()
 			end,
 		}
 
-		-- Create autocmd to trigger linting
-		local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
+		-- Auto-lint on save and buffer enter
 		vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter" }, {
-			group = lint_augroup,
+			group = vim.api.nvim_create_augroup("lint", { clear = true }),
 			callback = function()
-				-- Only lint if buffer is modifiable
-				if vim.opt_local.modifiable:get() then
+				if vim.bo.modifiable then
 					lint.try_lint()
 				end
 			end,
 		})
 	end,
-	keys = {
-		{
-			"<leader>cl",
-			function()
-				require("lint").try_lint()
-			end,
-			desc = "Trigger linting",
-		},
-	},
 }
