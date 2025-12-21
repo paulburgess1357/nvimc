@@ -62,26 +62,6 @@ local function setup_servers()
 		},
 	}
 
-	-- TypeScript/JavaScript
-	vim.lsp.config.ts_ls = {
-		settings = {
-			typescript = {
-				inlayHints = {
-					includeInlayParameterNameHints = "all",
-					includeInlayFunctionParameterTypeHints = true,
-					includeInlayVariableTypeHints = true,
-				},
-			},
-			javascript = {
-				inlayHints = {
-					includeInlayParameterNameHints = "all",
-					includeInlayFunctionParameterTypeHints = true,
-					includeInlayVariableTypeHints = true,
-				},
-			},
-		},
-	}
-
 	-- Lua
 	vim.lsp.config.lua_ls = {
 		settings = {
