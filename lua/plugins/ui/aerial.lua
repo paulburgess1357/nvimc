@@ -21,6 +21,7 @@ return {
 		layout = {
 			min_width = 30,
 			default_direction = "left",
+			placement = "edge",
 		},
 		attach_mode = "global",
 		autojump = true,

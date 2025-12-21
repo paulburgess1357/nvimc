@@ -8,7 +8,7 @@ return {
 	opts = {
 		visibility = "always",
 		current_only = true,
-		signs_on_startup = { "diagnostics", "search", "marks", "keywords", "changelist" },
+		signs_on_startup = { "diagnostics", "search", "keywords", "changelist" },
 		diagnostics_error_symbol = "●",
 		diagnostics_warn_symbol = "●",
 		diagnostics_info_symbol = "●",

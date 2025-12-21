@@ -42,8 +42,9 @@ return {
 	rainbowdelimiters = { enabled = true },
 	scrollview = { enabled = true },
 	aerial = { enabled = true },
+	marks = { enabled = true },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false, branch = "master" },
-	store = { enabled = false },
+	leetneo = { enabled = true, branch = "master" },
+	store = { enabled = true },
 }
