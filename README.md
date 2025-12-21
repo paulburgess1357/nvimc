@@ -61,8 +61,9 @@ nvimc
 - **snacks.nvim** - Dashboard, indent guides, terminal
 - **noice.nvim** - Modern UI for cmdline, messages, notifications (with nvim-notify)
 - **rainbow-delimiters.nvim** - Colored brackets
-- **nvim-scrollview** - Scrollbar with diagnostics/search/marks
+- **nvim-scrollview** - Scrollbar with diagnostics/search indicators
 - **aerial.nvim** - Code outline sidebar and breadcrumbs
+- **marks.nvim** - Show marks in sign column
 
 ## Key Bindings
 
