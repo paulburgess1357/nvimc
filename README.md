@@ -147,11 +147,15 @@ nvimc
 
 | Command | Action |
 |---------|--------|
-| `:Symbols` | Document symbols (fzf) |
-| `:Aerials` | Toggle outline sidebar |
 | `:Files` | Find files |
-| `:Rg` / `:Grep` | Live grep |
 | `:Buffers` | Buffer list |
+| `:Rg` / `:Grep` | Live grep |
+| `:Symbols` | Document symbols |
+| `:Marks` | Marks |
+| `:Help` | Help tags |
+| `:Commands` | Commands |
+| `:Keymaps` | Keymaps |
+| `:Aerials` | Toggle outline sidebar |
 
 ## Custom Menu (Space Space)
 
