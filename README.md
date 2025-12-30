@@ -65,6 +65,16 @@ nvimc
 - **aerial.nvim** - Code outline sidebar and breadcrumbs
 - **marks.nvim** - Show marks in sign column
 
+### AI
+
+- **codecompanion.nvim** - AI chat and inline editing (Claude, GPT, Ollama)
+
+### Debug
+
+- **nvim-dap** - Debug Adapter Protocol client
+- **nvim-dap-ui** - Debugging UI
+- **nvim-dap-virtual-text** - Inline variable values
+
 ## Key Bindings
 
 ### General
@@ -127,6 +137,25 @@ nvimc
 | `hr` | Reset hunk |
 | `hp` | Preview hunk |
 | `hb` | Blame line |
+
+### AI (Space a)
+
+| Key | Action |
+|-----|--------|
+| `aa` | AI actions |
+| `ac` | AI chat |
+| `ai` | AI inline |
+
+### Debug (Space d)
+
+| Key | Action |
+|-----|--------|
+| `db` | Toggle breakpoint |
+| `dc` | Continue |
+| `di` | Step into |
+| `do` | Step over |
+| `du` | Toggle DAP UI |
+| `dt` | Terminate |
 
 ### Other
 
