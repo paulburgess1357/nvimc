@@ -45,9 +45,6 @@ return {
 	aerial = { enabled = true },
 	marks = { enabled = true },
 
-	-- AI
-	codecompanion = { enabled = true },
-
 	-- Debug
 	dap = { enabled = true },
 
