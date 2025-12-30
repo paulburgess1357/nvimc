@@ -8,8 +8,9 @@ return {
 	dependencies = { "nvim-tree/nvim-web-devicons" },
 	cmd = { "FzfLua" },
 	config = function(_, opts)
-		require("fzf-lua").setup(opts)
 		local fzf = require("fzf-lua")
+		fzf.setup(opts)
+		fzf.register_ui_select() -- Use fzf-lua for vim.ui.select (code actions, etc.)
 		local cmd = vim.api.nvim_create_user_command
 		cmd("Symbols", fzf.lsp_document_symbols, { desc = "Document symbols" })
 		cmd("Marks", fzf.marks, { desc = "Marks" })
