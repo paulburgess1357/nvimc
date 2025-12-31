@@ -34,6 +34,10 @@ return {
 			enabled = true,
 		},
 		lsp = {
+			progress = {
+				enabled = true,
+				view = "mini", -- Shows in bottom right corner
+			},
 			override = {
 				["vim.lsp.util.convert_input_to_markdown_lines"] = true,
 				["vim.lsp.util.stylize_markdown"] = true,
