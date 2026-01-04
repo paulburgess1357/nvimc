@@ -33,6 +33,16 @@ return {
 			{ "<leader>dr", function() require("dap").repl.toggle() end, desc = "Toggle REPL" },
 			{ "<leader>ds", function() require("dap").session() end, desc = "Session" },
 			{ "<leader>dw", function() require("dap.ui.widgets").hover() end, desc = "Widgets" },
+			{ "<leader>dL", function() require("dap").set_breakpoint(nil, nil, vim.fn.input("Log message: ")) end, desc = "Log Point" },
+			{ "<leader>dE", function()
+				vim.ui.select({ "all", "uncaught", "none" }, { prompt = "Exception breakpoints:" }, function(choice)
+					if choice then
+						local filters = choice == "none" and {} or { choice }
+						require("dap").set_exception_breakpoints(filters)
+						vim.notify("Exception breakpoints: " .. choice, vim.log.levels.INFO)
+					end
+				end)
+			end, desc = "Exception Breakpoints" },
 		},
 		config = function()
 			-- Set breakpoint signs

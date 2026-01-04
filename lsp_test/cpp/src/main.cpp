@@ -1,11 +1,11 @@
-#include <iostream>
-#include <memory>
-#include "core/Entity.hpp"
 #include "core/Component.hpp"
+#include "core/Entity.hpp"
 #include "graphics/Renderer.hpp"
 #include "graphics/Shape.hpp"
 #include "utils/Logger.hpp"
 #include "utils/MathUtils.hpp"
+#include <iostream>
+#include <memory>
 
 int main() {
     Logger::getInstance().setMinLevel(LogLevel::DEBUG);
@@ -18,6 +18,8 @@ int main() {
 
     player->addComponent(transform);
     player->addComponent(physics);
+
+    throw std::runtime_error("hi");
 
     auto enemy = std::make_shared<Enemy>("Goblin", 50, 10.0f);
 
