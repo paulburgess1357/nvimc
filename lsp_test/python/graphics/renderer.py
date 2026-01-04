@@ -1,7 +1,7 @@
 """Renderer for managing and drawing shapes."""
 
 from typing import Callable
-from ..core import Entity
+from core import Entity
 from .shape import Shape, Vector2, Color
 
 

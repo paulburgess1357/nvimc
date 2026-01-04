@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import math
 
-from ..core import Component
+from core import Component
 
 
 @dataclass
