@@ -71,6 +71,7 @@ nvimc
 - **nvim-dap** - Debug Adapter Protocol client
 - **nvim-dap-ui** - Debugging UI
 - **nvim-dap-virtual-text** - Inline variable values
+- **persistent-breakpoints.nvim** - Save breakpoints across sessions
 
 See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup instructions.
 
@@ -141,12 +142,19 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup instruc
 
 | Key | Action |
 |-----|--------|
-| `db` | Toggle breakpoint |
-| `dc` | Continue |
+| `db` | Toggle breakpoint (persistent) |
+| `dB` | Conditional breakpoint |
+| `dL` | Log point |
+| `dE` | Exception breakpoints |
+| `dc` | Continue / Start |
 | `di` | Step into |
 | `do` | Step over |
+| `dO` | Step out |
 | `du` | Toggle DAP UI |
+| `de` | Eval expression |
+| `da` | Add watch |
 | `dt` | Terminate |
+| `F5/F9/F10/F11` | Continue/Breakpoint/Over/Into |
 
 ### Other
 
