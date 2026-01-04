@@ -17,6 +17,7 @@ return {
 			-- Top level groups (alphabetically organized)
 			{ "<leader>b", group = "Buffer", icon = "" },
 			{ "<leader>c", group = "Code", icon = "" },
+			{ "<leader>d", group = "Debug", icon = "" },
 			{ "<leader>f", group = "Find", icon = "" },
 			{ "<leader>g", group = "Git", icon = "" },
 			{ "<leader>h", group = "Hunk", icon = "" },

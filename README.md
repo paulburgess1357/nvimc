@@ -11,6 +11,7 @@ Modern Neovim configuration for Neovim 0.11+.
 - ripgrep (rg)
 - fd
 - Nerd Font (for icons)
+- gdb (for C/C++ debugging)
 
 ## Installation
 
@@ -70,6 +71,8 @@ nvimc
 - **nvim-dap** - Debug Adapter Protocol client
 - **nvim-dap-ui** - Debugging UI
 - **nvim-dap-virtual-text** - Inline variable values
+
+See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup instructions.
 
 ## Key Bindings
 
