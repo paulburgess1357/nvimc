@@ -7,6 +7,11 @@ lazy-lock.json.backup
 *~
 .DS_Store
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
 # Spell files
 spell/
 
