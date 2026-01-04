@@ -19,8 +19,6 @@ int main() {
     player->addComponent(transform);
     player->addComponent(physics);
 
-    throw std::runtime_error("hi");
-
     auto enemy = std::make_shared<Enemy>("Goblin", 50, 10.0f);
 
     // Test entity system

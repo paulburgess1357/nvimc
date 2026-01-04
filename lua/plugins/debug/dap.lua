@@ -14,7 +14,7 @@ return {
 		event = "VeryLazy",
 		keys = {
 			-- Breakpoints
-			{ "<leader>db", "<cmd>DapToggleBreakpoint<cr>", desc = "Toggle Breakpoint" },
+			{ "<leader>db", function() require("persistent-breakpoints.api").toggle_breakpoint() end, desc = "Toggle Breakpoint" },
 			{ "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input("Condition: ")) end, desc = "Conditional Breakpoint" },
 			-- Execution
 			{ "<leader>dc", "<cmd>DapContinue<cr>", desc = "Continue / Start" },
@@ -32,7 +32,6 @@ return {
 			-- Tools
 			{ "<leader>dr", function() require("dap").repl.toggle() end, desc = "Toggle REPL" },
 			{ "<leader>ds", function() require("dap").session() end, desc = "Session" },
-			{ "<leader>dw", function() require("dap.ui.widgets").hover() end, desc = "Widgets" },
 			{ "<leader>dL", function() require("dap").set_breakpoint(nil, nil, vim.fn.input("Log message: ")) end, desc = "Log Point" },
 			{ "<leader>dE", function()
 				vim.ui.select({ "all", "uncaught", "none" }, { prompt = "Exception breakpoints:" }, function(choice)
@@ -43,6 +42,13 @@ return {
 					end
 				end)
 			end, desc = "Exception Breakpoints" },
+			{ "<leader>da", function() require("dapui").elements.watches.add(vim.fn.expand("<cword>")) end, desc = "Add Watch" },
+			-- F-key bindings (classic debugger keys)
+			{ "<F5>", "<cmd>DapContinue<cr>", desc = "Continue" },
+			{ "<F9>", function() require("persistent-breakpoints.api").toggle_breakpoint() end, desc = "Toggle Breakpoint" },
+			{ "<F10>", "<cmd>DapStepOver<cr>", desc = "Step Over" },
+			{ "<F11>", "<cmd>DapStepInto<cr>", desc = "Step Into" },
+			{ "<S-F11>", function() require("dap").step_out() end, desc = "Step Out" },
 		},
 		config = function()
 			-- Set breakpoint signs
@@ -233,6 +239,7 @@ return {
 			dap.listeners.before.event_exited["dapui_config"] = function()
 				dapui.close({})
 			end
+
 		end,
 	},
 
@@ -252,6 +259,17 @@ return {
 			show_stop_reason = true,
 			commented = false,
 			virt_text_pos = "eol",
+		},
+	},
+
+	-- Persistent Breakpoints: Save breakpoints across sessions
+	{
+		"Weissle/persistent-breakpoints.nvim",
+		enabled = cfg.enabled ~= false,
+		dependencies = { "mfussenegger/nvim-dap" },
+		event = "BufReadPost",
+		opts = {
+			load_breakpoints_event = { "BufReadPost" },
 		},
 	},
 }

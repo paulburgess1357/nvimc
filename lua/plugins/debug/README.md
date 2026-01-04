@@ -7,6 +7,7 @@ Debug Adapter Protocol support for Neovim.
 - **nvim-dap** - Core DAP client
 - **nvim-dap-ui** - Visual debugging interface
 - **nvim-dap-virtual-text** - Inline variable values
+- **persistent-breakpoints.nvim** - Save breakpoints across sessions
 
 ## Setup
 
@@ -48,8 +49,10 @@ Press `<leader>d` to see the full debug menu in which-key.
 | Key | Action |
 |-----|--------|
 | **Breakpoints** | |
-| `<leader>db` | Toggle breakpoint |
+| `<leader>db` | Toggle breakpoint (persistent) |
 | `<leader>dB` | Conditional breakpoint |
+| `<leader>dL` | Log point |
+| `<leader>dE` | Exception breakpoints |
 | **Execution** | |
 | `<leader>dc` | Continue / Start debugging |
 | `<leader>dC` | Run to cursor |
@@ -66,9 +69,19 @@ Press `<leader>d` to see the full debug menu in which-key.
 | **Tools** | |
 | `<leader>dr` | Toggle REPL |
 | `<leader>ds` | Session info |
-| `<leader>dw` | Widgets (hover) |
 | `<leader>du` | Toggle DAP UI |
 | `<leader>de` | Eval expression |
+| `<leader>da` | Add watch |
+
+### F-Key Bindings
+
+| Key | Action |
+|-----|--------|
+| `F5` | Continue |
+| `F9` | Toggle breakpoint |
+| `F10` | Step over |
+| `F11` | Step into |
+| `Shift+F11` | Step out |
 
 ## Usage
 
