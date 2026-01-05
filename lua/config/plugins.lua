@@ -50,5 +50,5 @@ return {
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
 	leetneo = { enabled = false, branch = "master" },
-	store = { enabled = true },
+	store = { enabled = false },
 }
