@@ -79,124 +79,133 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup instruc
 
 ### General
 
-| Key | Action |
-|-----|--------|
-| `Space` | Leader key |
-| `Esc` | Clear search highlights |
+| Key     | Action                  |
+| ------- | ----------------------- |
+| `Space` | Leader key              |
+| `Esc`   | Clear search highlights |
 
 ### Navigation
 
-| Key | Action |
-|-----|--------|
-| `<C-h/j/k/l>` | Window navigation |
-| `<S-h/l>` | Buffer prev/next |
-| `{` / `}` | Previous/next symbol |
-| `]]` / `[[` | Next/prev reference |
+| Key           | Action               |
+| ------------- | -------------------- |
+| `<C-h/j/k/l>` | Window navigation    |
+| `<S-h/l>`     | Buffer prev/next     |
+| `{` / `}`     | Previous/next symbol |
+| `]]` / `[[`   | Next/prev reference  |
 
 ### Find (Space f)
 
-| Key | Action |
-|-----|--------|
-| `ff` | Files |
+| Key  | Action       |
+| ---- | ------------ |
+| `ff` | Files        |
 | `fr` | Recent files |
-| `fb` | Buffers |
-| `fh` | Help |
-| `fk` | Keymaps |
-| `fm` | Marks |
+| `fb` | Buffers      |
+| `fh` | Help         |
+| `fk` | Keymaps      |
+| `fm` | Marks        |
 
 ### Search (Space s)
 
-| Key | Action |
-|-----|--------|
-| `sg` | Grep |
-| `sw` | Word under cursor |
-| `sb` | Current buffer |
-| `ss` | Document symbols |
+| Key  | Action                   |
+| ---- | ------------------------ |
+| `sg` | Grep                     |
+| `sw` | Word under cursor        |
+| `sb` | Current buffer           |
+| `ss` | Document symbols         |
 | `so` | Outline symbols (aerial) |
-| `st` | Todo comments |
+| `st` | Todo comments            |
 
 ### Code (Space c)
 
-| Key | Action |
-|-----|--------|
-| `ca` | Code action |
-| `cr` | Rename |
-| `cf` | Format |
+| Key  | Action               |
+| ---- | -------------------- |
+| `ca` | Code action          |
+| `cr` | Rename               |
+| `cf` | Format               |
 | `cd` | Document diagnostics |
-| `cl` | Trigger lint |
+| `cl` | Trigger lint         |
 
 ### Git (Space g/h)
 
-| Key | Action |
-|-----|--------|
-| `gf` | Git files |
-| `gc` | Commits |
-| `gb` | Branches |
-| `gs` | Status |
-| `hs` | Stage hunk |
-| `hr` | Reset hunk |
+| Key  | Action       |
+| ---- | ------------ |
+| `gf` | Git files    |
+| `gc` | Commits      |
+| `gb` | Branches     |
+| `gs` | Status       |
+| `hs` | Stage hunk   |
+| `hr` | Reset hunk   |
 | `hp` | Preview hunk |
-| `hb` | Blame line |
+| `hb` | Blame line   |
 
 ### Debug (Space d)
 
-| Key | Action |
-|-----|--------|
-| `db` | Toggle breakpoint (persistent) |
-| `dB` | Conditional breakpoint |
-| `dL` | Log point |
-| `dE` | Exception breakpoints |
-| `dc` | Continue / Start |
-| `di` | Step into |
-| `do` | Step over |
-| `dO` | Step out |
-| `du` | Toggle DAP UI |
-| `de` | Eval expression |
-| `da` | Add watch |
-| `dt` | Terminate |
-| `F5/F9/F10/F11` | Continue/Breakpoint/Over/Into |
+| Key             | Action                         |
+| --------------- | ------------------------------ |
+| `db`            | Toggle breakpoint (persistent) |
+| `dB`            | Conditional breakpoint         |
+| `dL`            | Log point                      |
+| `dE`            | Exception breakpoints          |
+| `dc`            | Continue / Start               |
+| `di`            | Step into                      |
+| `do`            | Step over                      |
+| `dO`            | Step out                       |
+| `du`            | Toggle DAP UI                  |
+| `de`            | Eval expression                |
+| `da`            | Add watch                      |
+| `dt`            | Terminate                      |
+| `F5/F9/F10/F11` | Continue/Breakpoint/Over/Into  |
 
 ### Other
 
-| Key | Action |
-|-----|--------|
-| `<leader>o` | Toggle outline |
-| `<leader>e` | File explorer (current file) |
-| `<leader>E` | File explorer (cwd) |
-| `<leader>n` | Notification history |
-| `<leader>un` | Dismiss notifications |
-| `<leader>w` | Save |
-| `<leader>q` | Quit |
-| `<leader>-` | Split horizontal |
-| `<leader>\|` | Split vertical |
-| `gl` | Line diagnostics |
+| Key          | Action                       |
+| ------------ | ---------------------------- |
+| `<leader>o`  | Toggle outline               |
+| `<leader>e`  | File explorer (current file) |
+| `<leader>E`  | File explorer (cwd)          |
+| `<leader>n`  | Notification history         |
+| `<leader>un` | Dismiss notifications        |
+| `<leader>w`  | Save                         |
+| `<leader>q`  | Quit                         |
+| `<leader>-`  | Split horizontal             |
+| `<leader>\|` | Split vertical               |
+| `gl`         | Line diagnostics             |
 
 ## Commands
 
-| Command | Action |
-|---------|--------|
-| `:Files` | Find files |
-| `:Buffers` | Buffer list |
-| `:Rg` / `:Grep` | Live grep |
-| `:Symbols` | Document symbols |
-| `:Marks` | Marks |
-| `:Help` | Help tags |
-| `:Commands` | Commands |
-| `:Keymaps` | Keymaps |
-| `:Aerials` | Toggle outline sidebar |
+| Command         | Action                               |
+| --------------- | ------------------------------------ |
+| `:Files`        | Find files                           |
+| `:Buffers`      | Buffer list                          |
+| `:Rg` / `:Grep` | Live grep                            |
+| `:Symbols`      | Document symbols                     |
+| `:Marks`        | Marks                                |
+| `:Help`         | Help tags                            |
+| `:Commands`     | Commands                             |
+| `:Keymaps`      | Keymaps                              |
+| `:Aerials`      | Toggle outline sidebar               |
+| `:LspIndexAll`  | Force LSP to index all project files |
+
+### LspIndexAll
+
+Forces the current buffer's LSP to index all matching files in the project. LSP Agnostic.
+
+1. Detects the LSP attached to your current buffer
+2. Finds all files matching that LSP's filetypes
+3. Loads them to trigger indexing
 
 ## Custom Menu (Space Space)
 
-| Key | Action |
-|-----|--------|
-| `a` | Toggle format on save |
-| `t` | Toggle hardtime |
+| Key | Action                  |
+| --- | ----------------------- |
+| `a` | Toggle format on save   |
+| `t` | Toggle hardtime         |
 | `s` | Toggle diagnostic signs |
-| `v` | Toggle virtual text |
-| `f` | Find files (cwd) |
-| `g` | Grep (cwd) |
-| `h` | Find files (home) |
-| `j` | Grep (home) |
+| `v` | Toggle virtual text     |
+| `f` | Find files (cwd)        |
+| `g` | Grep (cwd)              |
+| `h` | Find files (home)       |
+| `j` | Grep (home)             |
 
 ## Configuration
 

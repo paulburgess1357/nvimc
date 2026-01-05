@@ -58,3 +58,63 @@ keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Comment" })
 
 -- Terminal
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+
+-- Force LSP to index all project files (fixes clangd missing references)
+vim.api.nvim_create_user_command("LspIndexAll", function()
+	-- Get filetypes from current buffer's LSP clients
+	local clients = vim.lsp.get_clients({ bufnr = 0 })
+	if #clients == 0 then
+		vim.notify("No LSP client attached", vim.log.levels.WARN)
+		return
+	end
+
+	local filetypes = {}
+	for _, client in ipairs(clients) do
+		local fts = client.config.filetypes or {}
+		for _, ft in ipairs(fts) do
+			filetypes[ft] = true
+		end
+	end
+
+	local client_names = vim.tbl_map(function(c) return c.name end, clients)
+	local lsp_name = table.concat(client_names, ", ")
+
+	-- Find all files and check if they match LSP filetypes
+	local root = vim.fn.getcwd()
+	local all_files = vim.fn.globpath(root, "**/*", false, true)
+	local total = #all_files
+	local count = 0
+	local processed = 0
+
+	vim.notify(string.format("Indexing files for %s...", lsp_name), vim.log.levels.INFO)
+
+	local function process_batch(start_idx)
+		local batch_size = 50
+		local end_idx = math.min(start_idx + batch_size - 1, total)
+
+		for i = start_idx, end_idx do
+			local file = all_files[i]
+			if file and vim.fn.filereadable(file) == 1 then
+				local ft = vim.filetype.match({ filename = file })
+				if ft and filetypes[ft] then
+					local bufnr = vim.fn.bufadd(file)
+					vim.fn.bufload(bufnr)
+					count = count + 1
+				end
+			end
+			processed = processed + 1
+		end
+
+		if end_idx < total then
+			local pct = math.floor((processed / total) * 100)
+			vim.notify(string.format("[%s] Indexing: %d%% (%d files loaded)", lsp_name, pct, count), vim.log.levels.INFO)
+			vim.schedule(function()
+				process_batch(end_idx + 1)
+			end)
+		else
+			vim.notify(string.format("[%s] Indexing complete: %d files loaded", lsp_name, count), vim.log.levels.INFO)
+		end
+	end
+
+	process_batch(1)
+end, { desc = "Force LSP to index all project files" })
