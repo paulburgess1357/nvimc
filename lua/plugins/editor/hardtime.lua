@@ -13,5 +13,11 @@ return {
 		disable_mouse = false,
 		hint = true,
 		notification = true,
+		restricted_keys = {
+			["h"] = false,
+			["j"] = false,
+			["k"] = false,
+			["l"] = false,
+		},
 	},
 }
