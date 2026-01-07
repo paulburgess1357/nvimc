@@ -183,37 +183,112 @@ return {
 		},
 	},
 	init = function()
+		-- Dashboard gradient colors
 		local function set_gradient_colors()
 			local colors = get_gradient_colors()
 			for i, color in ipairs(colors) do
 				vim.api.nvim_set_hl(0, "DashboardGradient" .. i, { fg = color })
 			end
 		end
-
-		-- Set on colorscheme change
 		vim.api.nvim_create_autocmd("ColorScheme", {
 			pattern = "*",
 			callback = set_gradient_colors,
 		})
-
-		-- Set immediately
 		set_gradient_colors()
+
+		-- Terminal toggle commands (:Term1, :Term2, etc.)
+		-- Store terminal buffers by number
+		local term_bufs = {}
+
+		-- Get terminal number from buffer
+		local function get_term_num(buf)
+			for num, b in pairs(term_bufs) do
+				if b == buf then return num end
+			end
+			return nil
+		end
+
+		-- Find the right position for terminal n based on open terminals
+		local function find_insert_position(n)
+			local term_wins = {}
+			for _, w in ipairs(vim.api.nvim_list_wins()) do
+				local buf = vim.api.nvim_win_get_buf(w)
+				local num = get_term_num(buf)
+				if num then
+					table.insert(term_wins, { win = w, num = num, col = vim.api.nvim_win_get_position(w)[2] })
+				end
+			end
+			if #term_wins == 0 then return nil end
+
+			-- Sort by column position
+			table.sort(term_wins, function(a, b) return a.col < b.col end)
+
+			-- Find where to insert: after the highest num < n, or before lowest num > n
+			local insert_after = nil
+			local insert_before = nil
+			for _, tw in ipairs(term_wins) do
+				if tw.num < n then
+					insert_after = tw.win
+				elseif tw.num > n and not insert_before then
+					insert_before = tw.win
+				end
+			end
+
+			return insert_after, insert_before
+		end
+
+		local function toggle_term(n)
+			return function()
+				local buf = term_bufs[n]
+
+				-- If buffer exists and is valid, toggle its window
+				if buf and vim.api.nvim_buf_is_valid(buf) then
+					-- Find window showing this buffer
+					for _, w in ipairs(vim.api.nvim_list_wins()) do
+						if vim.api.nvim_win_get_buf(w) == buf then
+							-- Window exists, close it (toggle off)
+							vim.api.nvim_win_close(w, false)
+							return
+						end
+					end
+					-- Buffer exists but no window, reopen in correct position
+					local insert_after, insert_before = find_insert_position(n)
+					if insert_after then
+						vim.api.nvim_set_current_win(insert_after)
+						vim.cmd("vertical belowright split")
+					elseif insert_before then
+						vim.api.nvim_set_current_win(insert_before)
+						vim.cmd("vertical aboveleft split")
+					else
+						vim.cmd("botright split | resize " .. math.floor(vim.o.lines * 0.3))
+					end
+					vim.api.nvim_set_current_buf(buf)
+					return
+				end
+
+				-- Create new terminal in correct position
+				local insert_after, insert_before = find_insert_position(n)
+				if insert_after then
+					vim.api.nvim_set_current_win(insert_after)
+					vim.cmd("vertical belowright split")
+				elseif insert_before then
+					vim.api.nvim_set_current_win(insert_before)
+					vim.cmd("vertical aboveleft split")
+				else
+					-- No terminals yet, create bottom split
+					vim.cmd("botright split | resize " .. math.floor(vim.o.lines * 0.3))
+				end
+
+				vim.cmd("terminal")
+				buf = vim.api.nvim_get_current_buf()
+				term_bufs[n] = buf
+				-- Set buffer name for lualine
+				vim.api.nvim_buf_set_name(buf, "Term" .. n)
+				vim.cmd("stopinsert")
+			end
+		end
+		for i = 1, 9 do
+			vim.api.nvim_create_user_command("Term" .. i, toggle_term(i), { desc = "Toggle terminal " .. i })
+		end
 	end,
-	keys = {
-		-- Terminal
-		{
-			"<C-/>",
-			function()
-				Snacks.terminal(nil, { cwd = vim.fn.getcwd() })
-			end,
-			desc = "Terminal (cwd)",
-		},
-		{
-			"<C-_>",
-			function()
-				Snacks.terminal(nil, { cwd = vim.fn.getcwd() })
-			end,
-			desc = "Terminal (cwd)",
-		},
-	},
 }
