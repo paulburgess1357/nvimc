@@ -4,28 +4,28 @@ local plugins = require("config.plugins")
 local cfg = plugins.snacks or {}
 local settings = plugins.settings or {}
 
-local header_theme = "aurora"
+-- Get foreground color from highlight group (with fallback chain)
+local function get_hl_fg(...)
+	for _, name in ipairs({ ... }) do
+		local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+		if hl.fg then
+			return string.format("#%06x", hl.fg)
+		end
+	end
+	return nil
+end
 
-local color_themes = {
-	-- Gradients
-	rainbow = { "#f7768e", "#ff9e64", "#e0af68", "#9ece6a", "#7dcfff", "#7aa2f7" },
-	sunset = { "#f7768e", "#ff9e64", "#e0af68", "#e0af68", "#ff9e64", "#f7768e" },
-	ocean = { "#7aa2f7", "#7dcfff", "#73daca", "#73daca", "#7dcfff", "#7aa2f7" },
-	forest = { "#73daca", "#9ece6a", "#c3e88d", "#c3e88d", "#9ece6a", "#73daca" },
-	fire = { "#f7768e", "#ff9e64", "#e0af68", "#ff9e64", "#f7768e", "#db4b4b" },
-	aurora = { "#bb9af7", "#7aa2f7", "#7dcfff", "#73daca", "#9ece6a", "#e0af68" },
-	synthwave = { "#ff007c", "#d121d1", "#bd93f9", "#8be9fd", "#50fa7b", "#f1fa8c" },
-	miami = { "#ff79c6", "#bd93f9", "#8be9fd", "#8be9fd", "#bd93f9", "#ff79c6" },
-	nord = { "#88c0d0", "#81a1c1", "#5e81ac", "#5e81ac", "#81a1c1", "#88c0d0" },
-	catppuccin = { "#f5c2e7", "#cba6f7", "#89b4fa", "#94e2d5", "#a6e3a1", "#f9e2af" },
-	-- Solid colors
-	yellow = { "#e0af68", "#e0af68", "#e0af68", "#e0af68", "#e0af68", "#e0af68" },
-	cyan = { "#7dcfff", "#7dcfff", "#7dcfff", "#7dcfff", "#7dcfff", "#7dcfff" },
-	pink = { "#f7768e", "#f7768e", "#f7768e", "#f7768e", "#f7768e", "#f7768e" },
-	green = { "#9ece6a", "#9ece6a", "#9ece6a", "#9ece6a", "#9ece6a", "#9ece6a" },
-	blue = { "#7aa2f7", "#7aa2f7", "#7aa2f7", "#7aa2f7", "#7aa2f7", "#7aa2f7" },
-	purple = { "#bb9af7", "#bb9af7", "#bb9af7", "#bb9af7", "#bb9af7", "#bb9af7" },
-}
+-- Build gradient colors dynamically from current colorscheme
+local function get_gradient_colors()
+	return {
+		get_hl_fg("@keyword", "Keyword", "Statement") or "#888888",
+		get_hl_fg("@function", "Function") or "#888888",
+		get_hl_fg("@property", "@field", "Identifier") or "#888888",
+		get_hl_fg("@string", "String") or "#888888",
+		get_hl_fg("@type", "Type") or "#888888",
+		get_hl_fg("@number", "@constant", "Constant", "Number") or "#888888",
+	}
+end
 
 return {
 	"folke/snacks.nvim",
@@ -184,7 +184,7 @@ return {
 	},
 	init = function()
 		local function set_gradient_colors()
-			local colors = color_themes[header_theme] or color_themes.rainbow
+			local colors = get_gradient_colors()
 			for i, color in ipairs(colors) do
 				vim.api.nvim_set_hl(0, "DashboardGradient" .. i, { fg = color })
 			end
