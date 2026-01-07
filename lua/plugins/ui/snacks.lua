@@ -291,8 +291,14 @@ return {
 			vim.api.nvim_create_user_command("Term" .. i, toggle_term(i), { desc = "Toggle terminal " .. i })
 		end
 
-		-- Term10: Full-height terminal on the right side
+		-- Term10: Full-height terminal on the right side (20% width)
 		local term10_buf = nil
+		local function open_term10_window()
+			vim.cmd("botright vsplit")
+			local width = math.floor(vim.o.columns * 0.28)
+			vim.api.nvim_win_set_width(0, width)
+		end
+
 		vim.api.nvim_create_user_command("Term10", function()
 			-- If buffer exists and is valid, toggle its window
 			if term10_buf and vim.api.nvim_buf_is_valid(term10_buf) then
@@ -303,13 +309,13 @@ return {
 					end
 				end
 				-- Buffer exists but no window, reopen on right
-				vim.cmd("botright vsplit")
+				open_term10_window()
 				vim.api.nvim_set_current_buf(term10_buf)
 				return
 			end
 
 			-- Create new terminal on right side, full height
-			vim.cmd("botright vsplit")
+			open_term10_window()
 			vim.cmd("terminal")
 			term10_buf = vim.api.nvim_get_current_buf()
 			vim.api.nvim_buf_set_name(term10_buf, "Term10")
