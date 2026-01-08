@@ -41,7 +41,7 @@ return {
 	snacks = { enabled = true },
 	noice = { enabled = true },
 	rainbowdelimiters = { enabled = true },
-	scrollview = { enabled = true },
+	scrollview = { enabled = false },
 	aerial = { enabled = true },
 	marks = { enabled = true },
 
