@@ -5,8 +5,7 @@ return {
 	"github/copilot.vim",
 	enabled = cfg.enabled ~= false,
 	branch = cfg.branch,
-	cmd = "Copilot",
-	event = "InsertEnter",
+	event = "VeryLazy",
 	config = function()
 		vim.api.nvim_set_hl(0, "CopilotSuggestion", { fg = "#444444", italic = true })
 	end,
