@@ -55,6 +55,7 @@ return {
 			},
 			grep = {
 				rg_glob = true,
+				rg_opts = "--column --line-number --no-heading --color=always --smart-case --fixed-strings",
 			},
 			lsp = {
 				async_or_timeout = 5000,
