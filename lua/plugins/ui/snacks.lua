@@ -196,130 +196,87 @@ return {
 		})
 		set_gradient_colors()
 
-		-- Terminal toggle commands (:Term1, :Term2, etc.)
-		-- Store terminal buffers by number
-		local term_bufs = {}
+		-- Terminal commands: Term1-9 (bottom row), Term10 (right side, full height)
+		local term_bufs = {} -- stores buffer handles by terminal number
 
-		-- Get terminal number from buffer
-		local function get_term_num(buf)
-			for num, b in pairs(term_bufs) do
-				if b == buf then return num end
-			end
-			return nil
-		end
-
-		-- Find the right position for terminal n based on open terminals
-		local function find_insert_position(n)
-			local term_wins = {}
+		-- Find window displaying a buffer, or nil
+		local function find_buf_win(buf)
 			for _, w in ipairs(vim.api.nvim_list_wins()) do
-				local buf = vim.api.nvim_win_get_buf(w)
-				local num = get_term_num(buf)
-				if num then
-					table.insert(term_wins, { win = w, num = num, col = vim.api.nvim_win_get_position(w)[2] })
-				end
+				if vim.api.nvim_win_get_buf(w) == buf then return w end
 			end
-			if #term_wins == 0 then return nil end
-
-			-- Sort by column position
-			table.sort(term_wins, function(a, b) return a.col < b.col end)
-
-			-- Find where to insert: after the highest num < n, or before lowest num > n
-			local insert_after = nil
-			local insert_before = nil
-			for _, tw in ipairs(term_wins) do
-				if tw.num < n then
-					insert_after = tw.win
-				elseif tw.num > n and not insert_before then
-					insert_before = tw.win
-				end
-			end
-
-			return insert_after, insert_before
 		end
 
-		local function toggle_term(n)
+		-- Get open Term1-9 windows sorted by number
+		local function get_bottom_term_wins()
+			local wins = {}
+			for num, buf in pairs(term_bufs) do
+				if num <= 9 and vim.api.nvim_buf_is_valid(buf) then
+					local w = find_buf_win(buf)
+					if w then table.insert(wins, { win = w, num = num }) end
+				end
+			end
+			table.sort(wins, function(a, b) return a.num < b.num end)
+			return wins
+		end
+
+		-- Create window for Term1-9 at bottom, maintaining left-to-right order
+		local function open_bottom_term_win(n)
+			local wins = get_bottom_term_wins()
+			local after, before
+			for _, tw in ipairs(wins) do
+				if tw.num < n then after = tw.win
+				elseif tw.num > n then before = before or tw.win end
+			end
+
+			if after then
+				vim.api.nvim_set_current_win(after)
+				vim.cmd("vertical belowright split")
+			elseif before then
+				vim.api.nvim_set_current_win(before)
+				vim.cmd("vertical aboveleft split")
+			else
+				vim.cmd("botright split | resize " .. math.floor(vim.o.lines * 0.3))
+			end
+		end
+
+		-- Create or toggle a terminal
+		local function make_term_cmd(n, open_win_fn)
 			return function()
 				local buf = term_bufs[n]
-
-				-- If buffer exists and is valid, toggle its window
 				if buf and vim.api.nvim_buf_is_valid(buf) then
-					-- Find window showing this buffer
-					for _, w in ipairs(vim.api.nvim_list_wins()) do
-						if vim.api.nvim_win_get_buf(w) == buf then
-							-- Window exists, close it (toggle off)
-							vim.api.nvim_win_close(w, false)
-							return
-						end
-					end
-					-- Buffer exists but no window, reopen in correct position
-					local insert_after, insert_before = find_insert_position(n)
-					if insert_after then
-						vim.api.nvim_set_current_win(insert_after)
-						vim.cmd("vertical belowright split")
-					elseif insert_before then
-						vim.api.nvim_set_current_win(insert_before)
-						vim.cmd("vertical aboveleft split")
+					local win = find_buf_win(buf)
+					if win then
+						vim.api.nvim_win_close(win, false)
 					else
-						vim.cmd("botright split | resize " .. math.floor(vim.o.lines * 0.3))
+						open_win_fn(n)
+						vim.api.nvim_set_current_buf(buf)
 					end
-					vim.api.nvim_set_current_buf(buf)
 					return
 				end
-
-				-- Create new terminal in correct position
-				local insert_after, insert_before = find_insert_position(n)
-				if insert_after then
-					vim.api.nvim_set_current_win(insert_after)
-					vim.cmd("vertical belowright split")
-				elseif insert_before then
-					vim.api.nvim_set_current_win(insert_before)
-					vim.cmd("vertical aboveleft split")
-				else
-					-- No terminals yet, create bottom split
-					vim.cmd("botright split | resize " .. math.floor(vim.o.lines * 0.3))
-				end
-
+				open_win_fn(n)
 				vim.cmd("terminal")
 				buf = vim.api.nvim_get_current_buf()
 				term_bufs[n] = buf
-				-- Set buffer name for lualine
+				vim.bo[buf].buflisted = false
 				vim.api.nvim_buf_set_name(buf, "Term" .. n)
+				vim.keymap.set("n", "q", function()
+					local win = find_buf_win(buf)
+					if win then vim.api.nvim_win_close(win, false) end
+				end, { buffer = buf })
 				vim.cmd("stopinsert")
 			end
 		end
+
+		-- Term1-9: bottom row terminals
 		for i = 1, 9 do
-			vim.api.nvim_create_user_command("Term" .. i, toggle_term(i), { desc = "Toggle terminal " .. i })
+			vim.api.nvim_create_user_command("Term" .. i, make_term_cmd(i, open_bottom_term_win), {})
 		end
 
-		-- Term10: Full-height terminal on the right side (20% width)
-		local term10_buf = nil
-		local function open_term10_window()
+		-- Term10: right side, full height (28% width)
+		local function open_right_term_win()
 			vim.cmd("botright vsplit")
-			local width = math.floor(vim.o.columns * 0.28)
-			vim.api.nvim_win_set_width(0, width)
+			vim.api.nvim_win_set_width(0, math.floor(vim.o.columns * 0.28))
 		end
-
-		vim.api.nvim_create_user_command("Term10", function()
-			-- If buffer exists and is valid, toggle its window
-			if term10_buf and vim.api.nvim_buf_is_valid(term10_buf) then
-				for _, w in ipairs(vim.api.nvim_list_wins()) do
-					if vim.api.nvim_win_get_buf(w) == term10_buf then
-						vim.api.nvim_win_close(w, false)
-						return
-					end
-				end
-				-- Buffer exists but no window, reopen on right
-				open_term10_window()
-				vim.api.nvim_set_current_buf(term10_buf)
-				return
-			end
-
-			-- Create new terminal on right side, full height
-			open_term10_window()
-			vim.cmd("terminal")
-			term10_buf = vim.api.nvim_get_current_buf()
-			vim.api.nvim_buf_set_name(term10_buf, "Term10")
-			vim.cmd("stopinsert")
-		end, { desc = "Toggle terminal 10 (right, full height)" })
+		vim.api.nvim_create_user_command("Term10", make_term_cmd(10, open_right_term_win), {})
 	end,
 }
