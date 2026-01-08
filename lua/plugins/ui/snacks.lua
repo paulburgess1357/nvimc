@@ -263,6 +263,10 @@ return {
 					local win = find_buf_win(buf)
 					if win then vim.api.nvim_win_close(win, false) end
 				end, { buffer = buf })
+				vim.keymap.set("n", "<S-h>", "<nop>", { buffer = buf })
+				vim.keymap.set("n", "<S-l>", "<nop>", { buffer = buf })
+				vim.keymap.set("n", "<leader>-", "<nop>", { buffer = buf })
+				vim.keymap.set("n", "<leader>|", "<nop>", { buffer = buf })
 				vim.cmd("stopinsert")
 			end
 		end
