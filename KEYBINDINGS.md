@@ -1,0 +1,95 @@
+# Key Bindings
+
+## General
+
+| Key     | Action                  |
+| ------- | ----------------------- |
+| `Space` | Leader key              |
+| `Esc`   | Clear search highlights |
+
+## Navigation
+
+| Key           | Action               |
+| ------------- | -------------------- |
+| `<C-h/j/k/l>` | Window navigation    |
+| `<S-h/l>`     | Buffer prev/next     |
+| `{` / `}`     | Previous/next symbol |
+| `]]` / `[[`   | Next/prev reference  |
+
+## Find (Space f)
+
+| Key  | Action       |
+| ---- | ------------ |
+| `ff` | Files        |
+| `fr` | Recent files |
+| `fb` | Buffers      |
+| `fh` | Help         |
+| `fk` | Keymaps      |
+| `fm` | Marks        |
+
+## Search (Space s)
+
+| Key  | Action                   |
+| ---- | ------------------------ |
+| `sg` | Grep                     |
+| `sw` | Word under cursor        |
+| `sb` | Current buffer           |
+| `ss` | Document symbols         |
+| `so` | Outline symbols (aerial) |
+| `st` | Todo comments            |
+
+## Code (Space c)
+
+| Key  | Action               |
+| ---- | -------------------- |
+| `ca` | Code action          |
+| `cr` | Rename               |
+| `cf` | Format               |
+| `cd` | Document diagnostics |
+| `cl` | Trigger lint         |
+
+## Git (Space g/h)
+
+| Key  | Action       |
+| ---- | ------------ |
+| `gf` | Git files    |
+| `gc` | Commits      |
+| `gb` | Branches     |
+| `gs` | Status       |
+| `hs` | Stage hunk   |
+| `hr` | Reset hunk   |
+| `hp` | Preview hunk |
+| `hb` | Blame line   |
+
+## Debug (Space d)
+
+| Key             | Action                         |
+| --------------- | ------------------------------ |
+| `db`            | Toggle breakpoint (persistent) |
+| `dB`            | Conditional breakpoint         |
+| `dL`            | Log point                      |
+| `dE`            | Exception breakpoints          |
+| `dc`            | Continue / Start               |
+| `di`            | Step into                      |
+| `do`            | Step over                      |
+| `dO`            | Step out                       |
+| `du`            | Toggle DAP UI                  |
+| `de`            | Eval expression                |
+| `da`            | Add watch                      |
+| `dt`            | Terminate                      |
+| `F5/F9/F10/F11` | Continue/Breakpoint/Over/Into  |
+
+## Other
+
+| Key          | Action                       |
+| ------------ | ---------------------------- |
+| `<leader>o`  | Toggle outline               |
+| `<leader>e`  | File explorer (current file) |
+| `<leader>E`  | File explorer (cwd)          |
+| `<leader>n`  | Notification history         |
+| `<leader>un` | Dismiss notifications        |
+| `<leader>w`  | Save                         |
+| `<leader>q`  | Quit                         |
+| `<leader>-`  | Split horizontal             |
+| `<leader>\|` | Split vertical               |
+| `gl`         | Line diagnostics             |
