@@ -85,8 +85,15 @@ vim.api.nvim_create_user_command("LspIndexAll", function()
 	local total = #all_files
 	local count = 0
 	local processed = 0
+	local last_pct = -1
 
-	vim.notify(string.format("Indexing files for %s...", lsp_name), vim.log.levels.INFO)
+	-- Progress display helper (writes to command line, no popup)
+	local function show_progress(msg)
+		vim.api.nvim_echo({ { msg, "Normal" } }, false, {})
+		vim.cmd.redraw()
+	end
+
+	show_progress(string.format("[%s] Indexing %d files...", lsp_name, total))
 
 	local function process_batch(start_idx)
 		local batch_size = 50
@@ -107,11 +114,16 @@ vim.api.nvim_create_user_command("LspIndexAll", function()
 
 		if end_idx < total then
 			local pct = math.floor((processed / total) * 100)
-			vim.notify(string.format("[%s] Indexing: %d%% (%d files loaded)", lsp_name, pct, count), vim.log.levels.INFO)
+			-- Only update display every 20%
+			if pct >= last_pct + 20 then
+				last_pct = pct
+				show_progress(string.format("[%s] Indexing: %d%% (%d files loaded)", lsp_name, pct, count))
+			end
 			vim.schedule(function()
 				process_batch(end_idx + 1)
 			end)
 		else
+			vim.api.nvim_echo({ { "" } }, false, {}) -- Clear command line
 			vim.notify(string.format("[%s] Indexing complete: %d files loaded", lsp_name, count), vim.log.levels.INFO)
 		end
 	end
