@@ -133,6 +133,20 @@ return {
 			end,
 			desc = "Recent files",
 		},
+		{
+			"<leader><leader>m",
+			function()
+				require("fzf-lua").marks()
+			end,
+			desc = "Marks",
+		},
+		{
+			"<leader><leader>l",
+			function()
+				require("fzf-lua").lsp_live_workspace_symbols()
+			end,
+			desc = "Symbols (workspace)",
+		},
 		-- Help
 		{
 			"<leader>?",
