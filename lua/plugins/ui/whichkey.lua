@@ -126,6 +126,13 @@ return {
 			end,
 			desc = "Grep (home)",
 		},
+		{
+			"<leader><leader>r",
+			function()
+				require("fzf-lua").oldfiles()
+			end,
+			desc = "Recent files",
+		},
 		-- Help
 		{
 			"<leader>?",
