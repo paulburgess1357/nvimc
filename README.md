@@ -75,6 +75,13 @@ nvimc
 
 See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup instructions.
 
+### AI
+
+- **copilot.vim** - GitHub Copilot authentication and inline suggestions
+- **CodeCompanion.nvim** - AI chat, inline assistance, and agent workflows
+
+Requires GitHub Copilot subscription. Run `:Copilot auth` to authenticate.
+
 ## Key Bindings
 
 See [KEYBINDINGS.md](KEYBINDINGS.md) for full list.
