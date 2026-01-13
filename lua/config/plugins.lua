@@ -48,10 +48,6 @@ return {
 	-- Debug
 	dap = { enabled = true },
 
-	-- AI
-	copilot = { enabled = true },
-	copilotchat = { enabled = true },
-
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
 	leetneo = { enabled = false, branch = "master" },
 	store = { enabled = false },
