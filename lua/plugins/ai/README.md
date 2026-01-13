@@ -16,7 +16,7 @@
 ## Commands
 
 - `:Chat` - Toggle chat window
-- `:NewChat` - Start a new chat
+- `:NewChat` / `:ChatNew` - Start a new chat
 - `:CodeCompanion` - Inline assist
 - `:CodeCompanionActions` - Actions menu
 
