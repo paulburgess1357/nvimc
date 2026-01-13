@@ -12,6 +12,10 @@
 | `:Keymaps`      | Keymaps                              |
 | `:Aerials`      | Toggle outline sidebar               |
 | `:LspIndexAll`  | Force LSP to index all project files |
+| `:Chat`         | Toggle AI chat window                |
+| `:NewChat` / `:ChatNew` | Start a new AI chat          |
+| `:CodeCompanion`| AI inline assist                     |
+| `:CodeCompanionActions` | AI actions menu              |
 
 ## LspIndexAll
 
@@ -33,3 +37,6 @@ Forces the current buffer's LSP to index all matching files in the project. LSP 
 | `g` | Grep (cwd)              |
 | `h` | Find files (home)       |
 | `j` | Grep (home)             |
+| `r` | Recent files            |
+| `m` | Marks                   |
+| `l` | Symbols (workspace)     |

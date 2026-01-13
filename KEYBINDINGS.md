@@ -95,6 +95,12 @@
 | `<leader><leader>a` | Toggle format on save |
 | `<leader><leader>t` | Toggle hardtime    |
 
+## Terminal
+
+| Key     | Action          |
+| ------- | --------------- |
+| `<C-/>` | Toggle terminal |
+
 ## Other
 
 | Key          | Action                       |
