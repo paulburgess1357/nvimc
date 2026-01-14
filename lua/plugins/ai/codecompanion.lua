@@ -20,6 +20,14 @@ return {
 	opts = {
 		strategies = {
 			chat = {
+				keymaps = {
+					close = {
+						modes = { n = "q" },
+						callback = function()
+							vim.cmd("CodeCompanionChat Toggle")
+						end,
+					},
+				},
 				adapter = {
 					name = "copilot",
 					model = "claude-haiku-4.5",
