@@ -51,6 +51,7 @@ return {
 	-- AI
 	copilot = { enabled = true, inline_suggestions = true },
 	codecompanion = { enabled = true, branch = "main" },
+	mcphub = { enabled = true },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
 	leetneo = { enabled = false, branch = "master" },

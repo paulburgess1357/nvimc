@@ -2,6 +2,7 @@
 
 - [copilot.vim](https://github.com/github/copilot.vim) - GitHub Copilot authentication and inline suggestions
 - [CodeCompanion.nvim](https://github.com/olimorris/codecompanion.nvim) - AI chat, inline assistance, and agent workflows
+- [mcphub.nvim](https://github.com/ravitemer/mcphub.nvim) - MCP (Model Context Protocol) server integration
 
 ## Requirements
 
@@ -96,3 +97,21 @@ Use `:CodeCompanion <prompt>` with optional visual selection.
 ## Action Palette
 
 Use `:CodeCompanionActions` to open the action palette with all available prompts and actions.
+
+## MCP Servers
+
+[mcphub.nvim](https://github.com/ravitemer/mcphub.nvim) integrates MCP (Model Context Protocol) servers with CodeCompanion.
+
+### Commands
+
+- `:MCPHub` - Open MCP Hub interface
+
+### Usage in Chat
+
+| Syntax | Description |
+| ------ | ----------- |
+| `@mcp` | Access all MCP servers |
+| `@server` | Access specific server (e.g., `@github`, `@neovim`) |
+| `@server__tool` | Use specific tool (e.g., `@github__search`) |
+| `#resource` | Access MCP resources as variables |
+| `/mcp:prompt` | Run MCP prompts |

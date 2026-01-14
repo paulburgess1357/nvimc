@@ -79,6 +79,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup instruc
 
 - **copilot.vim** - GitHub Copilot authentication and inline suggestions
 - **CodeCompanion.nvim** - AI chat, inline assistance, and agent workflows
+- **mcphub.nvim** - MCP (Model Context Protocol) server integration
 
 Requires GitHub Copilot subscription. Run `:Copilot auth` to authenticate.
 

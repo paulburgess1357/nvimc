@@ -55,5 +55,16 @@ return {
 				},
 			},
 		},
+		extensions = {
+			mcphub = {
+				callback = "mcphub.extensions.codecompanion",
+				opts = {
+					make_tools = true,
+					show_server_tools_in_chat = true,
+					make_vars = true,
+					make_slash_commands = true,
+				},
+			},
+		},
 	},
 }
