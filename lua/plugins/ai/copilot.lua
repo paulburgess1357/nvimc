@@ -7,7 +7,7 @@ return {
 	branch = cfg.branch,
 	event = "VeryLazy",
 	config = function()
-		vim.g.copilot_no_tab_map = true -- Don't use tab for accepting suggestions
+		vim.g.copilot_filetypes = { ["*"] = false } -- Disable suggestions in all filetypes
 		vim.api.nvim_set_hl(0, "CopilotSuggestion", { fg = "#555555", italic = true })
 	end,
 }
