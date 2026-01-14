@@ -1,6 +1,6 @@
 # AI Plugins
 
-- [copilot.vim](https://github.com/github/copilot.vim) - GitHub Copilot authentication and inline suggestions
+- [copilot.vim](https://github.com/github/copilot.vim) - GitHub Copilot authentication (inline suggestions disabled)
 - [CodeCompanion.nvim](https://github.com/olimorris/codecompanion.nvim) - AI chat, inline assistance, and agent workflows
 
 ## Requirements
@@ -27,6 +27,7 @@
 | Key | Action |
 | --- | ------ |
 | `<CR>` / `<C-s>` | Send message |
+| `q` | Toggle chat (hide window) |
 | `<C-c>` | Close chat |
 | `ga` | Change adapter, then model |
 | `gr` | Regenerate last response |

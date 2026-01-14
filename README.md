@@ -77,7 +77,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup instruc
 
 ### AI
 
-- **copilot.vim** - GitHub Copilot authentication and inline suggestions
+- **copilot.vim** - GitHub Copilot authentication (inline suggestions disabled)
 - **CodeCompanion.nvim** - AI chat, inline assistance, and agent workflows
 
 Requires GitHub Copilot subscription. Run `:Copilot auth` to authenticate.

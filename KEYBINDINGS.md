@@ -95,6 +95,12 @@
 | `<leader><leader>a` | Toggle format on save |
 | `<leader><leader>t` | Toggle hardtime    |
 
+## AI (CodeCompanion)
+
+| Key | Action |
+| --- | ------ |
+| `q` | Toggle chat (in chat buffer) |
+
 ## Terminal
 
 | Key     | Action          |
