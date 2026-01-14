@@ -1,11 +1,21 @@
 # AI Plugins
 
-- [copilot.vim](https://github.com/github/copilot.vim) - GitHub Copilot authentication (inline suggestions disabled)
+- [copilot.vim](https://github.com/github/copilot.vim) - GitHub Copilot authentication and inline suggestions
 - [CodeCompanion.nvim](https://github.com/olimorris/codecompanion.nvim) - AI chat, inline assistance, and agent workflows
 
 ## Requirements
 
 - [GitHub Copilot](https://github.com/features/copilot) subscription
+
+## Configuration
+
+In `lua/config/plugins.lua`:
+
+```lua
+copilot = { enabled = true, inline_suggestions = true },
+```
+
+- `inline_suggestions` - Enable Copilot ghost text suggestions (Tab to accept)
 
 ## Authentication
 

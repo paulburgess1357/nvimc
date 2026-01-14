@@ -49,7 +49,7 @@ return {
 	dap = { enabled = true },
 
 	-- AI
-	copilot = { enabled = true },
+	copilot = { enabled = true, inline_suggestions = true },
 	codecompanion = { enabled = true, branch = "main" },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)

@@ -95,11 +95,12 @@
 | `<leader><leader>a` | Toggle format on save |
 | `<leader><leader>t` | Toggle hardtime    |
 
-## AI (CodeCompanion)
+## AI
 
 | Key | Action |
 | --- | ------ |
-| `q` | Toggle chat (in chat buffer) |
+| `Tab` | Accept Copilot suggestion (insert mode, when inline_suggestions enabled) |
+| `q` | Toggle chat (in CodeCompanion chat buffer) |
 
 ## Terminal
 
