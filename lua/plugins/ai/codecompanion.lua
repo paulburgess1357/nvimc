@@ -1,6 +1,22 @@
 -- CodeCompanion.nvim: AI-powered coding assistant.
--- Chat, inline assistance, and agent workflows powered by Copilot.
+-- Chat, inline assistance, and agent workflows.
 local cfg = require("config.plugins").codecompanion or {}
+
+-- Default adapter and model (change these to switch providers)
+-- Adapters: anthropic, copilot, openai, gemini, ollama
+--
+-- Anthropic API models (Jan 2025):
+--   claude-opus-4-5-20251101    $5/$25   Premium, max intelligence
+--   claude-sonnet-4-5-20250929  $3/$15   Best balance, coding/agents (recommended)
+--   claude-haiku-4-5-20251001   $1/$5    Fastest, low latency
+--   claude-sonnet-4-20250514    $3/$15   Legacy
+--   claude-opus-4-1-20250805    $15/$75  Legacy
+--
+-- Copilot models (simpler names):
+--   claude-opus-4.5, claude-sonnet-4, claude-haiku-4.5, gpt-4o
+--
+local default_adapter = "anthropic"
+local default_model = "claude-sonnet-4-5-20250929"
 return {
 	"olimorris/codecompanion.nvim",
 	enabled = cfg.enabled ~= false,
@@ -29,20 +45,20 @@ return {
 					},
 				},
 				adapter = {
-					name = "copilot",
-					model = "claude-haiku-4.5",
+					name = default_adapter,
+					model = default_model,
 				},
 			},
 			inline = {
 				adapter = {
-					name = "copilot",
-					model = "claude-haiku-4.5",
+					name = default_adapter,
+					model = default_model,
 				},
 			},
 			agent = {
 				adapter = {
-					name = "copilot",
-					model = "claude-haiku-4.5",
+					name = default_adapter,
+					model = default_model,
 				},
 			},
 		},
