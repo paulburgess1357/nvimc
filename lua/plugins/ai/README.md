@@ -24,6 +24,14 @@ copilot = { enabled = true, inline_suggestions = true },
 2. Run `:Copilot auth`
 3. Follow the prompts to authenticate with GitHub
 
+## MCP Servers Setup
+
+If you get a "mcp-hub executable not found" error, run:
+
+```
+:Lazy build mcphub.nvim
+```
+
 ## Commands
 
 - `:Chat` - Toggle chat window
@@ -101,8 +109,6 @@ Use `:CodeCompanionActions` to open the action palette with all available prompt
 ## MCP Servers
 
 [mcphub.nvim](https://github.com/ravitemer/mcphub.nvim) integrates MCP (Model Context Protocol) servers with CodeCompanion.
-
-### Commands
 
 - `:MCPHub` - Open MCP Hub interface
 
