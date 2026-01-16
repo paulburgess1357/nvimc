@@ -48,7 +48,7 @@ return {
 	-- Debug
 	dap = { enabled = true },
 
-	-- AI
+	-- AI (adapter/model configured in lua/plugins/ai/codecompanion.lua)
 	copilot = { enabled = true, inline_suggestions = true },
 	codecompanion = { enabled = true, branch = "main" },
 	mcphub = { enabled = true },

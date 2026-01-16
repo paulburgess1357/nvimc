@@ -4,11 +4,47 @@
 - [CodeCompanion.nvim](https://github.com/olimorris/codecompanion.nvim) - AI chat, inline assistance, and agent workflows
 - [mcphub.nvim](https://github.com/ravitemer/mcphub.nvim) - MCP (Model Context Protocol) server integration
 
-## Requirements
+## Setup
 
+### Requirements
+
+- [Anthropic API key](https://console.anthropic.com/) (recommended), OR
 - [GitHub Copilot](https://github.com/features/copilot) subscription
 
+### Environment Variables
+
+| Adapter | Environment Variable |
+| ------- | -------------------- |
+| Anthropic | `ANTHROPIC_API_KEY` |
+| OpenAI | `OPENAI_API_KEY` |
+| Gemini | `GEMINI_API_KEY` |
+
+### Copilot Authentication
+
+1. Open Neovim
+2. Run `:Copilot auth`
+3. Follow the prompts to authenticate with GitHub
+
+### MCP Servers
+
+If you get a "mcp-hub executable not found" error, run:
+
+```
+:Lazy build mcphub.nvim
+```
+
 ## Configuration
+
+### Adapter and Model
+
+Edit `lua/plugins/ai/codecompanion.lua`:
+
+```lua
+local default_adapter = "anthropic"  -- or "copilot", "openai", "gemini", "ollama"
+local default_model = "claude-sonnet-4-5-20250929"
+```
+
+### Copilot Options
 
 In `lua/config/plugins.lua`:
 
@@ -18,30 +54,28 @@ copilot = { enabled = true, inline_suggestions = true },
 
 - `inline_suggestions` - Enable Copilot ghost text suggestions (Tab to accept)
 
-## Authentication
-
-1. Open Neovim
-2. Run `:Copilot auth`
-3. Follow the prompts to authenticate with GitHub
-
-## MCP Servers Setup
-
-If you get a "mcp-hub executable not found" error, run:
-
-```
-:Lazy build mcphub.nvim
-```
-
 ## Commands
 
-- `:Chat` - Toggle chat window
-- `:NewChat` / `:ChatNew` - Start a new chat
-- `:CodeCompanion` - Inline assist
-- `:CodeCompanionActions` - Actions menu
+| Command | Description |
+| ------- | ----------- |
+| `:Chat` | Toggle chat window |
+| `:NewChat` / `:ChatNew` | Start a new chat |
+| `:CodeCompanion` | Inline assist |
+| `:CodeCompanionActions` | Actions menu |
+| `:MCPHub` | Open MCP Hub interface |
 
-## CodeCompanion Chat Reference
+## Lualine Status
 
-### Keymaps (in chat buffer)
+Status indicators in lualine (section x):
+
+| Component | Idle | Active |
+| --------- | ---- | ------ |
+| CodeCompanion | `✓` | Spinner + request count |
+| MCPHub | `󰐻 N` (server count) | Spinner |
+
+## CodeCompanion Chat
+
+### Keymaps
 
 | Key | Action |
 | --- | ------ |
@@ -53,7 +87,7 @@ If you get a "mcp-hub executable not found" error, run:
 | `gx` | Clear chat |
 | `?` | Show all keymaps |
 
-### Completion
+### Completion Prefixes
 
 | Prefix | Type | Example |
 | ------ | ---- | ------- |
@@ -106,13 +140,7 @@ Use `:CodeCompanion <prompt>` with optional visual selection.
 
 Use `:CodeCompanionActions` to open the action palette with all available prompts and actions.
 
-## MCP Servers
-
-[mcphub.nvim](https://github.com/ravitemer/mcphub.nvim) integrates MCP (Model Context Protocol) servers with CodeCompanion.
-
-- `:MCPHub` - Open MCP Hub interface
-
-### Usage in Chat
+## MCP Server Usage
 
 | Syntax | Description |
 | ------ | ----------- |
