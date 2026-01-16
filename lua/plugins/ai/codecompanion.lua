@@ -32,6 +32,16 @@ return {
 		vim.api.nvim_create_user_command("Chat", "CodeCompanionChat Toggle", { desc = "Toggle AI chat" })
 		vim.api.nvim_create_user_command("NewChat", "CodeCompanionChat", { desc = "New AI chat" })
 		vim.api.nvim_create_user_command("ChatNew", "CodeCompanionChat", { desc = "New AI chat" })
+
+		-- Disable buffer-switching keys in chat window
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = "codecompanion",
+			callback = function(ev)
+				for _, key in ipairs({ "<S-h>", "<S-l>", "<leader>-", "<leader>|" }) do
+					vim.keymap.set("n", key, "<nop>", { buffer = ev.buf })
+				end
+			end,
+		})
 	end,
 	opts = {
 		strategies = {
