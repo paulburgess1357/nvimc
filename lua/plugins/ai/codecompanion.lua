@@ -64,7 +64,7 @@ return {
 		},
 		display = {
 			chat = {
-				show_settings = true,
+				show_settings = false,
 				window = {
 					layout = "vertical",
 					width = 0.4,

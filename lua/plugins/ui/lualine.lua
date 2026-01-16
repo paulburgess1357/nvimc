@@ -1,6 +1,50 @@
 -- Lualine.nvim: Fast and customizable statusline written in Lua.
 -- Displays mode, git branch, diagnostics, and file info with minimal overhead.
 local cfg = require("config.plugins").lualine or {}
+
+-- Helper to get color from highlight group (theme-aware)
+local function get_hl_fg(name)
+	local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+	return hl.fg and string.format("#%06x", hl.fg) or nil
+end
+
+-- MCPHub status component (uses global variables for lazy-loading)
+local mcphub_component = {
+	function()
+		if not vim.g.loaded_mcphub then
+			return ""
+		end
+		local count = vim.g.mcphub_servers_count or 0
+		local status = vim.g.mcphub_status or "stopped"
+		local executing = vim.g.mcphub_executing
+		if status == "stopped" then
+			return "󰐻 -"
+		end
+		if executing or status == "starting" or status == "restarting" then
+			local frames = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+			local frame = math.floor(vim.uv.now() / 100) % #frames + 1
+			return "󰐻 " .. frames[frame]
+		end
+		return "󰐻 " .. count
+	end,
+	color = function()
+		if not vim.g.loaded_mcphub then
+			return { fg = get_hl_fg("Comment") }
+		end
+		local status = vim.g.mcphub_status or "stopped"
+		if status == "ready" or status == "restarted" then
+			return { fg = get_hl_fg("DiagnosticOk") or get_hl_fg("String") }
+		elseif status == "starting" or status == "restarting" then
+			return { fg = get_hl_fg("DiagnosticWarn") }
+		else
+			return { fg = get_hl_fg("DiagnosticError") }
+		end
+	end,
+	cond = function()
+		return vim.g.loaded_mcphub ~= nil
+	end,
+}
+
 return {
 	"nvim-lualine/lualine.nvim",
 	enabled = cfg.enabled ~= false,
@@ -8,6 +52,7 @@ return {
 	dependencies = {
 		"nvim-tree/nvim-web-devicons",
 		"stevearc/aerial.nvim",
+		"franco-ruggeri/codecompanion-lualine.nvim",
 	},
 	opts = function()
 		local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
@@ -40,7 +85,7 @@ return {
 						colored = true,
 					},
 				},
-				lualine_x = { "encoding", "fileformat", "filetype" },
+				lualine_x = { mcphub_component, "codecompanion", "encoding", "fileformat", "filetype" },
 				lualine_y = { "progress" },
 				lualine_z = { "location" },
 			},
