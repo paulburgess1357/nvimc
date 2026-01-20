@@ -142,10 +142,37 @@ Use `:CodeCompanionActions` to open the action palette with all available prompt
 
 ## MCP Server Usage
 
+To give the AI access to MCP tools (file operations, shell commands, etc.), include `@neovim` in your message:
+
+```
+@neovim list all lua files in this project
+@neovim read the file /path/to/file.lua
+@neovim use execute_command to run :wincmd p | e /path/to/file.lua
+```
+
+Without `@neovim` (or another server), the AI cannot use those tools.
+
+### Syntax
+
 | Syntax | Description |
 | ------ | ----------- |
+| `@neovim` | Load all neovim tools (files, commands, LSP) |
 | `@mcp` | Access all MCP servers |
-| `@server` | Access specific server (e.g., `@github`, `@neovim`) |
-| `@server__tool` | Use specific tool (e.g., `@github__search`) |
+| `@server__tool` | Use specific tool (e.g., `@neovim__read_file`) |
 | `#resource` | Access MCP resources as variables |
 | `/mcp:prompt` | Run MCP prompts |
+
+### Built-in Neovim Tools
+
+| Tool | Description |
+| ---- | ----------- |
+| `read_file` | Read file contents |
+| `read_multiple_files` | Read several files |
+| `find_files` | Search for files by pattern |
+| `list_directory` | List directory contents |
+| `edit_file` | Edit a file |
+| `write_file` | Create/write a file |
+| `delete_items` | Delete files/directories |
+| `move_item` | Move/rename files |
+| `execute_command` | Run shell commands |
+| `execute_lua` | Run Lua code in Neovim |
