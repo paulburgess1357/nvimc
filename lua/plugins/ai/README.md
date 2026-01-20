@@ -54,6 +54,20 @@ copilot = { enabled = true, inline_suggestions = true },
 
 - `inline_suggestions` - Enable Copilot ghost text suggestions (Tab to accept)
 
+### System Prompts
+
+Custom system prompts are loaded from `lua/plugins/ai/prompts/startup/`. All `.md` files in this folder are concatenated (alphabetically) into the system prompt for every chat.
+
+```
+lua/plugins/ai/prompts/
+├── startup/
+│   ├── 01-neovim-tools.md      # How to use MCP tools
+│   └── 02-communication-style.md # Response style guidelines
+└── (other prompts for reference, not auto-loaded)
+```
+
+To customize AI behavior, edit the files in `startup/` or add new ones. Changes apply on next chat.
+
 ## Commands
 
 | Command | Description |

@@ -46,6 +46,23 @@ return {
 	opts = {
 		strategies = {
 			chat = {
+				roles = {
+					user = "Me",
+				},
+				system_prompt = function()
+					local startup_dir = vim.fn.stdpath("config") .. "/lua/plugins/ai/prompts/startup"
+					local files = vim.fn.glob(startup_dir .. "/*.md", false, true)
+					table.sort(files)
+					local parts = {}
+					for _, file in ipairs(files) do
+						local f = io.open(file, "r")
+						if f then
+							table.insert(parts, f:read("*a"))
+							f:close()
+						end
+					end
+					return table.concat(parts, "\n\n")
+				end,
 				keymaps = {
 					close = {
 						modes = { n = "q" },
