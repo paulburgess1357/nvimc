@@ -7,36 +7,23 @@ local cfg = require("config.plugins").codecompanion or {}
 -- Configuration
 -- ============================================================================
 
--- Change DEFAULT_ADAPTER to switch providers
+-- Change this to switch providers: "copilot", "anthropic", "openai", "gemini", "ollama"
 local DEFAULT_ADAPTER = "anthropic"
 
--- Models per adapter (change these to use different models)
---
--- Anthropic (direct API, requires ANTHROPIC_API_KEY):
---   claude-sonnet-4-5-20250929  ($3/$15)   Best for coding, Jan 2025 knowledge
---   claude-haiku-4-5-20251001   ($1/$5)    Fast, cheap
---   claude-opus-4-5-20251101    ($5/$25)   Most intelligent, May 2025 knowledge
---   claude-sonnet-4-20250514    ($3/$15)   Previous gen
---
--- Copilot (via GitHub subscription):
---   claude-sonnet-4, claude-sonnet-4.5, gpt-4o, gpt-4.1, o1, o3-mini
---
--- OpenAI (requires OPENAI_API_KEY):
---   gpt-4o, gpt-4o-mini, gpt-4-turbo, o1, o1-mini, o3-mini
---
--- Gemini (requires GEMINI_API_KEY):
---   gemini-2.0-flash, gemini-1.5-pro, gemini-1.5-flash
---
--- Ollama (local, free):
---   llama3.2, llama3.1, codellama, mistral, deepseek-coder
---
-local MODELS = {
-	anthropic = "claude-sonnet-4-5-20250929",
-	copilot = "claude-sonnet-4.5",
-	openai = "gpt-4o",
-	gemini = "gemini-2.0-flash",
-	ollama = "llama3.2",
-}
+-- Default model (set to nil to use adapter's default, or specify a model)
+-- Anthropic: "claude-sonnet-4-5-20250514", "claude-opus-4-5-20251101", "claude-haiku-4-5-20251001"
+-- Copilot:   "claude-sonnet-4", "claude-sonnet-4.5", "gpt-4o", "gpt-4.1", "o1", "o3-mini"
+-- OpenAI:    "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "o1", "o1-mini", "o3-mini"
+-- Gemini:    "gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash"
+-- Ollama:    "llama3.2", "llama3.1", "codellama", "mistral", "deepseek-coder"
+local DEFAULT_MODEL = nil
+
+-- Show model/settings info at top of chat buffer
+local SHOW_CHAT_SETTINGS = false
+
+-- ============================================================================
+-- Helper Functions
+-- ============================================================================
 
 -- Load system prompt from markdown files in prompts/startup/
 local function load_system_prompt()
@@ -99,39 +86,11 @@ return {
 	end,
 
 	opts = {
-		-- Adapters: customize model defaults
-		adapters = {
-			anthropic = function()
-				return require("codecompanion.adapters").extend("anthropic", {
-					schema = { model = { default = MODELS.anthropic } },
-				})
-			end,
-			copilot = function()
-				return require("codecompanion.adapters").extend("copilot", {
-					schema = { model = { default = MODELS.copilot } },
-				})
-			end,
-			openai = function()
-				return require("codecompanion.adapters").extend("openai", {
-					schema = { model = { default = MODELS.openai } },
-				})
-			end,
-			gemini = function()
-				return require("codecompanion.adapters").extend("gemini", {
-					schema = { model = { default = MODELS.gemini } },
-				})
-			end,
-			ollama = function()
-				return require("codecompanion.adapters").extend("ollama", {
-					schema = { model = { default = MODELS.ollama } },
-				})
-			end,
-		},
-
-		-- Interactions
+		-- Interactions: set which adapter to use for each interaction type
+		-- Change these to your preferred adapter: "copilot", "anthropic", "openai", "gemini", "ollama"
 		interactions = {
 			chat = {
-				adapter = DEFAULT_ADAPTER,
+				adapter = DEFAULT_MODEL and { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL } or DEFAULT_ADAPTER,
 				roles = { user = "Me" },
 				keymaps = {
 					close = {
@@ -148,19 +107,21 @@ return {
 				},
 			},
 			inline = {
-				adapter = DEFAULT_ADAPTER,
+				adapter = DEFAULT_MODEL and { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL } or DEFAULT_ADAPTER,
 			},
 			cmd = {
-				adapter = DEFAULT_ADAPTER,
+				adapter = DEFAULT_MODEL and { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL } or DEFAULT_ADAPTER,
 			},
 		},
 
-		-- Display
+		-- Display settings
 		display = {
 			chat = {
-				show_settings = true,
+				show_settings = SHOW_CHAT_SETTINGS,
+				show_token_count = true,
+				-- Reasoning/thinking display
 				show_reasoning = true,
-				fold_reasoning = false,
+				fold_reasoning = true, -- Folds after streaming completes
 				window = {
 					layout = "vertical",
 					width = 0.4,
