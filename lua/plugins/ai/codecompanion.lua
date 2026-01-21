@@ -32,7 +32,7 @@ local DEFAULT_ADAPTER = "anthropic"
 --
 local MODELS = {
 	anthropic = "claude-sonnet-4-5-20250929",
-	copilot = "claude-sonnet-4",
+	copilot = "claude-sonnet-4.5",
 	openai = "gpt-4o",
 	gemini = "gemini-2.0-flash",
 	ollama = "llama3.2",
