@@ -4,11 +4,38 @@
 local cfg = require("config.plugins").codecompanion or {}
 
 -- ============================================================================
--- Configuration
+-- Adapter Configuration
 -- ============================================================================
 
+-- Change this to switch your default adapter
 local DEFAULT_ADAPTER = "anthropic"
-local DEFAULT_MODEL = "claude-sonnet-4-5-20250929"
+
+-- Adapter definitions: { model, env_var (nil = no API key needed) }
+local ADAPTERS = {
+	anthropic = { model = "claude-sonnet-4-5-20250929", env = "ANTHROPIC_API_KEY" },
+	copilot = { model = "claude-sonnet-4" }, -- uses GitHub auth
+	openai = { model = "gpt-4o", env = "OPENAI_API_KEY" },
+	gemini = { model = "gemini-2.0-flash", env = "GEMINI_API_KEY" },
+	deepseek = { model = "deepseek-chat", env = "DEEPSEEK_API_KEY" },
+	ollama = { model = "llama3.2" }, -- local, no API key
+}
+
+-- Build adapters config from table
+local function build_adapters()
+	local result = {}
+	for name, config in pairs(ADAPTERS) do
+		result[name] = function()
+			return require("codecompanion.adapters").extend(name, {
+				schema = { model = { default = config.model } },
+			})
+		end
+	end
+	return result
+end
+
+-- ============================================================================
+-- System Prompt
+-- ============================================================================
 
 -- Load system prompt from markdown files in prompts/startup/
 local function load_system_prompt()
@@ -104,16 +131,7 @@ return {
 			},
 		},
 
-		-- Adapters configuration
-		adapters = {
-			anthropic = function()
-				return require("codecompanion.adapters").extend("anthropic", {
-					schema = {
-						model = { default = DEFAULT_MODEL },
-					},
-				})
-			end,
-		},
+		adapters = build_adapters(),
 
 		-- Display settings
 		display = {
