@@ -1,5 +1,12 @@
 -- CodeCompanion.nvim: AI-powered coding assistant
 -- https://github.com/olimorris/codecompanion.nvim
+--
+-- This plugin provides an AI-powered coding assistant with chat, inline completions,
+-- and code actions. It supports multiple AI providers (Anthropic, Copilot, OpenAI,
+-- Gemini, Ollama) and can be configured to use different models for different tasks.
+--
+-- Custom commands: :Chat (toggle), :NewChat/:ChatNew (new chat)
+-- System prompts are loaded from lua/plugins/ai/prompts/startup/*.md
 
 local cfg = require("config.plugins").codecompanion or {}
 
