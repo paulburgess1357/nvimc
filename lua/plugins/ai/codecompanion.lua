@@ -91,7 +91,7 @@ return {
 		},
 		display = {
 			chat = {
-				show_settings = false,
+				show_settings = true,
 				window = {
 					layout = "vertical",
 					width = 0.4,

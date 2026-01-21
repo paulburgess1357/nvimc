@@ -89,19 +89,19 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for full list.
 
 ### Custom Menu (Space Space)
 
-| Key | Action |
-| --- | ------ |
-| `<leader><leader>f` | Files (cwd) |
-| `<leader><leader>g` | Grep (cwd) |
-| `<leader><leader>h` | Files (home) |
-| `<leader><leader>j` | Grep (home) |
-| `<leader><leader>r` | Recent files |
-| `<leader><leader>m` | Marks |
-| `<leader><leader>l` | Symbols (workspace) |
+| Key                 | Action                  |
+| ------------------- | ----------------------- |
+| `<leader><leader>f` | Files (cwd)             |
+| `<leader><leader>g` | Grep (cwd)              |
+| `<leader><leader>h` | Files (home)            |
+| `<leader><leader>j` | Grep (home)             |
+| `<leader><leader>r` | Recent files            |
+| `<leader><leader>m` | Marks                   |
+| `<leader><leader>l` | Symbols (workspace)     |
 | `<leader><leader>s` | Toggle diagnostic signs |
-| `<leader><leader>v` | Toggle virtual text |
-| `<leader><leader>a` | Toggle format on save |
-| `<leader><leader>t` | Toggle hardtime |
+| `<leader><leader>v` | Toggle virtual text     |
+| `<leader><leader>a` | Toggle format on save   |
+| `<leader><leader>t` | Toggle hardtime         |
 
 ## Commands
 
