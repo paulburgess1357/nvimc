@@ -77,11 +77,11 @@ return {
 	end,
 
 	opts = {
-		-- Strategy configurations (chat, inline, agent)
-		strategies = {
+		-- Interactions (chat, inline, cmd)
+		interactions = {
 			chat = {
+				adapter = DEFAULT_ADAPTER,
 				roles = { user = "Me" },
-				system_prompt = load_system_prompt,
 				keymaps = {
 					close = {
 						modes = { n = "q" },
@@ -90,14 +90,29 @@ return {
 						end,
 					},
 				},
-				adapter = { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL },
+				opts = {
+					system_prompt = function(ctx)
+						return load_system_prompt()
+					end,
+				},
 			},
 			inline = {
-				adapter = { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL },
+				adapter = DEFAULT_ADAPTER,
 			},
-			agent = {
-				adapter = { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL },
+			cmd = {
+				adapter = DEFAULT_ADAPTER,
 			},
+		},
+
+		-- Adapters configuration
+		adapters = {
+			anthropic = function()
+				return require("codecompanion.adapters").extend("anthropic", {
+					schema = {
+						model = { default = DEFAULT_MODEL },
+					},
+				})
+			end,
 		},
 
 		-- Display settings
