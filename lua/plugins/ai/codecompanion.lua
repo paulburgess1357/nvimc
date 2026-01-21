@@ -1,41 +1,42 @@
 -- CodeCompanion.nvim: AI-powered coding assistant
--- Provides chat, inline assistance, and agent workflows
+-- https://github.com/olimorris/codecompanion.nvim
 
 local cfg = require("config.plugins").codecompanion or {}
 
 -- ============================================================================
--- Adapter Configuration
+-- Configuration
 -- ============================================================================
 
--- Change this to switch your default adapter
+-- Change DEFAULT_ADAPTER to switch providers
 local DEFAULT_ADAPTER = "anthropic"
 
--- Adapter definitions: { model, env_var (nil = no API key needed) }
-local ADAPTERS = {
-	anthropic = { model = "claude-sonnet-4-5-20250929", env = "ANTHROPIC_API_KEY" },
-	copilot = { model = "claude-sonnet-4" }, -- uses GitHub auth
-	openai = { model = "gpt-4o", env = "OPENAI_API_KEY" },
-	gemini = { model = "gemini-2.0-flash", env = "GEMINI_API_KEY" },
-	deepseek = { model = "deepseek-chat", env = "DEEPSEEK_API_KEY" },
-	ollama = { model = "llama3.2" }, -- local, no API key
+-- Models per adapter (change these to use different models)
+--
+-- Anthropic (direct API, requires ANTHROPIC_API_KEY):
+--   claude-sonnet-4-5-20250929  ($3/$15)   Best for coding, Jan 2025 knowledge
+--   claude-haiku-4-5-20251001   ($1/$5)    Fast, cheap
+--   claude-opus-4-5-20251101    ($5/$25)   Most intelligent, May 2025 knowledge
+--   claude-sonnet-4-20250514    ($3/$15)   Previous gen
+--
+-- Copilot (via GitHub subscription):
+--   claude-sonnet-4, claude-sonnet-4.5, gpt-4o, gpt-4.1, o1, o3-mini
+--
+-- OpenAI (requires OPENAI_API_KEY):
+--   gpt-4o, gpt-4o-mini, gpt-4-turbo, o1, o1-mini, o3-mini
+--
+-- Gemini (requires GEMINI_API_KEY):
+--   gemini-2.0-flash, gemini-1.5-pro, gemini-1.5-flash
+--
+-- Ollama (local, free):
+--   llama3.2, llama3.1, codellama, mistral, deepseek-coder
+--
+local MODELS = {
+	anthropic = "claude-sonnet-4-5-20250929",
+	copilot = "claude-sonnet-4",
+	openai = "gpt-4o",
+	gemini = "gemini-2.0-flash",
+	ollama = "llama3.2",
 }
-
--- Build adapters config from table
-local function build_adapters()
-	local result = {}
-	for name, config in pairs(ADAPTERS) do
-		result[name] = function()
-			return require("codecompanion.adapters").extend(name, {
-				schema = { model = { default = config.model } },
-			})
-		end
-	end
-	return result
-end
-
--- ============================================================================
--- System Prompt
--- ============================================================================
 
 -- Load system prompt from markdown files in prompts/startup/
 local function load_system_prompt()
@@ -81,22 +82,16 @@ return {
 		require("codecompanion").setup(opts)
 
 		-- Custom commands
-		local commands = {
-			{ "Chat", "CodeCompanionChat Toggle", "Toggle AI chat" },
-			{ "NewChat", "CodeCompanionChat", "New AI chat" },
-			{ "ChatNew", "CodeCompanionChat", "New AI chat" },
-		}
-
-		for _, cmd in ipairs(commands) do
-			vim.api.nvim_create_user_command(cmd[1], cmd[2], { desc = cmd[3] })
-		end
+		vim.api.nvim_create_user_command("Chat", "CodeCompanionChat Toggle", { desc = "Toggle AI chat" })
+		vim.api.nvim_create_user_command("NewChat", "CodeCompanionChat", { desc = "New AI chat" })
+		vim.api.nvim_create_user_command("ChatNew", "CodeCompanionChat", { desc = "New AI chat" })
 
 		-- Disable buffer-switching keys in chat buffers
 		vim.api.nvim_create_autocmd("FileType", {
 			pattern = "codecompanion",
 			callback = function(ev)
-				local keys = { "<S-h>", "<S-l>", "<leader>-", "<leader>|" }
-				for _, key in ipairs(keys) do
+				local disabled_keys = { "<S-h>", "<S-l>", "<leader>-", "<leader>|" }
+				for _, key in ipairs(disabled_keys) do
 					vim.keymap.set("n", key, "<nop>", { buffer = ev.buf })
 				end
 			end,
@@ -104,7 +99,36 @@ return {
 	end,
 
 	opts = {
-		-- Interactions (chat, inline, cmd)
+		-- Adapters: customize model defaults
+		adapters = {
+			anthropic = function()
+				return require("codecompanion.adapters").extend("anthropic", {
+					schema = { model = { default = MODELS.anthropic } },
+				})
+			end,
+			copilot = function()
+				return require("codecompanion.adapters").extend("copilot", {
+					schema = { model = { default = MODELS.copilot } },
+				})
+			end,
+			openai = function()
+				return require("codecompanion.adapters").extend("openai", {
+					schema = { model = { default = MODELS.openai } },
+				})
+			end,
+			gemini = function()
+				return require("codecompanion.adapters").extend("gemini", {
+					schema = { model = { default = MODELS.gemini } },
+				})
+			end,
+			ollama = function()
+				return require("codecompanion.adapters").extend("ollama", {
+					schema = { model = { default = MODELS.ollama } },
+				})
+			end,
+		},
+
+		-- Interactions
 		interactions = {
 			chat = {
 				adapter = DEFAULT_ADAPTER,
@@ -131,12 +155,12 @@ return {
 			},
 		},
 
-		adapters = build_adapters(),
-
-		-- Display settings
+		-- Display
 		display = {
 			chat = {
 				show_settings = true,
+				show_reasoning = true,
+				fold_reasoning = false,
 				window = {
 					layout = "vertical",
 					width = 0.4,

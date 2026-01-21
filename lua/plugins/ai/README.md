@@ -40,9 +40,19 @@ If you get a "mcp-hub executable not found" error, run:
 Edit `lua/plugins/ai/codecompanion.lua`:
 
 ```lua
-local default_adapter = "anthropic"  -- or "copilot", "openai", "gemini", "ollama"
-local default_model = "claude-sonnet-4-5-20250929"
+-- Change adapter (line 11)
+local DEFAULT_ADAPTER = "anthropic"  -- or "copilot", "openai", "gemini", "ollama"
+
+-- Change model per adapter (MODELS table)
+local MODELS = {
+	anthropic = "claude-sonnet-4-5-20250929",
+	copilot = "claude-sonnet-4",
+	openai = "gpt-4o",
+	...
+}
 ```
+
+Available models are documented in the comments at the top of the file.
 
 ### Copilot Options
 
