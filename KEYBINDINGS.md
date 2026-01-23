@@ -100,7 +100,18 @@
 | Key | Action |
 | --- | ------ |
 | `Tab` | Accept Copilot suggestion (insert mode, when inline_suggestions enabled) |
-| `q` | Toggle chat (in CodeCompanion chat buffer) |
+
+### CodeCompanion Chat Buffer
+
+| Key | Action |
+| --- | ------ |
+| `q` | Toggle chat (hide window) |
+| `<CR>` / `<C-s>` | Send message |
+| `ga` | Change adapter/model |
+| `gr` | Regenerate response |
+| `gx` | Clear chat |
+| `gh` | Browse chat history |
+| `?` | Show all keymaps |
 
 ## Terminal
 

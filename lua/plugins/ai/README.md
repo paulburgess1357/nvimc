@@ -7,10 +7,15 @@
 
 ## Setup
 
-### Requirements
+### Supported Providers
 
-- [Anthropic API key](https://console.anthropic.com/) (recommended), OR
-- [GitHub Copilot](https://github.com/features/copilot) subscription
+| Provider | Requirements |
+| -------- | ------------ |
+| Anthropic | API key from [console.anthropic.com](https://console.anthropic.com/) |
+| Copilot | [GitHub Copilot](https://github.com/features/copilot) subscription |
+| OpenAI | API key from [platform.openai.com](https://platform.openai.com/) |
+| Gemini | API key from [aistudio.google.com](https://aistudio.google.com/) |
+| Ollama | Local [Ollama](https://ollama.ai/) installation |
 
 ### Environment Variables
 
@@ -19,6 +24,8 @@
 | Anthropic | `ANTHROPIC_API_KEY` |
 | OpenAI | `OPENAI_API_KEY` |
 | Gemini | `GEMINI_API_KEY` |
+| Copilot | (uses GitHub auth, no env var needed) |
+| Ollama | (local, no env var needed) |
 
 ### Copilot Authentication
 
@@ -41,19 +48,14 @@ If you get a "mcp-hub executable not found" error, run:
 Edit `lua/plugins/ai/codecompanion.lua`:
 
 ```lua
--- Change adapter (line 11)
+-- Change adapter (line 18)
 local DEFAULT_ADAPTER = "anthropic"  -- or "copilot", "openai", "gemini", "ollama"
 
--- Change model per adapter (MODELS table)
-local MODELS = {
-	anthropic = "claude-sonnet-4-5-20250929",
-	copilot = "claude-sonnet-4",
-	openai = "gpt-4o",
-	...
-}
+-- Optionally set a specific model (line 26)
+local DEFAULT_MODEL = nil  -- nil uses adapter's default
 ```
 
-Available models are documented in the comments at the top of the file.
+Available models per adapter are documented in the comments at the top of the file.
 
 ### Copilot Options
 
