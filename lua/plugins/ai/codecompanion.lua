@@ -128,6 +128,22 @@ return {
 			cmd = {
 				adapter = DEFAULT_MODEL and { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL } or DEFAULT_ADAPTER,
 			},
+			-- Background interactions for auto-generating chat titles
+			background = {
+				chat = {
+					callbacks = {
+						["on_ready"] = {
+							actions = {
+								"interactions.background.builtin.chat_make_title",
+							},
+							enabled = true,
+						},
+					},
+					opts = {
+						enabled = true,
+					},
+				},
+			},
 		},
 
 		-- Display settings
