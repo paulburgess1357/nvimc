@@ -99,7 +99,7 @@ return {
 		-- Debug: set to "DEBUG" or "TRACE" to see API requests in log file
 		-- Check log location with :checkhealth codecompanion
 		opts = {
-			log_level = "DEBUG", -- "ERROR", "WARN", "INFO", "DEBUG", "TRACE"
+			log_level = "WARN", -- "ERROR", "WARN", "INFO", "DEBUG", "TRACE"
 		},
 
 		-- Interactions: set which adapter to use for each interaction type
