@@ -62,14 +62,17 @@ return {
 		"nvim-lua/plenary.nvim",
 		"nvim-treesitter/nvim-treesitter",
 		"github/copilot.vim",
+		"ravitemer/codecompanion-history.nvim",
 	},
 	cmd = {
 		"CodeCompanion",
 		"CodeCompanionChat",
 		"CodeCompanionActions",
+		"CodeCompanionHistory",
 		"Chat",
 		"NewChat",
 		"ChatNew",
+		"ChatHistory",
 	},
 
 	config = function(_, opts)
@@ -82,6 +85,7 @@ return {
 		vim.api.nvim_create_user_command("ChatLog", function()
 			vim.cmd("edit " .. vim.fn.stdpath("log") .. "/codecompanion.log")
 		end, { desc = "Open CodeCompanion log" })
+		vim.api.nvim_create_user_command("ChatHistory", "CodeCompanionHistory", { desc = "Browse chat history" })
 
 		-- Disable buffer-switching keys in chat buffers
 		vim.api.nvim_create_autocmd("FileType", {
@@ -128,22 +132,6 @@ return {
 			cmd = {
 				adapter = DEFAULT_MODEL and { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL } or DEFAULT_ADAPTER,
 			},
-			-- Background interactions for auto-generating chat titles
-			background = {
-				chat = {
-					callbacks = {
-						["on_ready"] = {
-							actions = {
-								"interactions.background.builtin.chat_make_title",
-							},
-							enabled = true,
-						},
-					},
-					opts = {
-						enabled = true,
-					},
-				},
-			},
 		},
 
 		-- Display settings
@@ -170,6 +158,21 @@ return {
 					show_server_tools_in_chat = true,
 					make_vars = true,
 					make_slash_commands = true,
+				},
+			},
+			history = {
+				enabled = true,
+				opts = {
+					keymap = "gh", -- Open history in chat buffer
+					auto_save = true,
+					auto_generate_title = true,
+					continue_last_chat = false,
+					picker = "snacks", -- or "telescope", "fzf_lua"
+					dir_to_save = vim.fn.stdpath("data") .. "/codecompanion-history",
+					-- Only show chats from current working directory
+					chat_filter = function(chat)
+						return chat.cwd == vim.fn.getcwd()
+					end,
 				},
 			},
 		},

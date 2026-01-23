@@ -2,6 +2,7 @@
 
 - [copilot.vim](https://github.com/github/copilot.vim) - GitHub Copilot authentication and inline suggestions
 - [CodeCompanion.nvim](https://github.com/olimorris/codecompanion.nvim) - AI chat, inline assistance, and agent workflows
+- [codecompanion-history.nvim](https://github.com/ravitemer/codecompanion-history.nvim) - Save and restore chat sessions
 - [mcphub.nvim](https://github.com/ravitemer/mcphub.nvim) - MCP (Model Context Protocol) server integration
 
 ## Setup
@@ -70,10 +71,8 @@ Custom system prompts are loaded from `lua/plugins/ai/prompts/startup/`. All `.m
 
 ```
 lua/plugins/ai/prompts/
-├── startup/
-│   ├── 01-neovim-tools.md      # How to use MCP tools
-│   └── 02-communication-style.md # Response style guidelines
-└── (other prompts for reference, not auto-loaded)
+└── startup/
+    └── 01-communication-style.md  # Response style guidelines
 ```
 
 To customize AI behavior, edit the files in `startup/` or add new ones. Changes apply on next chat.
@@ -84,6 +83,7 @@ To customize AI behavior, edit the files in `startup/` or add new ones. Changes 
 | ------- | ----------- |
 | `:Chat` | Toggle chat window |
 | `:NewChat` / `:ChatNew` | Start a new chat |
+| `:ChatHistory` | Browse and restore saved chats |
 | `:CodeCompanion` | Inline assist |
 | `:CodeCompanionActions` | Actions menu |
 | `:MCPHub` | Open MCP Hub interface |
@@ -109,7 +109,22 @@ Status indicators in lualine (section x):
 | `ga` | Change adapter, then model |
 | `gr` | Regenerate last response |
 | `gx` | Clear chat |
+| `gh` | Browse chat history |
 | `?` | Show all keymaps |
+
+### Chat History
+
+Chats are automatically saved and can be restored later with full context (messages, tools, system prompts). History is filtered by current working directory - you only see chats from your current project.
+
+| Command / Key | Action |
+| ------------- | ------ |
+| `:ChatHistory` | Browse saved chats (current project) |
+| `gh` (in chat) | Browse history |
+| `<CR>` | Select/restore chat |
+| `d` | Delete chat |
+| `r` | Rename chat |
+
+History is stored in `~/.local/share/nvim/codecompanion-history/`.
 
 ### Completion Prefixes
 

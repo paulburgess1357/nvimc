@@ -79,6 +79,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup instruc
 
 - **copilot.vim** - GitHub Copilot authentication and inline suggestions
 - **CodeCompanion.nvim** - AI chat, inline assistance, and agent workflows (Anthropic, Copilot, OpenAI, etc.)
+- **codecompanion-history.nvim** - Save and restore chat sessions
 - **mcphub.nvim** - MCP (Model Context Protocol) server integration
 
 Requires Anthropic API key (`ANTHROPIC_API_KEY`) or GitHub Copilot subscription. See [lua/plugins/ai/README.md](lua/plugins/ai/README.md) for setup.
