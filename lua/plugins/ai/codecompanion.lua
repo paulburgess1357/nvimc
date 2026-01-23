@@ -17,10 +17,10 @@ local cfg = require("config.plugins").codecompanion or {}
 -- Change this to switch providers: "copilot", "anthropic", "openai", "gemini", "ollama"
 local DEFAULT_ADAPTER = "anthropic"
 
--- Default model (set to nil to use adapter's default, or specify a model)
--- Anthropic: "claude-sonnet-4-5-20250514", "claude-opus-4-5-20251101", "claude-haiku-4-5-20251001"
--- Copilot:   "claude-sonnet-4", "claude-sonnet-4.5", "gpt-4o", "gpt-4.1", "o1", "o3-mini"
--- OpenAI:    "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "o1", "o1-mini", "o3-mini"
+-- Default model (set to nil to use adapter's default)
+-- Anthropic: "claude-sonnet-4-5", "claude-opus-4-5", "claude-haiku-4-5"
+-- Copilot:   "claude-sonnet-4.5", "claude-opus-4.5", "gpt-4.1", "gpt-4o", "gpt-5"
+-- OpenAI:    "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "o1", "o3-mini"
 -- Gemini:    "gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash"
 -- Ollama:    "llama3.2", "llama3.1", "codellama", "mistral", "deepseek-coder"
 local DEFAULT_MODEL = nil
@@ -79,6 +79,9 @@ return {
 		vim.api.nvim_create_user_command("Chat", "CodeCompanionChat Toggle", { desc = "Toggle AI chat" })
 		vim.api.nvim_create_user_command("NewChat", "CodeCompanionChat", { desc = "New AI chat" })
 		vim.api.nvim_create_user_command("ChatNew", "CodeCompanionChat", { desc = "New AI chat" })
+		vim.api.nvim_create_user_command("ChatLog", function()
+			vim.cmd("edit " .. vim.fn.stdpath("log") .. "/codecompanion.log")
+		end, { desc = "Open CodeCompanion log" })
 
 		-- Disable buffer-switching keys in chat buffers
 		vim.api.nvim_create_autocmd("FileType", {
@@ -93,6 +96,12 @@ return {
 	end,
 
 	opts = {
+		-- Debug: set to "DEBUG" or "TRACE" to see API requests in log file
+		-- Check log location with :checkhealth codecompanion
+		opts = {
+			log_level = "DEBUG", -- "ERROR", "WARN", "INFO", "DEBUG", "TRACE"
+		},
+
 		-- Interactions: set which adapter to use for each interaction type
 		-- Change these to your preferred adapter: "copilot", "anthropic", "openai", "gemini", "ollama"
 		interactions = {
