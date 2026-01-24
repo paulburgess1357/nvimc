@@ -1,3 +1,6 @@
+-- Plugin Configuration Manager
+-- This file provides centralized control over all Neovim plugins
+--
 -- Centralized plugin configuration
 -- Enable/disable plugins and specify branches from one place
 --
@@ -48,9 +51,9 @@ return {
 	-- Debug
 	dap = { enabled = true },
 
-	-- AI (adapter/model configured in lua/plugins/ai/codecompanion.lua)
+	-- AI (provider configured in lua/plugins/ai/avante.lua)
 	copilot = { enabled = true, inline_suggestions = true },
-	codecompanion = { enabled = true, branch = "main" },
+	avante = { enabled = true },
 	mcphub = { enabled = true },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
