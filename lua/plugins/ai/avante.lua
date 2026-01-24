@@ -4,8 +4,8 @@
 -- This plugin provides AI-driven code suggestions with one-click apply.
 -- Supports multiple providers: Anthropic Claude, GitHub Copilot, OpenAI, etc.
 --
--- Custom commands: :Chat (toggle), :NewChat (new chat)
--- Provider switch: :AvanteProvider or <leader>ap
+-- Commands: :Chat, :ChatNew, :ChatAsk, :ChatEdit, :ChatFocus,
+--           :ChatHistory, :ChatModels, :ChatProvider, :ChatStop, :ChatClear
 
 local cfg = require("config.plugins").avante or {}
 
@@ -44,19 +44,54 @@ return {
 		"AvanteSwitchProvider",
 		"AvanteStop",
 		"AvanteClear",
+
+		-- Chat aliases
 		"Chat",
-		"NewChat",
 		"ChatNew",
+		"ChatAsk",
+		"ChatEdit",
+		"ChatFocus",
+		"ChatHistory",
+		"ChatModels",
+		"ChatProvider",
+		"ChatStop",
+		"ChatClear",
+		"ChatReset",
 	},
 
 	config = function(_, opts)
 		require("avante").setup(opts)
 
-		-- Custom commands to match CodeCompanion style
+		-- Make sidebar separator match theme's window separator
+		vim.api.nvim_set_hl(0, "AvanteSidebarWinSeparator", { link = "WinSeparator" })
+
+		-- Chat command aliases
 		vim.api.nvim_create_user_command("Chat", "AvanteToggle", { desc = "Toggle AI chat" })
-		vim.api.nvim_create_user_command("NewChat", "AvanteChatNew", { desc = "New AI chat" })
 		vim.api.nvim_create_user_command("ChatNew", "AvanteChatNew", { desc = "New AI chat" })
-		vim.api.nvim_create_user_command("AvanteProvider", "AvanteSwitchProvider", { desc = "Switch AI provider" })
+		vim.api.nvim_create_user_command("ChatAsk", "AvanteAsk", { desc = "Ask AI" })
+		vim.api.nvim_create_user_command("ChatEdit", "AvanteEdit", { desc = "AI edit selection" })
+		vim.api.nvim_create_user_command("ChatFocus", "AvanteFocus", { desc = "Focus AI chat" })
+		vim.api.nvim_create_user_command("ChatHistory", "AvanteHistory", { desc = "AI chat history" })
+		vim.api.nvim_create_user_command("ChatModels", "AvanteModels", { desc = "Switch AI model" })
+		vim.api.nvim_create_user_command("ChatProvider", function(o)
+			if o.args == "" then
+				local p = require("avante.config").provider
+				vim.notify("Provider: " .. p, vim.log.levels.INFO)
+			else
+				vim.cmd("AvanteSwitchProvider " .. o.args)
+			end
+		end, { nargs = "?", desc = "Show/switch AI provider" })
+		vim.api.nvim_create_user_command("ChatStop", "AvanteStop", { desc = "Stop AI generation" })
+		vim.api.nvim_create_user_command("ChatClear", "AvanteClear", { desc = "Clear AI chat" })
+		vim.api.nvim_create_user_command("ChatReset", function()
+			local config_file = vim.fn.expand("~/.config/avante.nvim/config.json")
+			if vim.fn.filereadable(config_file) == 1 then
+				vim.fn.delete(config_file)
+				vim.notify("Avante model selection cleared. Restart Neovim.", vim.log.levels.INFO)
+			else
+				vim.notify("No saved model selection found.", vim.log.levels.WARN)
+			end
+		end, { desc = "Reset Avante model selection (requires restart)" })
 	end,
 
 	opts = {
@@ -67,6 +102,11 @@ return {
 		mode = "agentic",
 
 		-- Provider configurations
+		-- Models by provider (use :ChatModels to list available):
+		--   claude:  claude-sonnet-4-20250514, claude-opus-4-20250514
+		--   copilot: gpt-4o-2024-11-20, gpt-4.1, o4-mini (fetched dynamically)
+		--   openai:  gpt-4o, gpt-4o-mini, o1, o3-mini
+		--   gemini:  gemini-2.0-flash, gemini-1.5-pro
 		providers = {
 			claude = {
 				endpoint = "https://api.anthropic.com",
@@ -78,8 +118,7 @@ return {
 				},
 			},
 			copilot = {
-				endpoint = "https://api.githubcopilot.com",
-				model = "claude-sonnet-4",
+				model = "gpt-4o-2024-11-20", -- use :ChatModels to see available
 				timeout = 30000,
 				extra_request_body = {
 					temperature = 0.7,
@@ -122,6 +161,7 @@ return {
 			position = "right",
 			width = 40, -- percentage
 			wrap = true,
+			border = "none", -- "single", "double", "rounded", "solid", "shadow", or "none"
 			sidebar_header = {
 				enabled = true,
 				align = "center",
@@ -135,6 +175,10 @@ return {
 				start_insert = true,
 			},
 		},
+
+		-- Use fzf for all selection UIs
+		selector = { provider = "fzf_lua" },
+		file_selector = { provider = "fzf_lua" },
 
 		-- Hints (virtual text)
 		hints = {
