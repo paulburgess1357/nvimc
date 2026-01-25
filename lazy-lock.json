@@ -9,7 +9,7 @@
   "conform.nvim": { "branch": "master", "commit": "c2526f1cde528a66e086ab1668e996d162c75f4f" },
   "copilot.vim": { "branch": "release", "commit": "a12fd5672110c8aa7e3c8419e28c96943ca179be" },
   "friendly-snippets": { "branch": "main", "commit": "6cd7280adead7f586db6fccbd15d2cac7e2188b9" },
-  "fzf-lua": { "branch": "main", "commit": "21b9acfdb6c8b423338a20f57664209809cd033f" },
+  "fzf-lua": { "branch": "main", "commit": "28322778936d843fed176a59ec7ce1538057b3f1" },
   "gitsigns.nvim": { "branch": "main", "commit": "abf82a65f185bd54adc0679f74b7d6e1ada690c9" },
   "hardtime.nvim": { "branch": "main", "commit": "b4e431934af1fe224a3a801f632c008278cb7628" },
   "inc-rename.nvim": { "branch": "main", "commit": "2597bccb57d1b570fbdbd4adf88b955f7ade715b" },
