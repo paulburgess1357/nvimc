@@ -1,38 +1,34 @@
 -- CodeCompanion.nvim: AI-powered coding assistant
 -- https://github.com/olimorris/codecompanion.nvim
---
--- This plugin provides an AI-powered coding assistant with chat, inline completions,
--- and code actions. It supports multiple AI providers (Anthropic, Copilot, OpenAI,
--- Gemini, Ollama) and can be configured to use different models for different tasks.
---
--- Custom commands: :Chat (toggle), :NewChat/:ChatNew (new chat)
--- System prompts are loaded from lua/plugins/ai/prompts/startup/*.md
 
 local cfg = require("config.plugins").codecompanion or {}
 
 -- ============================================================================
--- Configuration
+-- Settings
 -- ============================================================================
 
--- Change this to switch providers: "copilot", "anthropic", "openai", "gemini", "ollama"
+-- Provider: "anthropic", "copilot", "openai", "gemini", "ollama"
 local DEFAULT_ADAPTER = "anthropic"
 
--- Default model (set to nil to use adapter's default)
+-- Model: nil uses adapter's default
 -- Anthropic: "claude-sonnet-4-5", "claude-opus-4-5", "claude-haiku-4-5"
--- Copilot:   "claude-sonnet-4.5", "claude-opus-4.5", "gpt-4.1", "gpt-4o", "gpt-5"
--- OpenAI:    "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "o1", "o3-mini"
+-- Copilot:   "claude-sonnet-4.5", "claude-opus-4.5", "gpt-4.1", "gpt-4o"
+-- OpenAI:    "gpt-4o", "gpt-4o-mini", "o1", "o3-mini"
 -- Gemini:    "gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash"
--- Ollama:    "llama3.2", "llama3.1", "codellama", "mistral", "deepseek-coder"
+-- Ollama:    "llama3.2", "llama3.1", "codellama", "mistral"
 local DEFAULT_MODEL = nil
 
--- Show model/settings info at top of chat buffer
-local SHOW_CHAT_SETTINGS = false
-
 -- ============================================================================
--- Helper Functions
+-- Helpers
 -- ============================================================================
 
--- Load system prompt from markdown files in prompts/startup/
+local function get_adapter()
+	if DEFAULT_MODEL then
+		return { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL }
+	end
+	return DEFAULT_ADAPTER
+end
+
 local function load_system_prompt()
 	local startup_dir = vim.fn.stdpath("config") .. "/lua/plugins/ai/prompts/startup"
 	local files = vim.fn.glob(startup_dir .. "/*.md", false, true)
@@ -50,67 +46,122 @@ local function load_system_prompt()
 	return table.concat(parts, "\n\n")
 end
 
+local function send_selection_to_chat()
+	local start_line = vim.fn.line("'<")
+	local end_line = vim.fn.line("'>")
+	local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+	local filename = vim.fn.expand("%:.")
+	local filetype = vim.bo.filetype
+
+	local content = string.format(
+		"Here is code from `%s` (lines %d-%d):\n\n```%s\n%s\n```\n",
+		filename,
+		start_line,
+		end_line,
+		filetype,
+		table.concat(lines, "\n")
+	)
+
+	local cc = require("codecompanion")
+	local chat = cc.last_chat() or cc.chat()
+	if chat then
+		chat:add_buf_message({ role = "user", content = content })
+		chat.ui:open()
+		vim.schedule(function()
+			if chat.bufnr and vim.api.nvim_buf_is_valid(chat.bufnr) then
+				local win = vim.fn.bufwinid(chat.bufnr)
+				if win ~= -1 then
+					vim.api.nvim_set_current_win(win)
+				end
+			end
+		end)
+	end
+end
+
+local function open_log()
+	vim.cmd("edit " .. vim.fn.stdpath("log") .. "/codecompanion.log")
+end
+
 -- ============================================================================
--- Plugin Specification
+-- Commands
+-- ============================================================================
+
+local function setup_commands()
+	local cmd = vim.api.nvim_create_user_command
+
+	-- Chat
+	cmd("Chat", "CodeCompanionChat Toggle", { desc = "Toggle AI chat" })
+	cmd("ChatNew", "CodeCompanionChat", { desc = "New AI chat" })
+	cmd("NewChat", "CodeCompanionChat", { desc = "New AI chat" })
+	cmd("ChatHistory", "CodeCompanionHistory", { desc = "Browse chat history" })
+
+	-- Send selection with file/line context
+	cmd("ChatSend", send_selection_to_chat, { range = true, desc = "Send selection to chat" })
+	cmd("SendChat", send_selection_to_chat, { range = true, desc = "Send selection to chat" })
+
+	-- Log
+	cmd("ChatLog", open_log, { desc = "Open CodeCompanion log" })
+	cmd("LogChat", open_log, { desc = "Open CodeCompanion log" })
+end
+
+local function setup_chat_keymaps()
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = "codecompanion",
+		callback = function(ev)
+			-- Disable buffer-switching keys that conflict with chat
+			for _, key in ipairs({ "<S-h>", "<S-l>", "<leader>-", "<leader>|" }) do
+				vim.keymap.set("n", key, "<nop>", { buffer = ev.buf })
+			end
+		end,
+	})
+end
+
+-- ============================================================================
+-- Plugin
 -- ============================================================================
 
 return {
 	"olimorris/codecompanion.nvim",
 	enabled = cfg.enabled ~= false,
 	branch = cfg.branch,
+
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		"nvim-treesitter/nvim-treesitter",
 		"github/copilot.vim",
 		"ravitemer/codecompanion-history.nvim",
 	},
+
 	cmd = {
 		"CodeCompanion",
 		"CodeCompanionChat",
 		"CodeCompanionActions",
 		"CodeCompanionHistory",
+		-- Aliases
 		"Chat",
-		"NewChat",
 		"ChatNew",
+		"NewChat",
 		"ChatHistory",
+		"ChatSend",
+		"SendChat",
+		"ChatLog",
+		"LogChat",
 	},
 
 	config = function(_, opts)
 		require("codecompanion").setup(opts)
-
-		-- Custom commands
-		vim.api.nvim_create_user_command("Chat", "CodeCompanionChat Toggle", { desc = "Toggle AI chat" })
-		vim.api.nvim_create_user_command("NewChat", "CodeCompanionChat", { desc = "New AI chat" })
-		vim.api.nvim_create_user_command("ChatNew", "CodeCompanionChat", { desc = "New AI chat" })
-		vim.api.nvim_create_user_command("ChatLog", function()
-			vim.cmd("edit " .. vim.fn.stdpath("log") .. "/codecompanion.log")
-		end, { desc = "Open CodeCompanion log" })
-		vim.api.nvim_create_user_command("ChatHistory", "CodeCompanionHistory", { desc = "Browse chat history" })
-
-		-- Disable buffer-switching keys in chat buffers
-		vim.api.nvim_create_autocmd("FileType", {
-			pattern = "codecompanion",
-			callback = function(ev)
-				local disabled_keys = { "<S-h>", "<S-l>", "<leader>-", "<leader>|" }
-				for _, key in ipairs(disabled_keys) do
-					vim.keymap.set("n", key, "<nop>", { buffer = ev.buf })
-				end
-			end,
-		})
+		setup_commands()
+		setup_chat_keymaps()
 	end,
 
 	opts = {
-		-- Debug: set to "DEBUG" or "TRACE" to see API requests in log file
-		-- Check log location with :checkhealth codecompanion
 		opts = {
-			log_level = "WARN", -- "ERROR", "WARN", "INFO", "DEBUG", "TRACE"
+			log_level = "WARN",
 		},
 
-		-- Interactions: set which adapter to use for each interaction type
-		-- Change these to your preferred adapter: "copilot", "anthropic", "openai", "gemini", "ollama"
 		interactions = {
 			chat = {
-				adapter = DEFAULT_MODEL and { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL } or DEFAULT_ADAPTER,
+				adapter = get_adapter(),
 				roles = { user = "Me" },
 				keymaps = {
 					close = {
@@ -121,27 +172,20 @@ return {
 					},
 				},
 				opts = {
-					system_prompt = function(ctx)
-						return load_system_prompt()
-					end,
+					system_prompt = load_system_prompt,
 				},
 			},
-			inline = {
-				adapter = DEFAULT_MODEL and { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL } or DEFAULT_ADAPTER,
-			},
-			cmd = {
-				adapter = DEFAULT_MODEL and { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL } or DEFAULT_ADAPTER,
-			},
+			inline = { adapter = get_adapter() },
+			cmd = { adapter = get_adapter() },
 		},
 
-		-- Display settings
 		display = {
+			action_palette = { provider = "fzf_lua" },
 			chat = {
-				show_settings = SHOW_CHAT_SETTINGS,
+				show_settings = false,
 				show_token_count = true,
-				-- Reasoning/thinking display
 				show_reasoning = true,
-				fold_reasoning = true, -- Folds after streaming completes
+				fold_reasoning = true,
 				window = {
 					layout = "vertical",
 					width = 0.4,
@@ -149,7 +193,6 @@ return {
 			},
 		},
 
-		-- Extensions
 		extensions = {
 			mcphub = {
 				callback = "mcphub.extensions.codecompanion",
@@ -163,13 +206,12 @@ return {
 			history = {
 				enabled = true,
 				opts = {
-					keymap = "gh", -- Open history in chat buffer
+					keymap = "gh",
 					auto_save = true,
 					auto_generate_title = true,
 					continue_last_chat = false,
-					picker = "snacks", -- or "telescope", "fzf_lua"
+					picker = "snacks", -- fzf_lua doesn't support delete/rename keymaps well
 					dir_to_save = vim.fn.stdpath("data") .. "/codecompanion-history",
-					-- Only show chats from current working directory
 					chat_filter = function(chat)
 						return chat.cwd == vim.fn.getcwd()
 					end,

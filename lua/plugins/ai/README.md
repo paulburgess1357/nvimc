@@ -84,8 +84,10 @@ To customize AI behavior, edit the files in `startup/` or add new ones. Changes 
 | Command | Description |
 | ------- | ----------- |
 | `:Chat` | Toggle chat window |
-| `:NewChat` / `:ChatNew` | Start a new chat |
+| `:ChatNew` / `:NewChat` | Start a new chat |
+| `:ChatSend` / `:SendChat` | Send visual selection to chat (with file/line context) |
 | `:ChatHistory` | Browse and restore saved chats |
+| `:ChatLog` / `:LogChat` | Open CodeCompanion log file |
 | `:CodeCompanion` | Inline assist |
 | `:CodeCompanionActions` | Actions menu |
 | `:MCPHub` | Open MCP Hub interface |
@@ -100,6 +102,16 @@ Status indicators in lualine (section x):
 | MCPHub | `󰐻 N` (server count) | Spinner |
 
 ## CodeCompanion Chat
+
+### Sending Code to Chat
+
+Select code visually, then run `:ChatSend` (or `:SendChat`). The selection is sent to chat with full context:
+
+```
+Here is code from `path/to/file.lua` (lines 10-25):
+```
+
+This lets the AI know exactly where the code is located.
 
 ### Keymaps
 
