@@ -5,7 +5,10 @@ return {
 	"saghen/blink.cmp",
 	enabled = cfg.enabled ~= false,
 	branch = cfg.branch,
-	dependencies = { "rafamadriz/friendly-snippets" },
+	dependencies = {
+		"rafamadriz/friendly-snippets",
+		"Kaiser-Yang/blink-cmp-avante",
+	},
 	version = "*",
 	opts = {
 		keymap = {
@@ -30,6 +33,15 @@ return {
 		},
 		sources = {
 			default = { "lsp", "path", "snippets", "buffer" },
+			per_filetype = {
+				AvanteInput = { "avante", "buffer" },
+			},
+			providers = {
+				avante = {
+					module = "blink-cmp-avante",
+					name = "Avante",
+				},
+			},
 		},
 		completion = {
 			menu = {
