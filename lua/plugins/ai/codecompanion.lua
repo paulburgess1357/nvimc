@@ -88,6 +88,27 @@ local function open_log()
 	vim.cmd("edit " .. vim.fn.stdpath("log") .. "/codecompanion.log")
 end
 
+local INIT_MSG = "Use @{neovim} for tools regarding edits, file operations, etc.\n\n"
+
+local function new_chat_with_init()
+	local cc = require("codecompanion")
+	local chat = cc.chat()
+	if chat then
+		vim.schedule(function()
+			chat:add_buf_message({ role = "user", content = INIT_MSG })
+		end)
+	end
+end
+
+local function toggle_chat()
+	local cc = require("codecompanion")
+	if cc.last_chat() then
+		vim.cmd("CodeCompanionChat Toggle")
+	else
+		new_chat_with_init()
+	end
+end
+
 -- ============================================================================
 -- Commands
 -- ============================================================================
@@ -96,9 +117,9 @@ local function setup_commands()
 	local cmd = vim.api.nvim_create_user_command
 
 	-- Chat
-	cmd("Chat", "CodeCompanionChat Toggle", { desc = "Toggle AI chat" })
-	cmd("ChatNew", "CodeCompanionChat", { desc = "New AI chat" })
-	cmd("NewChat", "CodeCompanionChat", { desc = "New AI chat" })
+	cmd("Chat", toggle_chat, { desc = "Toggle AI chat" })
+	cmd("ChatNew", new_chat_with_init, { desc = "New AI chat" })
+	cmd("NewChat", new_chat_with_init, { desc = "New AI chat" })
 	cmd("ChatHistory", "CodeCompanionHistory", { desc = "Browse chat history" })
 
 	-- Send selection with file/line context
