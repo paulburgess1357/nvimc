@@ -84,6 +84,10 @@ local DEFAULT_MODEL = nil            -- nil uses adapter's default
 
 Add `.md` files to `lua/plugins/ai/prompts/startup/` - they're concatenated alphabetically into the system prompt.
 
+### Neovim Hint
+
+The `NEOVIM_HINT` variable in `lua/plugins/ai/codecompanion.lua` is automatically included in new chats and when sending code. It reminds the AI about available tools.
+
 ### Copilot Inline Suggestions
 
 In `lua/config/plugins.lua`:
