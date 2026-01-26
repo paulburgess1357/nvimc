@@ -15,7 +15,7 @@
 | `:Chat`         | Toggle AI chat window                |
 | `:NewChat` / `:ChatNew` | Start a new AI chat          |
 | `:ChatSend` / `:SendChat` | Send selection to chat (with content) |
-| `:ChatRef` / `:RefChat` | Send file/line reference to chat |
+| `:SendRef` / `:RefSend` | Send file/line reference to chat |
 | `:ChatHistory`  | Browse saved chats (current project) |
 | `:ChatLog`      | Open CodeCompanion log               |
 | `:CodeCompanion`| AI inline assist                     |

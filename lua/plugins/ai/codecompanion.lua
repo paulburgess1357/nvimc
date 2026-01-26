@@ -6,6 +6,9 @@ local cfg = require("config.plugins").codecompanion or {}
 -- ============================================================================
 -- Settings
 -- ============================================================================
+-- This section configures the AI provider and model used by CodeCompanion.
+-- Change DEFAULT_ADAPTER to switch between providers (anthropic, copilot, etc.)
+-- Change DEFAULT_MODEL to override the provider's default model (or leave nil)
 
 -- Provider: "anthropic", "copilot", "openai", "gemini", "ollama"
 local DEFAULT_ADAPTER = "anthropic"
@@ -51,20 +54,18 @@ local function send_to_chat(include_content)
 	local end_line = vim.fn.line("'>")
 	local filename = vim.fn.expand("%:.")
 
-	local content
+	local header = string.format(
+		"The lines %d-%d for file `%s` refer to #{buffer}. Use @{neovim} for tools regarding edits, file operations, etc.\n",
+		start_line,
+		end_line,
+		filename
+	)
+
+	local content = header
 	if include_content then
 		local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
 		local filetype = vim.bo.filetype
-		content = string.format(
-			"Here is code from `%s` (lines %d-%d):\n\n```%s\n%s\n```\n",
-			filename,
-			start_line,
-			end_line,
-			filetype,
-			table.concat(lines, "\n")
-		)
-	else
-		content = string.format("Referring to `%s` (lines %d-%d)\n", filename, start_line, end_line)
+		content = header .. string.format("\n```%s\n%s\n```\n", filetype, table.concat(lines, "\n"))
 	end
 
 	local cc = require("codecompanion")
@@ -101,12 +102,20 @@ local function setup_commands()
 	cmd("ChatHistory", "CodeCompanionHistory", { desc = "Browse chat history" })
 
 	-- Send selection with file/line context
-	cmd("ChatSend", function() send_to_chat(true) end, { range = true, desc = "Send selection to chat" })
-	cmd("SendChat", function() send_to_chat(true) end, { range = true, desc = "Send selection to chat" })
+	cmd("ChatSend", function()
+		send_to_chat(true)
+	end, { range = true, desc = "Send selection to chat" })
+	cmd("SendChat", function()
+		send_to_chat(true)
+	end, { range = true, desc = "Send selection to chat" })
 
 	-- Send reference (file/line only, no content)
-	cmd("ChatRef", function() send_to_chat(false) end, { range = true, desc = "Send file/line reference to chat" })
-	cmd("RefChat", function() send_to_chat(false) end, { range = true, desc = "Send file/line reference to chat" })
+	cmd("SendRef", function()
+		send_to_chat(false)
+	end, { range = true, desc = "Send file/line reference to chat" })
+	cmd("RefSend", function()
+		send_to_chat(false)
+	end, { range = true, desc = "Send file/line reference to chat" })
 
 	-- Log
 	cmd("ChatLog", open_log, { desc = "Open CodeCompanion log" })
@@ -153,8 +162,8 @@ return {
 		"ChatHistory",
 		"ChatSend",
 		"SendChat",
-		"ChatRef",
-		"RefChat",
+		"SendRef",
+		"RefSend",
 		"ChatLog",
 		"LogChat",
 	},
