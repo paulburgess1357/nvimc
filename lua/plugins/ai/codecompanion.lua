@@ -49,16 +49,19 @@ local function load_system_prompt()
 	return table.concat(parts, "\n\n")
 end
 
+local NEOVIM_HINT = "Use @{neovim} for file operations (read, write, edit, move, delete), directory listing, file search, Lua execution, and shell commands."
+
 local function send_to_chat(include_content)
 	local start_line = vim.fn.line("'<")
 	local end_line = vim.fn.line("'>")
 	local filename = vim.fn.expand("%:.")
 
 	local header = string.format(
-		"The lines %d-%d for file `%s` refer to #{buffer}. Use @{neovim} for tools regarding edits, file operations, etc.\n",
+		"The lines %d-%d for file `%s` refer to #{buffer}. %s\n\n",
 		start_line,
 		end_line,
-		filename
+		filename,
+		NEOVIM_HINT
 	)
 
 	local content = header
@@ -88,14 +91,12 @@ local function open_log()
 	vim.cmd("edit " .. vim.fn.stdpath("log") .. "/codecompanion.log")
 end
 
-local INIT_MSG = "Use @{neovim} for tools regarding edits, file operations, etc.\n\n"
-
 local function new_chat_with_init()
 	local cc = require("codecompanion")
 	local chat = cc.chat()
 	if chat then
 		vim.schedule(function()
-			chat:add_buf_message({ role = "user", content = INIT_MSG })
+			chat:add_buf_message({ role = "user", content = NEOVIM_HINT .. "\n\n" })
 		end)
 	end
 end
