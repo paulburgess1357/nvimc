@@ -46,21 +46,26 @@ local function load_system_prompt()
 	return table.concat(parts, "\n\n")
 end
 
-local function send_selection_to_chat()
+local function send_to_chat(include_content)
 	local start_line = vim.fn.line("'<")
 	local end_line = vim.fn.line("'>")
-	local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
 	local filename = vim.fn.expand("%:.")
-	local filetype = vim.bo.filetype
 
-	local content = string.format(
-		"Here is code from `%s` (lines %d-%d):\n\n```%s\n%s\n```\n",
-		filename,
-		start_line,
-		end_line,
-		filetype,
-		table.concat(lines, "\n")
-	)
+	local content
+	if include_content then
+		local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+		local filetype = vim.bo.filetype
+		content = string.format(
+			"Here is code from `%s` (lines %d-%d):\n\n```%s\n%s\n```\n",
+			filename,
+			start_line,
+			end_line,
+			filetype,
+			table.concat(lines, "\n")
+		)
+	else
+		content = string.format("Referring to `%s` (lines %d-%d)\n", filename, start_line, end_line)
+	end
 
 	local cc = require("codecompanion")
 	local chat = cc.last_chat() or cc.chat()
@@ -96,8 +101,12 @@ local function setup_commands()
 	cmd("ChatHistory", "CodeCompanionHistory", { desc = "Browse chat history" })
 
 	-- Send selection with file/line context
-	cmd("ChatSend", send_selection_to_chat, { range = true, desc = "Send selection to chat" })
-	cmd("SendChat", send_selection_to_chat, { range = true, desc = "Send selection to chat" })
+	cmd("ChatSend", function() send_to_chat(true) end, { range = true, desc = "Send selection to chat" })
+	cmd("SendChat", function() send_to_chat(true) end, { range = true, desc = "Send selection to chat" })
+
+	-- Send reference (file/line only, no content)
+	cmd("ChatRef", function() send_to_chat(false) end, { range = true, desc = "Send file/line reference to chat" })
+	cmd("RefChat", function() send_to_chat(false) end, { range = true, desc = "Send file/line reference to chat" })
 
 	-- Log
 	cmd("ChatLog", open_log, { desc = "Open CodeCompanion log" })
@@ -144,6 +153,8 @@ return {
 		"ChatHistory",
 		"ChatSend",
 		"SendChat",
+		"ChatRef",
+		"RefChat",
 		"ChatLog",
 		"LogChat",
 	},

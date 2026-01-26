@@ -49,6 +49,9 @@ return {
 	dap = { enabled = true },
 
 	-- AI (adapter/model configured in lua/plugins/ai/codecompanion.lua)
+	-- copilot: GitHub Copilot integration with inline suggestion support
+	-- codecompanion: Chat-based AI assistant for code generation and refactoring
+	-- mcphub: MCP (Model Context Protocol) hub for AI tool integration
 	copilot = { enabled = true, inline_suggestions = true },
 	codecompanion = { enabled = true, branch = "main" },
 	mcphub = { enabled = true },

@@ -86,6 +86,7 @@ To customize AI behavior, edit the files in `startup/` or add new ones. Changes 
 | `:Chat` | Toggle chat window |
 | `:ChatNew` / `:NewChat` | Start a new chat |
 | `:ChatSend` / `:SendChat` | Send visual selection to chat (with file/line context) |
+| `:ChatRef` / `:RefChat` | Send file/line reference only (no content) |
 | `:ChatHistory` | Browse and restore saved chats |
 | `:ChatLog` / `:LogChat` | Open CodeCompanion log file |
 | `:CodeCompanion` | Inline assist |
@@ -105,13 +106,22 @@ Status indicators in lualine (section x):
 
 ### Sending Code to Chat
 
-Select code visually, then run `:ChatSend` (or `:SendChat`). The selection is sent to chat with full context:
+Select code visually, then run:
 
+- `:ChatSend` - sends the code with file/line context
+- `:ChatRef` - sends only the file/line reference (no content)
+
+**ChatSend output:**
 ```
 Here is code from `path/to/file.lua` (lines 10-25):
 ```
 
-This lets the AI know exactly where the code is located.
+**ChatRef output:**
+```
+Referring to `path/to/file.lua` (lines 10-25)
+```
+
+Use `ChatRef` when the AI already has the file context or you want to point to a location without copying code.
 
 ### Keymaps
 
