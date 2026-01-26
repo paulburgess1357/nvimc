@@ -25,6 +25,9 @@ local DEFAULT_MODEL = nil
 -- Helpers
 -- ============================================================================
 
+-- Returns the adapter configuration for CodeCompanion
+-- If a custom model is specified, returns a table with adapter name and model
+-- Otherwise, returns just the adapter name to use its default model
 local function get_adapter()
 	if DEFAULT_MODEL then
 		return { name = DEFAULT_ADAPTER, model = DEFAULT_MODEL }
@@ -32,6 +35,9 @@ local function get_adapter()
 	return DEFAULT_ADAPTER
 end
 
+-- Loads and concatenates all markdown files from the startup prompts directory
+-- Files are sorted alphabetically and joined with double newlines
+-- Returns a single string containing the combined system prompt
 local function load_system_prompt()
 	local startup_dir = vim.fn.stdpath("config") .. "/lua/plugins/ai/prompts/startup"
 	local files = vim.fn.glob(startup_dir .. "/*.md", false, true)
@@ -49,8 +55,12 @@ local function load_system_prompt()
 	return table.concat(parts, "\n\n")
 end
 
-local NEOVIM_HINT = "Use @{neovim} for file operations (read, write, edit, move, delete), directory listing, file search, Lua execution, and shell commands."
+local NEOVIM_HINT =
+	"Use @{neovim} for file operations (read, write, edit, move, delete), directory listing, file search, Lua execution, and shell commands."
 
+-- Sends the current visual selection to the AI chat
+-- include_content: if true, sends the actual code; if false, sends only file/line reference
+-- Opens or reuses the last chat and focuses the chat window
 local function send_to_chat(include_content)
 	local start_line = vim.fn.line("'<")
 	local end_line = vim.fn.line("'>")
@@ -87,10 +97,13 @@ local function send_to_chat(include_content)
 	end
 end
 
+-- Opens the CodeCompanion log file in the current window
 local function open_log()
 	vim.cmd("edit " .. vim.fn.stdpath("log") .. "/codecompanion.log")
 end
 
+-- Creates a new chat session and initializes it with the Neovim hint
+-- The hint reminds the AI about available @{neovim} tool capabilities
 local function new_chat_with_init()
 	local cc = require("codecompanion")
 	local chat = cc.chat()
@@ -101,6 +114,8 @@ local function new_chat_with_init()
 	end
 end
 
+-- Toggles the most recent chat window if one exists
+-- Otherwise, creates a new chat with initialization hint
 local function toggle_chat()
 	local cc = require("codecompanion")
 	if cc.last_chat() then

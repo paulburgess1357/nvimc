@@ -1,25 +1,23 @@
 # Project Configuration Templates
 
-**Purpose**: Ready-to-use configuration files for linters, formatters, and language servers. Copy to your project root as needed.
+Ready-to-use configuration files for linters, formatters, and language servers.
 
-## Python Projects
+## Python
 
 ```bash
-cp ~/.config/nvim/dotfiles/pyproject.toml ./
+cp ~/.config/nvim-custom/dotfiles/pyproject.toml ./
 ```
 
-Files:
-- `pyproject.toml` - Black, ruff, mypy, pylint config
+Contains config for: Black, ruff, mypy, pylint
 
-## C++ Projects
+## C++
 
-For C++ projects, configuration files can be found in the test projects:
 ```bash
-cp ~/.config/nvim/test/cpp_project/.clang* ./
+cp ~/.config/nvim-custom/test/cpp_project/.clang* ./
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build
 ln -s build/compile_commands.json .
 ```
 
 ## Notes
 
-All configuration templates are designed to work with the LSP servers and linters configured in this Neovim setup.
+All templates are designed to work with the LSP servers and linters in this Neovim config.

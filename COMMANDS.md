@@ -1,47 +1,39 @@
 # Commands
 
-| Command         | Action                               |
-| --------------- | ------------------------------------ |
-| `:Files`        | Find files                           |
-| `:Buffers`      | Buffer list                          |
-| `:Rg` / `:Grep` | Live grep                            |
-| `:Symbols`      | Document symbols                     |
-| `:Marks`        | Marks                                |
-| `:Help`         | Help tags                            |
-| `:Commands`     | Commands                             |
-| `:Keymaps`      | Keymaps                              |
-| `:Aerials`      | Toggle outline sidebar               |
-| `:LspIndexAll`  | Force LSP to index all project files |
-| `:Chat`         | Toggle AI chat window                |
-| `:NewChat` / `:ChatNew` | Start a new AI chat          |
-| `:ChatSend` / `:SendChat` | Send selection to chat (with content) |
-| `:SendRef` / `:RefSend` | Send file/line reference to chat |
-| `:ChatHistory`  | Browse saved chats (current project) |
-| `:ChatLog`      | Open CodeCompanion log               |
-| `:CodeCompanion`| AI inline assist                     |
-| `:CodeCompanionActions` | AI actions menu              |
-| `:MCPHub`       | Open MCP Hub interface               |
+See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 
-## LspIndexAll
+## General
 
-Forces the current buffer's LSP to index all matching files in the project. LSP Agnostic.
+| Command | Action |
+| ------- | ------ |
+| `:Files` | Find files |
+| `:Buffers` | Buffer list |
+| `:Rg` / `:Grep` | Live grep |
+| `:Symbols` | Document symbols |
+| `:Marks` | Marks |
+| `:Help` | Help tags |
+| `:Commands` | Commands |
+| `:Keymaps` | Keymaps |
+| `:Aerials` | Toggle outline sidebar |
 
-1. Detects the LSP attached to your current buffer
-2. Finds all files matching that LSP's filetypes
-3. Loads them to trigger indexing
+## LSP
 
-## Custom Menu (Space Space)
+| Command | Action |
+| ------- | ------ |
+| `:LspIndexAll` | Force LSP to index all project files |
 
-| Key | Action                  |
-| --- | ----------------------- |
-| `a` | Toggle format on save   |
-| `t` | Toggle hardtime         |
-| `s` | Toggle diagnostic signs |
-| `v` | Toggle virtual text     |
-| `f` | Find files (cwd)        |
-| `g` | Grep (cwd)              |
-| `h` | Find files (home)       |
-| `j` | Grep (home)             |
-| `r` | Recent files            |
-| `m` | Marks                   |
-| `l` | Symbols (workspace)     |
+## AI
+
+| Command | Action |
+| ------- | ------ |
+| `:Chat` | Toggle AI chat |
+| `:NewChat` / `:ChatNew` | Start new chat |
+| `:ChatSend` / `:SendChat` | Send selection with content |
+| `:SendRef` / `:RefSend` | Send selection reference only |
+| `:ChatHistory` | Browse saved chats |
+| `:ChatLog` | Open log file |
+| `:CodeCompanion` | Inline assist |
+| `:CodeCompanionActions` | Action palette |
+| `:MCPHub` | MCP Hub interface |
+
+See [lua/plugins/ai/README.md](lua/plugins/ai/README.md) for AI documentation.

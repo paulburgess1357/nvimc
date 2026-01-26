@@ -9,28 +9,30 @@ Debug Adapter Protocol support for Neovim.
 - **nvim-dap-virtual-text** - Inline variable values
 - **persistent-breakpoints.nvim** - Save breakpoints across sessions
 
-## Setup
+## Quick Start
 
-### 1. Install Debug Adapters
+1. Install adapter: `:MasonInstall cpptools` (or debugpy, delve, etc.)
+2. Open source file
+3. Set breakpoint: `<leader>db`
+4. Start debugging: `<leader>dc`
+5. Select executable when prompted
 
-Install adapters for your languages via Mason:
+See [KEYBINDINGS.md](../../../KEYBINDINGS.md) for all debug keybindings (`<leader>d`).
+
+## Install Adapters
 
 | Language | Adapter | Install |
-|----------|---------|---------|
-| C/C++ | cpptools (GDB) | `:MasonInstall cpptools` |
-| C/C++/Rust | codelldb (LLDB) | `:MasonInstall codelldb` |
+| -------- | ------- | ------- |
+| C/C++ | cpptools | `:MasonInstall cpptools` |
 | Python | debugpy | `:MasonInstall debugpy` |
 | Go | delve | `:MasonInstall delve` |
 | JavaScript/Node | js-debug-adapter | `:MasonInstall js-debug-adapter` |
 | Ruby | rdbg | `:MasonInstall ruby-debug-ide` |
 | Bash | bash-debug-adapter | `:MasonInstall bash-debug-adapter` |
 
-Or install all at once:
-```
-:MasonInstall cpptools debugpy delve js-debug-adapter ruby-debug-ide bash-debug-adapter
-```
+Install all: `:MasonInstall cpptools debugpy delve js-debug-adapter ruby-debug-ide bash-debug-adapter`
 
-### 2. System Dependencies
+## System Dependencies
 
 **C/C++ (GDB):**
 ```bash
@@ -41,61 +43,3 @@ sudo apt install gdb
 ```bash
 gem install debug
 ```
-
-## Key Bindings
-
-Press `<leader>d` to see the full debug menu in which-key.
-
-| Key | Action |
-|-----|--------|
-| **Breakpoints** | |
-| `<leader>db` | Toggle breakpoint (persistent) |
-| `<leader>dB` | Conditional breakpoint |
-| `<leader>dL` | Log point |
-| `<leader>dE` | Exception breakpoints |
-| **Execution** | |
-| `<leader>dc` | Continue / Start debugging |
-| `<leader>dC` | Run to cursor |
-| `<leader>dl` | Run last |
-| `<leader>dp` | Pause |
-| `<leader>dt` | Terminate |
-| **Stepping** | |
-| `<leader>di` | Step into |
-| `<leader>do` | Step over |
-| `<leader>dO` | Step out |
-| **Navigation** | |
-| `<leader>dj` | Down stack |
-| `<leader>dk` | Up stack |
-| **Tools** | |
-| `<leader>dr` | Toggle REPL |
-| `<leader>ds` | Session info |
-| `<leader>du` | Toggle DAP UI |
-| `<leader>de` | Eval expression |
-| `<leader>da` | Add watch |
-
-### F-Key Bindings
-
-| Key | Action |
-|-----|--------|
-| `F5` | Continue |
-| `F9` | Toggle breakpoint |
-| `F10` | Step over |
-| `F11` | Step into |
-| `Shift+F11` | Step out |
-
-## Usage
-
-1. Open a source file
-2. Set a breakpoint with `<leader>db`
-3. Start debugging with `<leader>dc`
-4. Select/enter the executable path when prompted
-5. DAP UI opens automatically
-
-## Configured Languages
-
-- C/C++ (GDB via cpptools)
-- Python (debugpy)
-- Go (delve)
-- JavaScript/TypeScript (js-debug-adapter)
-- Ruby (rdbg)
-- Bash (bash-debug-adapter)

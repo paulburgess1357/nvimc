@@ -5,28 +5,15 @@ Modern Neovim configuration for Neovim 0.11+.
 ## Requirements
 
 - Neovim 0.11+
-- gcc or clang (C compiler)
-- tree-sitter-cli (`npm install -g tree-sitter-cli`)
-- fzf
-- ripgrep (rg)
-- fd
+- gcc/clang, tree-sitter-cli, fzf, ripgrep, fd
 - Nerd Font (for icons)
-- gdb (for C/C++ debugging)
+- gdb (optional, for debugging)
 
 ## Installation
 
 ```bash
-# Clone the config
 git clone https://github.com/yourusername/nvim-custom ~/.config/nvim-custom
-
-# Install Neovim (optional helper script)
-./install/install-neovim.sh
-
-# Set up the alias
-./install/setup-alias.sh
-source ~/.bashrc
-
-# Launch with custom config
+./install/setup-alias.sh && source ~/.bashrc
 nvimc
 ```
 
@@ -34,82 +21,65 @@ nvimc
 
 ### Coding
 
-- **nvim-treesitter** - Syntax highlighting and code parsing
-- **nvim-lspconfig** - LSP configuration
-- **mason.nvim** - LSP/linter/formatter installer
-- **blink.cmp** - Fast autocompletion
-- **conform.nvim** - Code formatting
-- **nvim-lint** - Asynchronous linting
-- **inc-rename.nvim** - Live rename preview
+- **treesitter** - Syntax highlighting
+- **lspconfig + mason** - LSP with auto-install
+- **blink.cmp** - Autocompletion
+- **conform** - Formatting
+- **nvim-lint** - Linting
+- **inc-rename** - Live rename preview
 - **mini.pairs** - Auto-pairs
 
 ### Editor
 
 - **mini.files** - File explorer
 - **fzf-lua** - Fuzzy finder
-- **gitsigns.nvim** - Git integration
-- **nvim-spider** - CamelCase word motions
-- **vim-illuminate** - Highlight references
-- **todo-comments.nvim** - TODO highlighting
-- **render-markdown.nvim** - Markdown rendering
-- **hardtime.nvim** - Break bad habits with motion hints
+- **gitsigns** - Git integration
+- **spider** - CamelCase motions
+- **illuminate** - Highlight references
+- **todo-comments** - TODO highlighting
+- **render-markdown** - Markdown rendering
+- **hardtime** - Motion hints
 
 ### UI
 
 - **Colorschemes** - onedark (default), tokyonight, catppuccin, kanagawa, vscode, nordic, teide
-- **lualine.nvim** - Statusline
-- **which-key.nvim** - Keybinding hints
-- **snacks.nvim** - Dashboard, indent guides, terminal
-- **noice.nvim** - Modern UI for cmdline, messages, notifications (with nvim-notify)
-- **rainbow-delimiters.nvim** - Colored brackets
-- **nvim-scrollview** - Scrollbar with diagnostics/search indicators
-- **aerial.nvim** - Code outline sidebar and breadcrumbs
-- **marks.nvim** - Show marks in sign column
+- **lualine** - Statusline
+- **which-key** - Keybinding hints
+- **snacks** - Dashboard, indent guides, terminal
+- **noice** - Modern cmdline/messages/notifications
+- **rainbow-delimiters** - Colored brackets
+- **aerial** - Code outline sidebar
+- **marks** - Marks in sign column
 
 ### Debug
 
-- **nvim-dap** - Debug Adapter Protocol client
-- **nvim-dap-ui** - Debugging UI
-- **nvim-dap-virtual-text** - Inline variable values
-- **persistent-breakpoints.nvim** - Save breakpoints across sessions
+- **nvim-dap** - Debug Adapter Protocol
+- **dap-ui** - Debugging UI
+- **persistent-breakpoints** - Save breakpoints
 
-See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup instructions.
+See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup.
 
 ### AI
 
-- **copilot.vim** - GitHub Copilot authentication and inline suggestions
-- **CodeCompanion.nvim** - AI chat, inline assistance, and agent workflows (Anthropic, Copilot, OpenAI, etc.)
-- **codecompanion-history.nvim** - Save and restore chat sessions
-- **mcphub.nvim** - MCP (Model Context Protocol) server integration
+- **CodeCompanion** - AI chat and inline assist
+- **copilot.vim** - Inline suggestions
+- **mcphub** - MCP server integration
 
-Requires Anthropic API key (`ANTHROPIC_API_KEY`) or GitHub Copilot subscription. See [lua/plugins/ai/README.md](lua/plugins/ai/README.md) for setup.
+See [lua/plugins/ai/README.md](lua/plugins/ai/README.md) for setup.
 
-## Key Bindings
+## Documentation
 
-See [KEYBINDINGS.md](KEYBINDINGS.md) for full list.
-
-### Custom Menu (Space Space)
-
-| Key                 | Action                  |
-| ------------------- | ----------------------- |
-| `<leader><leader>f` | Files (cwd)             |
-| `<leader><leader>g` | Grep (cwd)              |
-| `<leader><leader>h` | Files (home)            |
-| `<leader><leader>j` | Grep (home)             |
-| `<leader><leader>r` | Recent files            |
-| `<leader><leader>m` | Marks                   |
-| `<leader><leader>l` | Symbols (workspace)     |
-| `<leader><leader>s` | Toggle diagnostic signs |
-| `<leader><leader>v` | Toggle virtual text     |
-| `<leader><leader>a` | Toggle format on save   |
-| `<leader><leader>t` | Toggle hardtime         |
-
-## Commands
-
-See [COMMANDS.md](COMMANDS.md) for full list.
+- [KEYBINDINGS.md](KEYBINDINGS.md) - All key bindings
+- [COMMANDS.md](COMMANDS.md) - All commands
 
 ## Configuration
 
-All plugins can be enabled/disabled from `lua/config/plugins.lua`.
+All plugins can be enabled/disabled in `lua/config/plugins.lua`.
 
-Global settings (like large file limits) are in the `settings` table at the top of that file.
+```lua
+treesitter = { enabled = true },
+copilot = { enabled = true, inline_suggestions = true },
+-- etc.
+```
+
+Global settings (file size limits, etc.) are in the `settings` table at the top of that file.
