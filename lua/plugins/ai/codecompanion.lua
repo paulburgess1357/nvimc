@@ -239,6 +239,7 @@ return {
 		display = {
 			action_palette = { provider = "fzf_lua" },
 			chat = {
+				render_headers = false,
 				show_settings = false,
 				show_token_count = true,
 				show_reasoning = true,
