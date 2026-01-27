@@ -14,10 +14,11 @@ return {
 		enabled = true,
 		render_modes = { "n", "c", "t" },
 		max_file_size = 10.0,
+		sign = { enabled = false },
 		heading = {
 			enabled = true,
-			sign = true,
-			icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
+			sign = false,
+			icons = {},
 		},
 		code = {
 			enabled = true,
