@@ -1,6 +1,8 @@
 -- nvim-lint: Asynchronous linters that LSP doesn't cover.
 -- Install: cppcheck (system), shellcheck/hadolint (Mason)
-local cfg = require("config.plugins").lint or {}
+local plugins = require("config.plugins")
+local cfg = plugins.lint or {}
+local settings = plugins.settings or {}
 
 -- Cppcheck cache (avoids recalculating path on every lint)
 local cppcheck_cache = {}
@@ -34,9 +36,10 @@ return {
 		local lint = require("lint")
 
 		-- Only linters that LSP doesn't provide
+		local cppcheck_linter = settings.cppcheck ~= false and { "cppcheck" } or {}
 		lint.linters_by_ft = {
-			c = { "cppcheck" },
-			cpp = { "cppcheck" },
+			c = cppcheck_linter,
+			cpp = cppcheck_linter,
 			sh = { "shellcheck" },
 			bash = { "shellcheck" },
 			dockerfile = { "hadolint" },
