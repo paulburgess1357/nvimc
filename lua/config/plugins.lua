@@ -58,5 +58,5 @@ return {
 	mcphub = { enabled = true },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = true, branch = "master" },
+	leetneo = { enabled = false, branch = "master" },
 }
