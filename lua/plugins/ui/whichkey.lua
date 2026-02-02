@@ -95,6 +95,18 @@ return {
 				vim.cmd(state and "Hardtime enable" or "Hardtime disable")
 			end,
 		}):map("<leader><leader>t")
+
+		-- Git blame virtual text toggle
+		Snacks.toggle({
+			name = "Git Blame",
+			wk_desc = static_desc,
+			get = function()
+				return require("gitsigns.config").config.current_line_blame
+			end,
+			set = function(state)
+				require("gitsigns").toggle_current_line_blame(state)
+			end,
+		}):map("<leader><leader>b")
 	end,
 	keys = {
 		-- Custom menu (<leader><leader>)
