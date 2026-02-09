@@ -83,7 +83,6 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | `m` | Marks |
 | `l` | Symbols (workspace) |
 | `a` | Toggle format on save |
-| `t` | Toggle hardtime |
 | `s` | Toggle diagnostic signs |
 | `v` | Toggle virtual text |
 

@@ -83,19 +83,6 @@ return {
 			end,
 		}):map("<leader><leader>a")
 
-		-- Hardtime toggle (uses documented :Hardtime command API)
-		Snacks.toggle({
-			name = "Hardtime",
-			wk_desc = static_desc,
-			get = function()
-				return not vim.g.disable_hardtime
-			end,
-			set = function(state)
-				vim.g.disable_hardtime = not state
-				vim.cmd(state and "Hardtime enable" or "Hardtime disable")
-			end,
-		}):map("<leader><leader>t")
-
 		-- Git blame virtual text toggle
 		Snacks.toggle({
 			name = "Git Blame",

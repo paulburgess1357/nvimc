@@ -38,7 +38,6 @@ nvimc
 - **illuminate** - Highlight references
 - **todo-comments** - TODO highlighting
 - **render-markdown** - Markdown rendering
-- **hardtime** - Motion hints
 
 ### UI
 

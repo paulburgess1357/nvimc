@@ -33,7 +33,6 @@ return {
 	illuminate = { enabled = true },
 	todocomments = { enabled = true },
 	rendermarkdown = { enabled = true },
-	hardtime = { enabled = true },
 
 	-- UI
 	colorscheme = { enabled = true },
@@ -58,5 +57,5 @@ return {
 	mcphub = { enabled = true },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false, branch = "master" },
+	leetneo = { enabled = true, branch = "master" },
 }
