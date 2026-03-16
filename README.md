@@ -60,9 +60,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for setup.
 
 ### AI
 
-- **CodeCompanion** - AI chat and inline assist
-- **copilot.vim** - Inline suggestions
-- **mcphub** - MCP server integration
+- **avante.nvim** - AI chat with agentic capabilities
 
 See [lua/plugins/ai/README.md](lua/plugins/ai/README.md) for setup.
 
@@ -77,7 +75,7 @@ All plugins can be enabled/disabled in `lua/config/plugins.lua`.
 
 ```lua
 treesitter = { enabled = true },
-copilot = { enabled = true, inline_suggestions = true },
+avante = { enabled = true },
 -- etc.
 ```
 

@@ -88,11 +88,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 
 ## AI
 
-| Key | Action |
-| --- | ------ |
-| `Tab` | Accept Copilot suggestion (insert mode) |
-
-Chat buffer keymaps: see [lua/plugins/ai/README.md](lua/plugins/ai/README.md).
+Chat keymaps: see [lua/plugins/ai/README.md](lua/plugins/ai/README.md).
 
 ## Other
 

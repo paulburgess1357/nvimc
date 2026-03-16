@@ -48,14 +48,9 @@ return {
 	-- Debug
 	dap = { enabled = true },
 
-	-- AI (adapter/model configured in lua/plugins/ai/codecompanion.lua)
-	-- copilot: GitHub Copilot integration with inline suggestion support
-	-- codecompanion: Chat-based AI assistant for code generation and refactoring
-	-- mcphub: MCP (Model Context Protocol) hub for AI tool integration
-	copilot = { enabled = true, inline_suggestions = false },
-	codecompanion = { enabled = true, branch = "main" },
-	mcphub = { enabled = true },
+	-- AI (provider configured in lua/plugins/ai/avante.lua)
+	avante = { enabled = true },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false, branch = "master" },
+	leetneo = { enabled = true, branch = "master" },
 }

@@ -26,14 +26,8 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 
 | Command | Action |
 | ------- | ------ |
-| `:Chat` | Toggle AI chat |
-| `:NewChat` / `:ChatNew` | Start new chat |
-| `:ChatSend` / `:SendChat` | Send selection with content |
-| `:SendRef` / `:RefSend` | Send selection reference only |
+| `:Chat` | Toggle AI sidebar |
+| `:ChatNew` | New conversation |
 | `:ChatHistory` | Browse saved chats |
-| `:ChatLog` | Open log file |
-| `:CodeCompanion` | Inline assist |
-| `:CodeCompanionActions` | Action palette |
-| `:MCPHub` | MCP Hub interface |
 
 See [lua/plugins/ai/README.md](lua/plugins/ai/README.md) for AI documentation.
