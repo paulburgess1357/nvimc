@@ -57,6 +57,12 @@ vim.opt.timeoutlen = 300
 -- Confirm before quitting with unsaved changes
 vim.opt.confirm = true
 
+-- Auto-reload files changed outside of Neovim
+vim.opt.autoread = true
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
+	command = "silent! checktime",
+})
+
 -- Highlight on yank
 vim.api.nvim_create_autocmd("TextYankPost", {
 	callback = function()
