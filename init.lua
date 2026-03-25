@@ -18,7 +18,6 @@ require("config.keymaps")
 
 -- Load plugins
 require("lazy").setup({
-	{ import = "plugins.ai" },
 	{ import = "plugins.coding" },
 	{ import = "plugins.debug" },
 	{ import = "plugins.editor" },

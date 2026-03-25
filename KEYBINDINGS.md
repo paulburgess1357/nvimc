@@ -86,14 +86,6 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | `s` | Toggle diagnostic signs |
 | `v` | Toggle virtual text |
 
-## AI
-
-| Key | Action |
-| --- | ------ |
-| `Tab` | Accept Copilot suggestion (insert mode) |
-
-Chat buffer keymaps: see [lua/plugins/ai/README.md](lua/plugins/ai/README.md).
-
 ## Other
 
 | Key | Action |
