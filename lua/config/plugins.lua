@@ -41,7 +41,6 @@ return {
 	snacks = { enabled = true },
 	noice = { enabled = true },
 	rainbowdelimiters = { enabled = true },
-	scrollview = { enabled = false },
 	aerial = { enabled = true },
 	marks = { enabled = true },
 
@@ -49,5 +48,5 @@ return {
 	dap = { enabled = true },
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false, branch = "master" },
+	leetneo = { enabled = true, branch = "master" },
 }

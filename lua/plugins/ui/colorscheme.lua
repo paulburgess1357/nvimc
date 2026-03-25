@@ -1,7 +1,6 @@
 -- Colorscheme configuration
 -- Set active_colorscheme to "teide", "onedark", "tokyonight", "catppuccin", "kanagawa", "vscode", or "nordic" to switch
 local active_colorscheme = "onedark"
-
 return {
 	-- Teide: Modern colorscheme with dark, darker, dimmed, and light variants
 	{
@@ -30,7 +29,8 @@ return {
 		priority = 1000,
 		config = function()
 			require("onedark").setup({
-				style = "warmer",
+				--style = "warmer",
+				style = "darker",
 				transparent = false,
 				term_colors = true,
 				ending_tildes = false,
