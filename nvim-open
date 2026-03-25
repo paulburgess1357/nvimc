@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# nvim-open — Open a file in a running Neovim instance.
+#
+# Accepts an absolute/relative path (fast path) or a filename pattern to search
+# for under Neovim's working directory. Uses nvim-send for Neovim communication.
+#
+# Interface:
+#   nvim-open <path|pattern>          Open a file (exact path or fuzzy search)
+#   nvim-open -s <socket> <file>      Use a specific Neovim server socket
+#   nvim-open -l <pattern>            List matching files without opening
+#   nvim-open -n <N> <pattern>        Open the Nth search result
+#
+# Behavior:
+#   - If the argument is an existing file path, opens it directly (no search).
+#   - Otherwise, searches Neovim's cwd for files matching *<pattern>*.
+#   - Skips build artifacts: build/, .cache/, node_modules/, .git/, etc.
+#   - Prints "Opened: <path>" on success to stdout.
+#   - Errors and multi-match warnings go to stderr.
+#
+# Dependencies:
+#   - nvim-send (must be in the same directory or on PATH)
+#
+# Exit codes:
+#   0  Success
+#   1  No socket found / no matches / invalid pick index
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NVIM_SEND="${SCRIPT_DIR}/nvim-send"
+
+usage() {
+  cat <<'EOF'
+Usage: nvim-open [OPTIONS] <path|pattern>
+
+Find a file by name and open it in a running Neovim instance.
+
+If the argument is an existing file (absolute or relative path), it is opened
+directly. Otherwise, searches Neovim's cwd for files matching *<pattern>*.
+
+Options:
+  -s, --socket PATH   Neovim server socket path (auto-detected if omitted)
+  -l, --list           List matches instead of opening
+  -n, --pick N         Open the Nth match (1-indexed, default: 1)
+  -h, --help           Show this help
+
+Examples:
+  nvim-open Entity.cpp                              Search and open
+  nvim-open /home/user/proj/src/Entity.cpp          Open by exact path
+  nvim-open -l Entity                               List all matches
+  nvim-open -n 2 Entity.cpp                         Open the 2nd match
+EOF
+  exit 0
+}
+
+SOCKET_ARGS=()
+LIST=false
+PICK=1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -s|--socket) SOCKET_ARGS=(-s "$2"); shift 2 ;;
+    -l|--list)   LIST=true; shift ;;
+    -n|--pick)   PICK="$2"; shift 2 ;;
+    -h|--help)   usage ;;
+    -*)          echo "Unknown option: $1" >&2; exit 1 ;;
+    *)           break ;;
+  esac
+done
+
+if [[ $# -lt 1 ]]; then
+  echo "Error: filename required" >&2
+  usage
+fi
+
+PATTERN="$1"
+
+open_file() {
+  local file="$1"
+  "$NVIM_SEND" "${SOCKET_ARGS[@]+"${SOCKET_ARGS[@]}"}" -c "e ${file}"
+  echo "Opened: ${file}"
+}
+
+if [[ -f "$PATTERN" ]]; then
+  TARGET=$(realpath "$PATTERN")
+  open_file "$TARGET"
+  exit 0
+fi
+
+NVIM_CWD=$("$NVIM_SEND" "${SOCKET_ARGS[@]+"${SOCKET_ARGS[@]}"}" -e "getcwd()") || {
+  echo "Error: could not query Neovim cwd" >&2
+  exit 1
+}
+
+PRUNE_DIRS=( build .cache node_modules .git __pycache__ .mypy_cache dist .next .tox .eggs "*.egg-info" )
+PRUNE_EXPR=()
+for d in "${PRUNE_DIRS[@]}"; do
+  PRUNE_EXPR+=( -name "$d" -o )
+done
+unset 'PRUNE_EXPR[-1]'
+
+mapfile -t MATCHES < <(
+  find "$NVIM_CWD" \( "${PRUNE_EXPR[@]}" \) -prune -o -type f -name "*${PATTERN}*" -print 2>/dev/null | sort
+)
+
+if [[ ${#MATCHES[@]} -eq 0 ]]; then
+  echo "No files matching '*${PATTERN}*' found under ${NVIM_CWD}" >&2
+  exit 1
+fi
+
+if $LIST; then
+  for i in "${!MATCHES[@]}"; do
+    printf "  %d) %s\n" $((i + 1)) "${MATCHES[$i]}"
+  done
+  exit 0
+fi
+
+if [[ ${#MATCHES[@]} -gt 1 && "$PICK" -eq 1 ]]; then
+  echo "Multiple matches found:" >&2
+  for i in "${!MATCHES[@]}"; do
+    printf "  %d) %s\n" $((i + 1)) "${MATCHES[$i]}" >&2
+  done
+  echo "" >&2
+  echo "Opening match #1. Use -n N to pick a different one, or -l to list." >&2
+fi
+
+INDEX=$((PICK - 1))
+if [[ $INDEX -lt 0 || $INDEX -ge ${#MATCHES[@]} ]]; then
+  echo "Error: pick index ${PICK} out of range (1-${#MATCHES[@]})" >&2
+  exit 1
+fi
+
+open_file "${MATCHES[$INDEX]}"
