@@ -24,8 +24,8 @@ Use `nvim-send` and `nvim-open` to control the user's Neovim instance. Find them
 SCRIPT_DIR="$(dirname "$(dirname "$(readlink -f ~/.cursor/rules/neovim-communication.mdc)")")"
 ```
 
-- **Open a file:** `$SCRIPT_DIR/scripts/nvim-open <path|pattern>`
-- **Open and jump to line:** `$SCRIPT_DIR/scripts/nvim-open -g <line> <path|pattern>`
+- **Open file(s):** `$SCRIPT_DIR/scripts/nvim-open <file> [file2 ...]`
+- **Open and jump to line:** `$SCRIPT_DIR/scripts/nvim-open -g <line> <file>`
 - **Send an ex command:** `$SCRIPT_DIR/scripts/nvim-send -c '<command>'`
 - **Send keystrokes:** `$SCRIPT_DIR/scripts/nvim-send '<keys>'`
 - **Query Neovim state:** `$SCRIPT_DIR/scripts/nvim-send -e '<expr>'`
