@@ -45,18 +45,20 @@ Run any script with `-h` for usage details.
 Open Neovim in a Cursor terminal, then paste the following to an AI chat to test each capability:
 
 ```
-I have Neovim running in the terminal. Run through these tests one at a time, confirming each works before moving on:
+I have Neovim running in the terminal. Run through these tests one at a time.
+Stop after each test and wait for me to confirm before moving to the next.
+Use files from the current workspace.
 
 1. Resolve SCRIPT_DIR — run the readlink command from the neovim-communication rule and confirm it points to cursor-nvim-compatibility/
-2. Open a file by name — use nvim-open to open main.cpp
-3. Open a file by absolute path — use nvim-open with the full path to Entity.cpp
-4. Open multiple files — use nvim-open to open Entity.cpp, main.cpp, and Component.cpp in one call
-5. Open and jump to line — use nvim-open -g 10 to open main.cpp and land on line 10
-6. List search matches — use nvim-open -l Entity to list matches without opening
-7. Vertical split — use nvim-send to open a header file in a vertical split next to the current buffer
-8. Send keystrokes — use nvim-send to visual-line select lines 10-20 in the current buffer
+2. Open a file by name — pick a file in the workspace and open it with nvim-open
+3. Open a file by absolute path — pick a different file and open it using its full path
+4. Open multiple files — pick three files and open them all in one nvim-open call
+5. Open and jump to line — pick a file and use nvim-open -g to open it and jump to a specific line
+6. List search matches — use nvim-open -l with a partial name to list matches without opening
+7. Vertical split — use nvim-send to open a related file in a vertical split
+8. Send keystrokes — use nvim-send to visual-line select a range of lines in the current buffer
 9. Query Neovim state — use nvim-send -e to print the current buffer's file path
-10. Edit and reload — edit a file that is currently open in Neovim, then run checktime and confirm the changes appear without switching buffers
+10. Edit and reload — edit a file that is currently open in Neovim, run checktime, and confirm the changes appear without switching buffers
 11. Line numbers — point out something in the current file using an absolute line number
-12. Show code — find something interesting in the codebase, then open the file and jump to the line so I can see it in Neovim
+12. Show code — find something interesting in the codebase, open the file, and jump to the line so I see it in Neovim
 ```
