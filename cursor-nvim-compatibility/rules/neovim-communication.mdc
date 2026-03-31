@@ -25,8 +25,31 @@ SCRIPT_DIR="$(dirname "$(dirname "$(readlink -f ~/.cursor/rules/neovim-communica
 ```
 
 - **Open a file:** `$SCRIPT_DIR/scripts/nvim-open <path|pattern>`
+- **Open and jump to line:** `$SCRIPT_DIR/scripts/nvim-open -g <line> <path|pattern>`
 - **Send an ex command:** `$SCRIPT_DIR/scripts/nvim-send -c '<command>'`
 - **Send keystrokes:** `$SCRIPT_DIR/scripts/nvim-send '<keys>'`
 - **Query Neovim state:** `$SCRIPT_DIR/scripts/nvim-send -e '<expr>'`
+
+## Showing Code to the User
+
+When pointing out code (a bug, a suggestion, something to review), open the file and jump to the line so the user sees it immediately:
+
+```bash
+$SCRIPT_DIR/scripts/nvim-open -g 42 /path/to/file.cpp
+```
+
+To show two related files side by side (e.g. header and implementation), use a vertical split:
+
+```bash
+$SCRIPT_DIR/scripts/nvim-send -c 'vs /path/to/other/file.hpp'
+```
+
+## After Editing Files
+
+After editing files that may be open in Neovim, reload all buffers so the user sees the changes:
+
+```bash
+$SCRIPT_DIR/scripts/nvim-send -c 'bufdo e'
+```
 
 **Never** change Neovim settings, options, or configuration. No `:set`, no modifying config files, no toggling anything. Only use Neovim for navigation, file operations, and editing tasks.

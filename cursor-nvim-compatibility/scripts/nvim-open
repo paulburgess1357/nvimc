@@ -6,6 +6,7 @@
 #
 # Interface:
 #   nvim-open <path|pattern>          Open a file (exact path or fuzzy search)
+#   nvim-open -g <line> <file>        Open a file and jump to a line number
 #   nvim-open -s <socket> <file>      Use a specific Neovim server socket
 #   nvim-open -l <pattern>            List matching files without opening
 #   nvim-open -n <N> <pattern>        Open the Nth search result
@@ -40,12 +41,14 @@ directly. Otherwise, searches Neovim's cwd for files matching *<pattern>*.
 
 Options:
   -s, --socket PATH   Neovim server socket path (auto-detected if omitted)
+  -g, --goto LINE      Jump to line number after opening
   -l, --list           List matches instead of opening
   -n, --pick N         Open the Nth match (1-indexed, default: 1)
   -h, --help           Show this help
 
 Examples:
   nvim-open Entity.cpp                              Search and open
+  nvim-open -g 42 Entity.cpp                        Open and jump to line 42
   nvim-open /home/user/proj/src/Entity.cpp          Open by exact path
   nvim-open -l Entity                               List all matches
   nvim-open -n 2 Entity.cpp                         Open the 2nd match
@@ -56,10 +59,12 @@ EOF
 SOCKET_ARGS=()
 LIST=false
 PICK=1
+GOTO=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -s|--socket) SOCKET_ARGS=(-s "$2"); shift 2 ;;
+    -g|--goto)   GOTO="$2"; shift 2 ;;
     -l|--list)   LIST=true; shift ;;
     -n|--pick)   PICK="$2"; shift 2 ;;
     -h|--help)   usage ;;
@@ -78,7 +83,12 @@ PATTERN="$1"
 open_file() {
   local file="$1"
   "$NVIM_SEND" "${SOCKET_ARGS[@]+"${SOCKET_ARGS[@]}"}" -c "e ${file}"
-  echo "Opened: ${file}"
+  if [[ -n "$GOTO" ]]; then
+    "$NVIM_SEND" "${SOCKET_ARGS[@]+"${SOCKET_ARGS[@]}"}" -c "${GOTO}"
+    echo "Opened: ${file}:${GOTO}"
+  else
+    echo "Opened: ${file}"
+  fi
 }
 
 if [[ -f "$PATTERN" ]]; then
