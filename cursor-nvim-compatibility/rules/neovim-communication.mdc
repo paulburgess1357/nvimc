@@ -7,22 +7,32 @@ alwaysApply: true
 
 The user edits code in **Neovim running in a Cursor terminal**. Assume Neovim unless told otherwise.
 
+## Setup (do this first)
+
+Before using any scripts, resolve `SCRIPT_DIR` by running this in a shell:
+
+```bash
+SCRIPT_DIR="$(dirname "$(dirname "$(readlink -f ~/.cursor/rules/neovim-communication.mdc)")")"
+```
+
+All script paths below use this variable.
+
+## Reading Neovim State
+
+To see what the user sees, read the terminal file (e.g. `terminals/1.txt`). Key info:
+
+- **Tab bar** (top line): shows open buffers, active buffer is highlighted
+- **Status bar** (bottom line): shows the current filename, cursor's absolute line number, and column
+- **Line numbers in the buffer**: these are **relative**, not absolute. Use the status bar to get the absolute position.
+
 ## Line Numbers
 
 Always use **absolute line numbers** so the user can jump with `42G`.
-
-The terminal shows relative numbers, but the status bar shows the cursor's absolute position — calculate from that.
 
 - Say: "Check line 42"
 - Don't say: "12 lines above the cursor"
 
 ## Interacting with Neovim
-
-Use `nvim-send` and `nvim-open` to control the user's Neovim instance. Find them by resolving this rule's symlink:
-
-```bash
-SCRIPT_DIR="$(dirname "$(dirname "$(readlink -f ~/.cursor/rules/neovim-communication.mdc)")")"
-```
 
 - **Open file(s):** `$SCRIPT_DIR/scripts/nvim-open <file> [file2 ...]`
 - **Open and jump to line:** `$SCRIPT_DIR/scripts/nvim-open -g <line> <file>`
@@ -46,7 +56,7 @@ $SCRIPT_DIR/scripts/nvim-send -c 'vs /path/to/other/file.hpp'
 
 ## After Editing Files
 
-After editing files that may be open in Neovim, reload all buffers so the user sees the changes:
+After **every** file edit, run `checktime` to reload any Neovim buffers that changed on disk:
 
 ```bash
 $SCRIPT_DIR/scripts/nvim-send -c 'checktime'
