@@ -49,7 +49,7 @@ $SCRIPT_DIR/scripts/nvim-send -c 'vs /path/to/other/file.hpp'
 After editing files that may be open in Neovim, reload all buffers so the user sees the changes:
 
 ```bash
-$SCRIPT_DIR/scripts/nvim-send -c 'bufdo e'
+$SCRIPT_DIR/scripts/nvim-send -c 'checktime'
 ```
 
 **Never** change Neovim settings, options, or configuration. No `:set`, no modifying config files, no toggling anything. Only use Neovim for navigation, file operations, and editing tasks.

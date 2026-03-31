@@ -24,6 +24,7 @@ The AI resolves the symlink to find the scripts automatically — no PATH setup 
 ## Requirements
 
 - Neovim with a server socket (most installs create one automatically)
+- `set autoread` in Neovim config (needed for `checktime` buffer reload)
 - `bash` 4.0+
 
 Run any script with `-h` for usage details.
