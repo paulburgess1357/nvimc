@@ -17,5 +17,6 @@ return {
 		-- Folding
 		fold_marker_start = "▼",
 		fold_marker_end = "▲",
+		recent_solutions_count = 30,
 	},
 }

@@ -1,0 +1,32 @@
+---
+description: User works in Neovim — use absolute line numbers and nvim-send/nvim-open to interact
+alwaysApply: true
+---
+
+# Cursor-Neovim Communication
+
+The user edits code in **Neovim running in a Cursor terminal**. Assume Neovim unless told otherwise.
+
+## Line Numbers
+
+Always use **absolute line numbers** so the user can jump with `42G`.
+
+The terminal shows relative numbers, but the status bar shows the cursor's absolute position — calculate from that.
+
+- Say: "Check line 42"
+- Don't say: "12 lines above the cursor"
+
+## Interacting with Neovim
+
+Use `nvim-send` and `nvim-open` to control the user's Neovim instance. Find them by resolving this rule's symlink:
+
+```bash
+SCRIPT_DIR="$(dirname "$(dirname "$(readlink -f ~/.cursor/rules/neovim-communication.mdc)")")"
+```
+
+- **Open a file:** `$SCRIPT_DIR/scripts/nvim-open <path|pattern>`
+- **Send an ex command:** `$SCRIPT_DIR/scripts/nvim-send -c '<command>'`
+- **Send keystrokes:** `$SCRIPT_DIR/scripts/nvim-send '<keys>'`
+- **Query Neovim state:** `$SCRIPT_DIR/scripts/nvim-send -e '<expr>'`
+
+**Never** change Neovim settings, options, or configuration. No `:set`, no modifying config files, no toggling anything. Only use Neovim for navigation, file operations, and editing tasks.
