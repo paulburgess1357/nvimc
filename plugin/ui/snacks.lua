@@ -1,7 +1,7 @@
--- Snacks.nvim: Dashboard, indent guides, bigfile handling, and custom terminals.
 local plugins = require("config.plugins")
 local cfg = plugins.snacks or {}
 local settings = plugins.settings or {}
+if cfg.enabled == false then return end
 
 -----------------------------------------------------------
 -- Dashboard gradient colors (adapts to colorscheme)
@@ -134,64 +134,52 @@ local function make_term_cmd(n, open_win_fn)
 	end
 end
 
-local function register_term_commands()
-	for i = 1, 9 do
-		vim.api.nvim_create_user_command("Term" .. i, make_term_cmd(i, open_bottom_term_win), {})
-	end
-	vim.api.nvim_create_user_command("Term10", make_term_cmd(10, open_right_term_win), {})
+for i = 1, 9 do
+	vim.api.nvim_create_user_command("Term" .. i, make_term_cmd(i, open_bottom_term_win), {})
 end
+vim.api.nvim_create_user_command("Term10", make_term_cmd(10, open_right_term_win), {})
 
 -----------------------------------------------------------
--- Plugin spec
+-- Setup
 -----------------------------------------------------------
-return {
-	"folke/snacks.nvim",
-	enabled = cfg.enabled ~= false,
-	branch = cfg.branch,
-	priority = 1000,
-	lazy = false,
-	opts = {
-		bigfile = {
-			enabled = true,
-			notify = true,
-			size = (settings.bigfile_max_mb or 1.5) * 1024 * 1024,
-			setup = function()
-				vim.cmd([[NoMatchParen]])
-				vim.opt_local.swapfile = false
-				vim.opt_local.foldmethod = "manual"
-				vim.opt_local.undolevels = -1
-				vim.opt_local.undoreload = 0
-				vim.opt_local.list = false
-			end,
-		},
-		dashboard = {
-			enabled = true,
-			preset = {
-				keys = {
-					{ icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
-					{ icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
-					{ icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
-					{ icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
-					{ icon = " ", key = "c", desc = "Config", action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})" },
-					{ icon = " ", key = "l", desc = "Lazy", action = ":Lazy" },
-					{ icon = " ", key = "q", desc = "Quit", action = ":qa" },
-				},
-			},
-			sections = make_header_sections(),
-		},
-		indent = {
-			enabled = true,
-			indent = { char = "│", only_scope = false, only_current = false },
-			scope = { enabled = true, char = "│", underline = false },
-			animate = { enabled = true, duration = { step = 20, total = 300 } },
-		},
-		notifier = { enabled = false },
-		scroll = { enabled = false },
-		toggle = { enabled = true, which_key = true, notify = true },
+set_gradient_colors()
+vim.api.nvim_create_autocmd("ColorScheme", { callback = set_gradient_colors })
+
+require("snacks").setup({
+	bigfile = {
+		enabled = true,
+		notify = true,
+		size = (settings.bigfile_max_mb or 1.5) * 1024 * 1024,
+		setup = function()
+			vim.cmd([[NoMatchParen]])
+			vim.opt_local.swapfile = false
+			vim.opt_local.foldmethod = "manual"
+			vim.opt_local.undolevels = -1
+			vim.opt_local.undoreload = 0
+			vim.opt_local.list = false
+		end,
 	},
-	init = function()
-		set_gradient_colors()
-		vim.api.nvim_create_autocmd("ColorScheme", { callback = set_gradient_colors })
-		register_term_commands()
-	end,
-}
+	dashboard = {
+		enabled = true,
+		preset = {
+			keys = {
+				{ icon = "󰋚 ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+				{ icon = "󰒓 ", key = "c", desc = "Config", action = ":e " .. vim.fn.stdpath("config") .. "/lua/config/plugins.lua" },
+				{ icon = "󰚰 ", key = "u", desc = "Update Plugins", action = ":lua vim.pack.update()" },
+				{ icon = "󰏖 ", key = "p", desc = "Browse Plugins", action = ":lua vim.pack.update(nil, { offline = true })" },
+				{ icon = "󰓙 ", key = "h", desc = "Health Check", action = ":checkhealth" },
+				{ icon = "󰩈 ", key = "q", desc = "Quit", action = ":qa" },
+			},
+		},
+		sections = make_header_sections(),
+	},
+	indent = {
+		enabled = true,
+		indent = { char = "│", only_scope = false, only_current = false },
+		scope = { enabled = true, char = "│", underline = false },
+		animate = { enabled = true, duration = { step = 20, total = 300 } },
+	},
+	notifier = { enabled = false },
+	scroll = { enabled = false },
+	toggle = { enabled = true, which_key = true, notify = true },
+})
