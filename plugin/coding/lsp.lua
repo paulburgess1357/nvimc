@@ -18,10 +18,7 @@ vim.lsp.config.clangd = {
 		"--limit-references=0",
 		"--limit-results=0",
 	},
-	filetypes = {
-		"c", "cpp", "objc", "objcpp", "cuda", "proto",
-		"cppm", "hpp", "tpp", "ipp", "cxx", "cc", "hxx", "hh", "h",
-	},
+	filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
 	root_markers = { ".clangd", ".clang-tidy", "compile_commands.json", ".git" },
 }
 
@@ -166,3 +163,7 @@ if mason_cfg.enabled ~= false then
 		automatic_enable = true,
 	})
 end
+
+vim.api.nvim_create_user_command("LspLog", function()
+	vim.cmd.edit(vim.lsp.log.get_filename())
+end, { desc = "Open LSP log file" })

@@ -6,7 +6,7 @@ if cfg.enabled == false then return end
 require("nvim-treesitter").install({
 	"c", "cpp", "lua", "vim", "vimdoc", "python", "bash",
 	"markdown", "markdown_inline", "ruby", "json", "yaml",
-	"toml", "dockerfile",
+	"toml", "dockerfile", "regex",
 })
 
 vim.api.nvim_create_autocmd("FileType", {
