@@ -157,7 +157,7 @@ if mason_cfg.enabled ~= false then
 	require("mason-lspconfig").setup({
 		ensure_installed = {
 			"lua_ls", "clangd", "pyright", "rust_analyzer", "gopls",
-			"ts_ls", "ruby_lsp", "bashls", "html", "cssls", "tailwindcss",
+			"ts_ls", "bashls", "html", "cssls", "tailwindcss",
 			"jsonls", "yamlls", "taplo", "dockerls", "docker_compose_language_service",
 		},
 		automatic_enable = true,

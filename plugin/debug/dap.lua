@@ -120,27 +120,6 @@ dap.configurations.sh = {
 }
 dap.configurations.bash = dap.configurations.sh
 
--- Ruby (rdbg)
-dap.adapters.ruby = function(callback, config)
-	callback({
-		type = "server",
-		host = "127.0.0.1",
-		port = "${port}",
-		executable = {
-			command = "rdbg",
-			args = { "-n", "--open", "--port", "${port}", "-c", "--", config.command or "ruby", config.script },
-		},
-	})
-end
-dap.configurations.ruby = {
-	{
-		name = "Launch file",
-		type = "ruby",
-		request = "launch",
-		script = "${file}",
-	},
-}
-
 -----------------------------------------------------------
 -- DAP UI
 -----------------------------------------------------------
