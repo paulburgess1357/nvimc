@@ -15,7 +15,7 @@ require("illuminate").configure({
 	filetypes_denylist = {
 		"dirbuf", "dirvish", "fugitive", "alpha", "NvimTree",
 		"neo-tree", "minifiles", "dashboard", "TelescopePrompt",
-		"lazy", "mason",
+		"mason",
 	},
 	min_count_to_highlight = 1,
 })

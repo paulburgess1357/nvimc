@@ -7,7 +7,6 @@ require("marks").setup({
 	mappings = {},
 	excluded_filetypes = {
 		"minifiles",
-		"lazy",
 		"mason",
 		"help",
 		"snacks_dashboard",
