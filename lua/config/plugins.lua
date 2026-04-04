@@ -46,4 +46,7 @@ return {
 
 	-- Debug
 	dap = { enabled = true },
+
+	-- Local
+	leetneo = { enabled = true },
 }

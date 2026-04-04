@@ -87,3 +87,5 @@ add("dap", gh("mfussenegger/nvim-dap"), gh("nvim-neotest/nvim-nio"), gh("rcarrig
 if #specs > 0 then
 	vim.pack.add(specs)
 end
+
+require("config.colorscheme")

@@ -1,5 +1,8 @@
-# Plugin directories (lazy.nvim installs plugins here)
-lazy-lock.json.backup
+# Local plugin packages (symlinks)
+pack/
+
+# vim.pack lockfile backup
+nvim-pack-lock.json.backup
 
 # Neovim data/cache
 *.swp
