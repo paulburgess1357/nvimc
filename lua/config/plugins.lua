@@ -48,5 +48,5 @@ return {
 	dap = { enabled = true },
 
 	-- Local
-	leetneo = { enabled = false },
+	leetneo = { enabled = true },
 }
