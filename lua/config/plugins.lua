@@ -35,7 +35,7 @@ return {
 	rendermarkdown = { enabled = true },
 
 	-- UI
-	colorscheme = { enabled = true },
+	colorscheme = { enabled = true, theme = "onedark" },
 	lualine = { enabled = true },
 	whichkey = { enabled = true },
 	snacks = { enabled = true },
@@ -46,7 +46,4 @@ return {
 
 	-- Debug
 	dap = { enabled = true },
-
-	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = true, branch = "master" },
 }
