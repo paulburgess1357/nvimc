@@ -16,37 +16,37 @@ return {
 	},
 
 	-- Coding
-	treesitter = { enabled = true, branch = "main" },
-	lsp = { enabled = true },
-	mason = { enabled = true },
-	blink = { enabled = true },
-	conform = { enabled = true },
-	lint = { enabled = true },
-	increname = { enabled = true },
-	pairs = { enabled = true },
+	treesitter = { enabled = true, branch = "main" }, -- Syntax highlighting and code parsing
+	lsp = { enabled = true }, -- Language server protocol support
+	mason = { enabled = true }, -- LSP/DAP/linter/formatter installer
+	blink = { enabled = true }, -- Autocompletion engine
+	conform = { enabled = true }, -- Code formatting
+	lint = { enabled = true }, -- Async linting
+	increname = { enabled = true }, -- Live-preview LSP rename
+	pairs = { enabled = true }, -- Auto-close brackets, quotes, etc.
 
 	-- Editor
-	minifiles = { enabled = true },
-	fzf = { enabled = true },
-	gitsigns = { enabled = true },
-	spider = { enabled = true },
-	illuminate = { enabled = true },
-	todocomments = { enabled = true },
-	rendermarkdown = { enabled = true },
+	minifiles = { enabled = true }, -- File explorer
+	fzf = { enabled = true }, -- Fuzzy finder
+	gitsigns = { enabled = true }, -- Git diff signs in the gutter
+	spider = { enabled = true }, -- Smarter word motions (camelCase-aware)
+	illuminate = { enabled = true }, -- Highlight other uses of word under cursor
+	todocomments = { enabled = true }, -- Highlight and search TODO/FIXME/etc.
+	rendermarkdown = { enabled = true }, -- In-buffer markdown rendering
 
 	-- UI
-	colorscheme = { enabled = true, theme = "onedark" },
-	lualine = { enabled = true },
-	whichkey = { enabled = true },
-	snacks = { enabled = true },
-	noice = { enabled = true },
-	rainbowdelimiters = { enabled = true },
-	aerial = { enabled = true },
-	marks = { enabled = true },
+	colorscheme = { enabled = true, theme = "onedark" }, -- Color theme
+	lualine = { enabled = true }, -- Statusline
+	whichkey = { enabled = true }, -- Keybinding hints popup
+	snacks = { enabled = true }, -- UI utilities (bigfile, dashboard, etc.)
+	noice = { enabled = true }, -- Cmdline, messages, and popupmenu UI
+	rainbowdelimiters = { enabled = true }, -- Colored matching brackets
+	aerial = { enabled = true }, -- Code outline / symbol sidebar
+	marks = { enabled = true }, -- Visual marks in the gutter
 
 	-- Debug
-	dap = { enabled = true },
+	dap = { enabled = true }, -- Debug adapter protocol support
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false },
+	leetneo = { enabled = true }, -- LeetCode integration
 }
