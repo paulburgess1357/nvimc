@@ -59,6 +59,7 @@ keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Comment" })
 -- Terminal
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 keymap.set("n", "<C-/>", "<cmd>Term1<CR>", { desc = "Toggle terminal" })
+keymap.set("n", "<C-Space>", "<cmd>Term10<CR>", { desc = "Toggle right terminal" })
 
 -- Force LSP to index all project files (fixes clangd missing references)
 vim.api.nvim_create_user_command("LspIndexAll", function()
