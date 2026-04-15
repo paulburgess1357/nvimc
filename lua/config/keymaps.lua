@@ -132,3 +132,10 @@ vim.api.nvim_create_user_command("LspIndexAll", function()
 
 	process_batch(1)
 end, { desc = "Force LSP to index all project files" })
+
+vim.api.nvim_create_user_command("McpClearHighlights", function()
+	local ns = vim.api.nvim_create_namespace("mcp_highlight")
+	for _, b in ipairs(vim.api.nvim_list_bufs()) do
+		vim.api.nvim_buf_clear_namespace(b, ns, 0, -1)
+	end
+end, { desc = "Clear all MCP highlights" })
