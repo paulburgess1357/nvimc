@@ -106,6 +106,7 @@ local function setup_term_buf(buf)
 		local w = find_buf_win(buf)
 		if w then vim.api.nvim_win_close(w, false) end
 	end, { buffer = buf })
+	vim.keymap.set("n", "<Esc>", "<cmd>wincmd t<CR>", { buffer = buf })
 	for _, key in ipairs({ "<S-h>", "<S-l>", "<leader>-", "<leader>|" }) do
 		vim.keymap.set("n", key, "<nop>", { buffer = buf })
 	end
@@ -138,6 +139,27 @@ for i = 1, 9 do
 	vim.api.nvim_create_user_command("Term" .. i, make_term_cmd(i, open_bottom_term_win), {})
 end
 vim.api.nvim_create_user_command("Term10", make_term_cmd(10, open_right_term_win), {})
+
+vim.api.nvim_create_user_command("Term10Focus", function()
+	local buf = term_bufs[10]
+	if buf and vim.api.nvim_buf_is_valid(buf) then
+		local win = find_buf_win(buf)
+		if win then
+			vim.api.nvim_set_current_win(win)
+		else
+			open_right_term_win()
+			vim.api.nvim_set_current_buf(buf)
+		end
+	else
+		open_right_term_win()
+		vim.cmd("terminal")
+		buf = vim.api.nvim_get_current_buf()
+		term_bufs[10] = buf
+		vim.api.nvim_buf_set_name(buf, "Term10")
+		setup_term_buf(buf)
+	end
+	vim.cmd("startinsert")
+end, {})
 
 -----------------------------------------------------------
 -- Setup

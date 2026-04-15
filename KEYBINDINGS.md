@@ -90,7 +90,9 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 
 | Key | Action |
 | --- | ------ |
-| `<C-/>` | Toggle terminal |
+| `<C-/>` | Toggle bottom terminal (Term1) |
+| `<C-S-Space>` | Focus right terminal (Term10) and enter insert mode |
+| `Esc` (in terminal normal mode) | Jump to leftmost window |
 | `<leader>o` | Toggle outline |
 | `<leader>e` | File explorer (current file) |
 | `<leader>E` | File explorer (cwd) |
