@@ -86,7 +86,7 @@ vim.keymap.set("n", "<leader><leader>f", function()
 end, { desc = "Find files (cwd)" })
 
 vim.keymap.set("n", "<leader><leader>g", function()
-	require("fzf-lua").live_grep({ cwd = vim.fn.getcwd() })
+	require("fzf-lua").grep({ search = "", cwd = vim.fn.getcwd() })
 end, { desc = "Grep (cwd)" })
 
 vim.keymap.set("n", "<leader><leader>h", function()
@@ -94,7 +94,7 @@ vim.keymap.set("n", "<leader><leader>h", function()
 end, { desc = "Find files (home)" })
 
 vim.keymap.set("n", "<leader><leader>j", function()
-	require("fzf-lua").live_grep({ cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":h:h") })
+	require("fzf-lua").grep({ search = "", cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":h:h") })
 end, { desc = "Grep (home)" })
 
 vim.keymap.set("n", "<leader><leader>r", function()
