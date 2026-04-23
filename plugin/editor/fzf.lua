@@ -56,6 +56,7 @@ fzf.register_ui_select()
 -- User commands
 local cmd = vim.api.nvim_create_user_command
 cmd("Symbols", fzf.lsp_document_symbols, { desc = "Document symbols" })
+cmd("SymbolsAll", function() fzf.lsp_workspace_symbols({ cwd_only = true }) end, { desc = "Workspace symbols" })
 cmd("Marks", fzf.marks, { desc = "Marks" })
 cmd("Files", fzf.files, { desc = "Find files" })
 cmd("Buffers", fzf.buffers, { desc = "Buffers" })
