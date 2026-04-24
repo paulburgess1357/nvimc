@@ -56,7 +56,7 @@ fzf.register_ui_select()
 -- User commands
 local cmd = vim.api.nvim_create_user_command
 cmd("Symbols", fzf.lsp_document_symbols, { desc = "Document symbols" })
-cmd("SymbolsAll", function() fzf.lsp_workspace_symbols({ cwd_only = true }) end, { desc = "Workspace symbols" })
+cmd("SymbolsAll", function() fzf.lsp_live_workspace_symbols({ cwd_only = true }) end, { desc = "Workspace symbols (live)" })
 cmd("Marks", fzf.marks, { desc = "Marks" })
 cmd("Files", fzf.files, { desc = "Find files" })
 cmd("Buffers", fzf.buffers, { desc = "Buffers" })
@@ -83,7 +83,7 @@ vim.keymap.set("n", "<leader>gb", "<cmd>FzfLua git_branches<cr>", { desc = "Bran
 vim.keymap.set("n", "<leader>gs", "<cmd>FzfLua git_status<cr>", { desc = "Status" })
 -- LSP
 vim.keymap.set("n", "<leader>ss", "<cmd>FzfLua lsp_document_symbols<cr>", { desc = "Document symbols" })
-vim.keymap.set("n", "<leader>sS", "<cmd>FzfLua lsp_workspace_symbols<cr>", { desc = "Workspace symbols" })
+vim.keymap.set("n", "<leader>sS", "<cmd>FzfLua lsp_live_workspace_symbols<cr>", { desc = "Workspace symbols (live)" })
 -- Misc
 vim.keymap.set("n", "<leader>:", "<cmd>FzfLua command_history<cr>", { desc = "Command history" })
 vim.keymap.set("n", "<leader>fh", "<cmd>FzfLua help_tags<cr>", { desc = "Help" })
