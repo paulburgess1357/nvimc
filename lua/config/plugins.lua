@@ -48,5 +48,5 @@ return {
 	dap = { enabled = true }, -- Debug adapter protocol support
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = true }, -- LeetCode integration
+	leetneo = { enabled = false }, -- LeetCode integration
 }
