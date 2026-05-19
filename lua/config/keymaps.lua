@@ -78,7 +78,9 @@ vim.api.nvim_create_user_command("LspIndexAll", function()
 		end
 	end
 
-	local client_names = vim.tbl_map(function(c) return c.name end, clients)
+	local client_names = vim.tbl_map(function(c)
+		return c.name
+	end, clients)
 	local lsp_name = table.concat(client_names, ", ")
 
 	-- Find all files and check if they match LSP filetypes
@@ -139,3 +141,10 @@ vim.api.nvim_create_user_command("McpClearHighlights", function()
 		vim.api.nvim_buf_clear_namespace(b, ns, 0, -1)
 	end
 end, { desc = "Clear all MCP highlights" })
+
+vim.api.nvim_create_user_command("McpClearVirtualTexts", function()
+	local ns = vim.api.nvim_create_namespace("mcp_virtual_text")
+	for _, b in ipairs(vim.api.nvim_list_bufs()) do
+		vim.api.nvim_buf_clear_namespace(b, ns, 0, -1)
+	end
+end, {})
