@@ -6,6 +6,7 @@ local actions = require("fzf-lua.actions")
 
 fzf.setup({
 	"default-title",
+	fzf_colors = true,
 	keymap = {
 		fzf = {
 			["ctrl-j"] = "down",
