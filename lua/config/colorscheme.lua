@@ -1,5 +1,7 @@
 local plugins = require("config.plugins")
-if (plugins.colorscheme or {}).enabled == false then return end
+if (plugins.colorscheme or {}).enabled == false then
+	return
+end
 
 local theme = (plugins.colorscheme or {}).theme or "onedark"
 
@@ -13,11 +15,10 @@ if theme == "teide" then
 		},
 	})
 	vim.cmd.colorscheme("teide")
-
 elseif theme == "onedark" then
 	require("onedark").setup({
 		style = "darker",
-		transparent = false,
+		transparent = true,
 		term_colors = true,
 		ending_tildes = false,
 		toggle_style_key = "<leader>ts",
@@ -30,7 +31,7 @@ elseif theme == "onedark" then
 			variables = "none",
 		},
 		lualine = {
-			transparent = false,
+			transparent = true,
 		},
 		diagnostics = {
 			darker = true,
@@ -39,7 +40,6 @@ elseif theme == "onedark" then
 		},
 	})
 	require("onedark").load()
-
 elseif theme == "tokyonight" then
 	require("tokyonight").setup({
 		style = "moon",
@@ -56,7 +56,6 @@ elseif theme == "tokyonight" then
 		dim_inactive = false,
 	})
 	vim.cmd.colorscheme("tokyonight")
-
 elseif theme == "catppuccin" then
 	require("catppuccin").setup({
 		flavour = "mocha",
@@ -78,7 +77,6 @@ elseif theme == "catppuccin" then
 		},
 	})
 	vim.cmd.colorscheme("catppuccin")
-
 elseif theme == "kanagawa" then
 	require("kanagawa").setup({
 		transparent = false,
@@ -95,7 +93,6 @@ elseif theme == "kanagawa" then
 		},
 	})
 	vim.cmd.colorscheme("kanagawa")
-
 elseif theme == "vscode" then
 	require("vscode").setup({
 		style = "dark",
@@ -105,7 +102,6 @@ elseif theme == "vscode" then
 		terminal_colors = true,
 	})
 	vim.cmd.colorscheme("vscode")
-
 elseif theme == "nordic" then
 	require("nordic").setup({
 		transparent = {
