@@ -16,9 +16,69 @@ if theme == "teide" then
 	})
 	vim.cmd.colorscheme("teide")
 elseif theme == "onedark" then
+	local transparent = true
+
+	-- onedark ships highlight groups for most plugins, but it has two gaps
+	-- relative to meowsoot: (1) `transparent` only blanks the main editor, not
+	-- floats/pickers, and (2) it has no fzf-lua groups at all. Patch both via
+	-- the built-in `highlights` override ($name = palette color, applied last).
+	local highlights = {
+		-- fzf-lua (onedark has no native support)
+		FzfLuaNormal = { bg = transparent and "none" or "$bg_d" },
+		FzfLuaBorder = { fg = "$cyan", bg = transparent and "none" or "$bg_d" },
+		FzfLuaTitle = { fg = "$red", fmt = "bold" },
+		FzfLuaPreviewNormal = { bg = transparent and "none" or "$bg_d" },
+		FzfLuaPreviewBorder = { fg = "$cyan", bg = transparent and "none" or "$bg_d" },
+		FzfLuaPreviewTitle = { fg = "$red", fmt = "bold" },
+		FzfLuaCursorLine = { bg = "$bg2" },
+		FzfLuaFzfMatch = { fg = "$orange", fmt = "bold" },
+		FzfLuaHeaderText = { fg = "$purple" },
+		FzfLuaHeaderBind = { fg = "$blue" },
+		FzfLuaPathColNr = { fg = "$cyan" },
+		FzfLuaPathLineNr = { fg = "$green" },
+		FzfLuaBufNr = { fg = "$yellow" },
+		FzfLuaBufName = { fg = "$blue" },
+		FzfLuaTabTitle = { fg = "$cyan", fmt = "bold" },
+		FzfLuaLiveSym = { fg = "$orange" },
+	}
+
+	if transparent then
+		-- Make every floating window / popup honor transparency. onedark bakes
+		-- these as solid bg (bg1/bg_d), so override their backgrounds to none.
+		for _, g in ipairs({
+			"NormalFloat",
+			"FloatBorder",
+			"Pmenu",
+			"PmenuSbar",
+			"PmenuThumb",
+			"MiniFilesNormal",
+			"MiniFilesBorder",
+			"MiniPickNormal",
+			"MiniPickBorder",
+			"MiniNotifyNormal",
+			"MiniNotifyBorder",
+			"SnacksPicker",
+			"SnacksPickerBorder",
+			"TelescopeNormal",
+			"TelescopeBorder",
+			"NoiceCmdlinePopup",
+			"NoiceCmdlinePopupBorder",
+			"NoicePopup",
+			"NoicePopupBorder",
+			"BlinkCmpMenu",
+			"BlinkCmpMenuBorder",
+			"BlinkCmpDoc",
+			"BlinkCmpDocBorder",
+			"BlinkCmpSignatureHelp",
+			"WhichKeyFloat",
+		}) do
+			highlights[g] = { bg = "none" }
+		end
+	end
+
 	require("onedark").setup({
 		style = "darker",
-		transparent = true,
+		transparent = transparent,
 		term_colors = true,
 		ending_tildes = false,
 		toggle_style_key = "<leader>ts",
@@ -31,13 +91,14 @@ elseif theme == "onedark" then
 			variables = "none",
 		},
 		lualine = {
-			transparent = true,
+			transparent = transparent,
 		},
 		diagnostics = {
 			darker = true,
 			undercurl = true,
 			background = true,
 		},
+		highlights = highlights,
 	})
 	require("onedark").load()
 elseif theme == "tokyonight" then
@@ -116,4 +177,24 @@ elseif theme == "nordic" then
 		},
 	})
 	require("nordic").load()
+elseif theme == "meowsoot" then
+	require("meowsoot").setup({
+		style = "night",
+		transparent = true,
+		terminal_colors = true,
+		styles = {
+			comments = { italic = true },
+			keywords = {},
+			functions = {},
+			variables = {},
+			sidebars = "transparent",
+			floats = "transparent",
+		},
+		plugins = {
+			all = false,
+			auto = true,
+		},
+		cache = true,
+	})
+	vim.cmd.colorscheme("meowsoot")
 end

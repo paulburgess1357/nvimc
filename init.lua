@@ -68,6 +68,7 @@ local colorscheme_specs = {
 	kanagawa = gh("rebelot/kanagawa.nvim"),
 	vscode = gh("Mofiqul/vscode.nvim"),
 	nordic = gh("AlexvZyl/nordic.nvim"),
+	meowsoot = gh("marekh19/meowsoot.nvim"),
 }
 add("colorscheme", colorscheme_specs[theme])
 
