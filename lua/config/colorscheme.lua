@@ -23,6 +23,10 @@ elseif theme == "onedark" then
 	-- floats/pickers, and (2) it has no fzf-lua groups at all. Patch both via
 	-- the built-in `highlights` override ($name = palette color, applied last).
 	local highlights = {
+		-- Transparent cursorline (slab removed in the loop below); keep the
+		-- row visible via a bold, accented line number instead of a bg slab.
+		CursorLineNr = { fg = "$orange", fmt = "bold" },
+
 		-- fzf-lua (onedark has no native support)
 		FzfLuaNormal = { bg = transparent and "none" or "$bg_d" },
 		FzfLuaBorder = { fg = "$cyan", bg = transparent and "none" or "$bg_d" },
@@ -46,6 +50,7 @@ elseif theme == "onedark" then
 		-- Make every floating window / popup honor transparency. onedark bakes
 		-- these as solid bg (bg1/bg_d), so override their backgrounds to none.
 		for _, g in ipairs({
+			"CursorLine",
 			"StatusLine",
 			"StatusLineNC",
 			"TabLine",
