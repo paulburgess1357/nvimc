@@ -48,6 +48,9 @@ elseif theme == "onedark" then
 		for _, g in ipairs({
 			"StatusLine",
 			"StatusLineNC",
+			"TabLine",
+			"TabLineFill",
+			"TabLineSel",
 			"NormalFloat",
 			"FloatBorder",
 			"Pmenu",
