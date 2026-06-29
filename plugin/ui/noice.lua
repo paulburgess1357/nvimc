@@ -6,6 +6,10 @@ require("notify").setup({
 	timeout = 3000,
 	top_down = true,
 	render = "compact",
+	-- Under a transparent theme `NotifyBackground` has no bg, so notify can't
+	-- compute its fade blend. This hex is only the blend reference for the fade
+	-- (not a visible bg); black matches the dark backdrop.
+	background_colour = "#000000",
 })
 
 require("noice").setup({
