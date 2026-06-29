@@ -46,6 +46,9 @@ if theme == "onedark" then
 			"CursorLine",
 			"StatusLine",
 			"StatusLineNC",
+			-- terminal windows remap StatusLine -> StatusLineTerm via winhighlight
+			"StatusLineTerm",
+			"StatusLineTermNC",
 			"TabLine",
 			"TabLineFill",
 			"TabLineSel",
@@ -105,8 +108,5 @@ if theme == "onedark" then
 	})
 	require("onedark").load()
 else
-	vim.notify(
-		('colorscheme: theme "%s" is not configured in colorscheme.lua'):format(theme),
-		vim.log.levels.WARN
-	)
+	vim.notify(('colorscheme: theme "%s" is not configured in colorscheme.lua'):format(theme), vim.log.levels.WARN)
 end
