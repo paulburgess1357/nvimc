@@ -58,17 +58,12 @@ add("marks", gh("chentoast/marks.nvim"))
 add("todocomments", gh("nvim-lua/plenary.nvim"), gh("folke/todo-comments.nvim"))
 add("spider", gh("chrisgrieser/nvim-spider"))
 
--- UI: colorscheme (only the active theme)
+-- UI: colorscheme (only the active theme is installed)
+-- To add a theme: add its repo here, then add a setup branch in
+-- lua/config/colorscheme.lua and set `theme` in lua/config/plugins.lua.
 local theme = (plugins.colorscheme or {}).theme or "onedark"
 local colorscheme_specs = {
-	teide = gh("serhez/teide.nvim"),
 	onedark = gh("navarasu/onedark.nvim"),
-	tokyonight = gh("folke/tokyonight.nvim"),
-	catppuccin = { src = gh("catppuccin/nvim"), name = "catppuccin" },
-	kanagawa = gh("rebelot/kanagawa.nvim"),
-	vscode = gh("Mofiqul/vscode.nvim"),
-	nordic = gh("AlexvZyl/nordic.nvim"),
-	meowsoot = gh("marekh19/meowsoot.nvim"),
 }
 add("colorscheme", colorscheme_specs[theme])
 

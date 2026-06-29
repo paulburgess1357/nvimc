@@ -5,23 +5,16 @@ end
 
 local theme = (plugins.colorscheme or {}).theme or "onedark"
 
-if theme == "teide" then
-	require("teide").setup({
-		style = "dark",
-		transparent = false,
-		terminal_colors = true,
-		styles = {
-			comments = { italic = true },
-		},
-	})
-	vim.cmd.colorscheme("teide")
-elseif theme == "onedark" then
+-- Only onedark is wired up. To add another theme: register its repo in the
+-- `colorscheme_specs` table in init.lua, then add an `elseif theme == "name"`
+-- branch below with its setup() call.
+if theme == "onedark" then
 	local transparent = true
 
-	-- onedark ships highlight groups for most plugins, but it has two gaps
-	-- relative to meowsoot: (1) `transparent` only blanks the main editor, not
-	-- floats/pickers, and (2) it has no fzf-lua groups at all. Patch both via
-	-- the built-in `highlights` override ($name = palette color, applied last).
+	-- onedark ships highlight groups for most plugins, but it has two gaps:
+	-- (1) `transparent` only blanks the main editor, not floats/pickers, and
+	-- (2) it has no fzf-lua groups at all. Patch both via the built-in
+	-- `highlights` override ($name = palette color, applied last).
 	local highlights = {
 		-- Transparent cursorline (slab removed in the loop below); keep the
 		-- row visible via a bold, accented line number instead of a bg slab.
@@ -111,100 +104,9 @@ elseif theme == "onedark" then
 		highlights = highlights,
 	})
 	require("onedark").load()
-elseif theme == "tokyonight" then
-	require("tokyonight").setup({
-		style = "moon",
-		transparent = false,
-		terminal_colors = true,
-		styles = {
-			comments = { italic = true },
-			keywords = {},
-			functions = {},
-			variables = {},
-			sidebars = "dark",
-			floats = "dark",
-		},
-		dim_inactive = false,
-	})
-	vim.cmd.colorscheme("tokyonight")
-elseif theme == "catppuccin" then
-	require("catppuccin").setup({
-		flavour = "mocha",
-		transparent_background = false,
-		term_colors = true,
-		styles = {
-			comments = { "italic" },
-			conditionals = {},
-			loops = {},
-			functions = {},
-			keywords = {},
-			strings = {},
-			variables = {},
-			numbers = {},
-			booleans = {},
-			properties = {},
-			types = {},
-			operators = {},
-		},
-	})
-	vim.cmd.colorscheme("catppuccin")
-elseif theme == "kanagawa" then
-	require("kanagawa").setup({
-		transparent = false,
-		terminalColors = true,
-		dimInactive = false,
-		commentStyle = { italic = true },
-		functionStyle = {},
-		keywordStyle = {},
-		statementStyle = {},
-		typeStyle = {},
-		background = {
-			dark = "dragon",
-			light = "lotus",
-		},
-	})
-	vim.cmd.colorscheme("kanagawa")
-elseif theme == "vscode" then
-	require("vscode").setup({
-		style = "dark",
-		transparent = false,
-		italic_comments = true,
-		underline_links = true,
-		terminal_colors = true,
-	})
-	vim.cmd.colorscheme("vscode")
-elseif theme == "nordic" then
-	require("nordic").setup({
-		transparent = {
-			bg = false,
-			float = false,
-		},
-		italic_comments = true,
-		bold_keywords = false,
-		reduced_blue = true,
-		cursorline = {
-			theme = "dark",
-		},
-	})
-	require("nordic").load()
-elseif theme == "meowsoot" then
-	require("meowsoot").setup({
-		style = "night",
-		transparent = true,
-		terminal_colors = true,
-		styles = {
-			comments = { italic = true },
-			keywords = {},
-			functions = {},
-			variables = {},
-			sidebars = "transparent",
-			floats = "transparent",
-		},
-		plugins = {
-			all = false,
-			auto = true,
-		},
-		cache = true,
-	})
-	vim.cmd.colorscheme("meowsoot")
+else
+	vim.notify(
+		('colorscheme: theme "%s" is not configured in colorscheme.lua'):format(theme),
+		vim.log.levels.WARN
+	)
 end

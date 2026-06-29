@@ -70,7 +70,7 @@ install/                    Install and migration scripts
 
 ### UI
 
-- **Colorschemes** - onedark (default), tokyonight, catppuccin, kanagawa, vscode, nordic, teide
+- **Colorscheme** - onedark (transparent). Adding another theme: register its repo in `init.lua`, add a setup branch in `lua/config/colorscheme.lua`, and set `theme` in `lua/config/plugins.lua`.
 - **lualine** - Statusline
 - **which-key** - Keybinding hints
 - **snacks** - Dashboard, indent guides, terminal
