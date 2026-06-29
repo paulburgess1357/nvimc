@@ -1,13 +1,20 @@
 local cfg = require("config.plugins").lualine or {}
 if cfg.enabled == false then return end
 
-local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
-local normal_bg = normal_hl.bg and string.format("#%06x", normal_hl.bg) or nil
+-- Start from lualine's `auto` theme: it derives every color from the ACTIVE
+-- colorscheme's highlight groups, so changing themes later "just works".
+--
+-- Transparency pass (Direction 1): keep the mode/location accent pills
+-- (theme.a) solid as anchors, and blank the backgrounds of every other
+-- section so the bar meshes with a transparent background. We only ever set
+-- bg = "none" here -- never a literal color -- so nothing is hardcoded.
+-- Branch / diff / diagnostics then render as colored TEXT (their fg is still
+-- theme-derived) instead of sitting on a grey slab.
 local custom_theme = require("lualine.themes.auto")
-if normal_bg then
-	for _, mode in pairs(custom_theme) do
-		if mode.c then
-			mode.c.bg = normal_bg
+for _, mode in pairs(custom_theme) do
+	for _, key in ipairs({ "b", "c" }) do -- b -> {b,y}, c -> {c,x}
+		if mode[key] then
+			mode[key].bg = "none"
 		end
 	end
 end

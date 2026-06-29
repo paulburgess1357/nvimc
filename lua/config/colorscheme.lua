@@ -46,6 +46,8 @@ elseif theme == "onedark" then
 		-- Make every floating window / popup honor transparency. onedark bakes
 		-- these as solid bg (bg1/bg_d), so override their backgrounds to none.
 		for _, g in ipairs({
+			"StatusLine",
+			"StatusLineNC",
 			"NormalFloat",
 			"FloatBorder",
 			"Pmenu",
