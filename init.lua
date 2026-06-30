@@ -51,6 +51,7 @@ add("increname", gh("smjonas/inc-rename.nvim"))
 -- Editor
 add("fzf", gh("ibhagwan/fzf-lua"))
 add("gitsigns", gh("lewis6991/gitsigns.nvim"))
+add("diffview", gh("sindrets/diffview.nvim"))
 add("illuminate", gh("RRethy/vim-illuminate"))
 add("minifiles", gh("nvim-mini/mini.files"))
 add("rendermarkdown", gh("MeanderingProgrammer/render-markdown.nvim"))

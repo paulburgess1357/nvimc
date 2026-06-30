@@ -16,6 +16,16 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | `:Keymaps` | Keymaps |
 | `:Aerials` | Toggle outline sidebar |
 
+## Git / Diff
+
+| Command | Action |
+| ------- | ------ |
+| `:DiffviewOpen` | Side-by-side diff of uncommitted changes |
+| `:DiffviewOpen <rev>` | Diff against a rev/range (e.g. `main...HEAD`, `HEAD~2`) |
+| `:DiffviewClose` | Close the diff view |
+| `:DiffviewFileHistory %` | History of the current file |
+| `:DiffviewFileHistory` | History of the current branch |
+
 ## LSP
 
 | Command | Action |

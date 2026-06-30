@@ -29,6 +29,7 @@ return {
 	minifiles = { enabled = true }, -- File explorer
 	fzf = { enabled = true }, -- Fuzzy finder
 	gitsigns = { enabled = true }, -- Git diff signs in the gutter
+	diffview = { enabled = true }, -- Side-by-side diff viewer
 	spider = { enabled = true }, -- Smarter word motions (camelCase-aware)
 	illuminate = { enabled = true }, -- Highlight other uses of word under cursor
 	todocomments = { enabled = true }, -- Highlight and search TODO/FIXME/etc.
