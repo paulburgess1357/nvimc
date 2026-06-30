@@ -45,10 +45,10 @@ lint.linters.cppcheck.args = {
 	end,
 }
 
-vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter" }, {
+vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost" }, {
 	group = vim.api.nvim_create_augroup("lint", { clear = true }),
 	callback = function()
-		if vim.bo.modifiable then
+		if vim.bo.modifiable and vim.bo.buftype == "" then
 			lint.try_lint()
 		end
 	end,
