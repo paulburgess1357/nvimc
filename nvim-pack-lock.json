@@ -58,7 +58,7 @@
       "src": "https://github.com/marekh19/meowsoot.nvim"
     },
     "mini.files": {
-      "rev": "0da2aa91bd89418671cde22a9d4a8a4f3035bb2d",
+      "rev": "4b3db6f1bf76fc67582e8fe7b2fd04b971707b3f",
       "src": "https://github.com/nvim-mini/mini.files"
     },
     "mini.pairs": {
@@ -90,7 +90,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "3371bf298c1f56efc26771ee961f461176958fb5",
+      "rev": "dd1c9b802c943278179a5d819369cda085b79d45",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -133,6 +133,10 @@
     "render-markdown.nvim": {
       "rev": "f422cb5c6855f150e2ddcfaf44e7157b98b34f6a",
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
+    },
+    "smart-splits.nvim": {
+      "rev": "0e5bc00d2a32e6c782cd279cb96ab6c7ae49cd94",
+      "src": "https://github.com/mrjones2014/smart-splits.nvim"
     },
     "snacks.nvim": {
       "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",
