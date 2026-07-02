@@ -22,7 +22,9 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
-vim.opt.magic = false -- Literal search with /, no regex escaping needed
+-- Literal search/substitute lives in keymaps.lua (/, ? and :s prefix \V).
+-- Do NOT set 'magic' off for this: plugins build patterns assuming it is
+-- on (:h 'magic').
 
 -- Appearance
 vim.opt.termguicolors = true

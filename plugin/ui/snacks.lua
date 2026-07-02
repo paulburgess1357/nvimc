@@ -77,6 +77,23 @@ local function get_bottom_term_wins()
 	return wins
 end
 
+-- Term10 must always be a full-height right column. `botright split` (used
+-- for the first bottom terminal) spans the full width and cuts it short, so
+-- push Term10 back to the far right and restore its width afterwards.
+local function fix_term10_layout()
+	local buf = term_bufs[10]
+	if not (buf and vim.api.nvim_buf_is_valid(buf)) then return end
+	local win = find_buf_win(buf)
+	if not win then return end
+	local cur = vim.api.nvim_get_current_win()
+	vim.api.nvim_set_current_win(win)
+	vim.cmd("wincmd L")
+	vim.api.nvim_win_set_width(win, math.floor(vim.o.columns * 0.28))
+	if vim.api.nvim_win_is_valid(cur) then
+		vim.api.nvim_set_current_win(cur)
+	end
+end
+
 local function open_bottom_term_win(n)
 	local wins = get_bottom_term_wins()
 	local after, before
@@ -91,25 +108,73 @@ local function open_bottom_term_win(n)
 		vim.api.nvim_set_current_win(before)
 		vim.cmd("vertical aboveleft split")
 	else
-		vim.cmd("botright split | resize " .. math.floor(vim.o.lines * 0.3))
+		vim.cmd("botright split")
+		local bottom = vim.api.nvim_get_current_win()
+		fix_term10_layout()
+		vim.api.nvim_win_set_height(bottom, math.floor(vim.o.lines * 0.3))
+	end
+end
+
+-- Opening/closing Term10 steals/returns width only at the layout's right
+-- edge, so the rightmost bottom terminal absorbs the whole change while the
+-- others keep their widths. Redistribute the bottom row evenly afterwards.
+local function equalize_bottom_terms()
+	local wins = get_bottom_term_wins()
+	if #wins < 2 then return end
+	local total = 0
+	for _, tw in ipairs(wins) do
+		total = total + vim.api.nvim_win_get_width(tw.win)
+	end
+	local each = math.floor(total / #wins)
+	for i = 1, #wins - 1 do
+		vim.api.nvim_win_set_width(wins[i].win, each)
 	end
 end
 
 local function open_right_term_win()
 	vim.cmd("botright vsplit")
 	vim.api.nvim_win_set_width(0, math.floor(vim.o.columns * 0.28))
+	equalize_bottom_terms()
 end
 
-local function setup_term_buf(buf)
+-- Re-equalize the bottom row when Term10's window goes away (toggle, q,
+-- :q, or shell exit -- all funnel through WinClosed).
+vim.api.nvim_create_autocmd("WinClosed", {
+	callback = function(ev)
+		local win = tonumber(ev.match)
+		local buf10 = term_bufs[10]
+		if buf10 and win and vim.api.nvim_win_is_valid(win)
+			and vim.api.nvim_win_get_buf(win) == buf10 then
+			vim.schedule(equalize_bottom_terms)
+		end
+	end,
+})
+
+local function setup_term_buf(n, buf)
 	vim.bo[buf].buflisted = false
 	vim.keymap.set("n", "q", function()
 		local w = find_buf_win(buf)
-		if w then vim.api.nvim_win_close(w, false) end
+		-- pcall: closing fails if this is the last window (E444)
+		if w then pcall(vim.api.nvim_win_close, w, false) end
 	end, { buffer = buf })
 	vim.keymap.set("n", "<Esc>", "<cmd>wincmd t<CR>", { buffer = buf })
 	for _, key in ipairs({ "<S-h>", "<S-l>", "<leader>-", "<leader>|" }) do
 		vim.keymap.set("n", key, "<nop>", { buffer = buf })
 	end
+	-- When the shell exits (any status), drop the dead buffer and free the
+	-- slot so the next Term<n> starts a fresh shell instead of reopening
+	-- "[Process exited N]".
+	vim.api.nvim_create_autocmd("TermClose", {
+		buffer = buf,
+		callback = function()
+			term_bufs[n] = nil
+			vim.schedule(function()
+				if vim.api.nvim_buf_is_valid(buf) then
+					pcall(vim.api.nvim_buf_delete, buf, { force = true })
+				end
+			end)
+		end,
+	})
 end
 
 local function make_term_cmd(n, open_win_fn)
@@ -118,7 +183,8 @@ local function make_term_cmd(n, open_win_fn)
 		if buf and vim.api.nvim_buf_is_valid(buf) then
 			local win = find_buf_win(buf)
 			if win then
-				vim.api.nvim_win_close(win, false)
+				-- pcall: closing fails if this is the last window (E444)
+				pcall(vim.api.nvim_win_close, win, false)
 			else
 				open_win_fn(n)
 				vim.api.nvim_set_current_buf(buf)
@@ -130,7 +196,7 @@ local function make_term_cmd(n, open_win_fn)
 		buf = vim.api.nvim_get_current_buf()
 		term_bufs[n] = buf
 		vim.api.nvim_buf_set_name(buf, "Term" .. n)
-		setup_term_buf(buf)
+		setup_term_buf(n, buf)
 		vim.cmd("stopinsert")
 	end
 end
@@ -156,7 +222,7 @@ vim.api.nvim_create_user_command("Term10Focus", function()
 		buf = vim.api.nvim_get_current_buf()
 		term_bufs[10] = buf
 		vim.api.nvim_buf_set_name(buf, "Term10")
-		setup_term_buf(buf)
+		setup_term_buf(10, buf)
 	end
 	vim.cmd("startinsert")
 end, {})

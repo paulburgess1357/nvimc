@@ -3,6 +3,23 @@ local keymap = vim.keymap
 -- Clear search highlights
 keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
+-- Literal search: prefix \V (very nomagic) so / and ? need no regex escaping.
+-- Only backslash stays special; regex search is still available via /\v or /\m.
+keymap.set({ "n", "x", "o" }, "/", "/\\V", { desc = "Search (literal)" })
+keymap.set({ "n", "x", "o" }, "?", "?\\V", { desc = "Search backward (literal)" })
+
+-- Literal substitute: when the / being typed starts a :s pattern
+-- (:s, :%s, :'<,'>s, :1,5s), insert /\V so the pattern is literal too.
+-- Any other / on the cmdline (e.g. :e path/to/file) is untouched, and
+-- typing \v or \m after the / switches that one back to regex.
+keymap.set("c", "/", function()
+	local before_cursor = vim.fn.getcmdline():sub(1, vim.fn.getcmdpos() - 1)
+	if vim.fn.getcmdtype() == ":" and before_cursor:match("^[%%%d%.,%$'<>]*s$") then
+		return "/\\V"
+	end
+	return "/"
+end, { expr = true, desc = "Substitute (literal)" })
+
 -- Window navigation
 keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
 keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })

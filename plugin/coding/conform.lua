@@ -20,7 +20,8 @@ require("conform").setup({
 			return
 		end
 		return {
-			timeout_ms = 500,
+			-- prettier (node) regularly needs >500ms on cold start
+			timeout_ms = 2500,
 			lsp_format = "fallback",
 		}
 	end,

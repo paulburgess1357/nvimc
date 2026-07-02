@@ -162,6 +162,20 @@ if mason_cfg.enabled ~= false then
 		},
 		automatic_enable = true,
 	})
+
+	-- Non-LSP tools used by conform/nvim-lint. mason-lspconfig only installs
+	-- language servers, so ensure these separately via the registry.
+	local ensure_tools = { "shfmt", "hadolint" }
+	local registry = require("mason-registry")
+	local function install_missing_tools()
+		for _, name in ipairs(ensure_tools) do
+			local ok, pkg = pcall(registry.get_package, name)
+			if ok and not pkg:is_installed() then
+				pkg:install()
+			end
+		end
+	end
+	registry.refresh(vim.schedule_wrap(install_missing_tools))
 end
 
 vim.api.nvim_create_user_command("LspLog", function()
