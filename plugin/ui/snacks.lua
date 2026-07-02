@@ -161,6 +161,17 @@ local function setup_term_buf(n, buf)
 	for _, key in ipairs({ "<S-h>", "<S-l>", "<leader>-", "<leader>|" }) do
 		vim.keymap.set("n", key, "<nop>", { buffer = buf })
 	end
+	-- Term10 hosts streaming chat output: a terminal window only follows
+	-- output while its cursor is on the last line, so snap to the end when
+	-- leaving the window. Scrolling up to read while focused still works.
+	if n == 10 then
+		vim.api.nvim_create_autocmd("WinLeave", {
+			buffer = buf,
+			callback = function()
+				pcall(vim.api.nvim_win_set_cursor, 0, { vim.api.nvim_buf_line_count(buf), 0 })
+			end,
+		})
+	end
 	-- When the shell exits (any status), drop the dead buffer and free the
 	-- slot so the next Term<n> starts a fresh shell instead of reopening
 	-- "[Process exited N]".
@@ -188,6 +199,9 @@ local function make_term_cmd(n, open_win_fn)
 			else
 				open_win_fn(n)
 				vim.api.nvim_set_current_buf(buf)
+				if n == 10 then
+					pcall(vim.api.nvim_win_set_cursor, 0, { vim.api.nvim_buf_line_count(buf), 0 })
+				end
 			end
 			return
 		end
