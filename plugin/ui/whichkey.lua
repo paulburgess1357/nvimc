@@ -69,6 +69,14 @@ Snacks.toggle({
 	end,
 }):map("<leader><leader>a")
 
+local smart_wrap_copy = require("utils.smart_wrap_copy")
+Snacks.toggle({
+	name = "Smart Wrap Copy",
+	wk_desc = static_desc,
+	get = smart_wrap_copy.is_enabled,
+	set = smart_wrap_copy.set_enabled,
+}):map("<leader><leader>w")
+
 Snacks.toggle({
 	name = "Git Blame",
 	wk_desc = static_desc,

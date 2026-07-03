@@ -85,6 +85,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | `a` | Toggle format on save |
 | `s` | Toggle diagnostic signs |
 | `v` | Toggle virtual text |
+| `w` | Toggle smart wrap copy (rejoin soft-wrapped lines yanked from terminals) |
 
 ## Other
 

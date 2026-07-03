@@ -40,6 +40,7 @@ lua/config/keymaps.lua      Core keymaps + custom user commands
 lua/config/plugins.lua      ★ Central on/off switch for every plugin + settings
 lua/config/colorscheme.lua  Theme setup (loaded explicitly at end of init.lua)
 lua/utils/resize.lua        Directional window-resize helper (Alt+hjkl)
+lua/utils/smart_wrap_copy.lua  Rejoins soft-wrapped lines yanked from terminals
 
 plugin/                     Per-plugin config, auto-sourced by Neovim natively
   coding/                     treesitter, lsp, blink, conform, lint, pairs,
@@ -185,7 +186,7 @@ plugin's file under `plugin/`. **Always update `KEYBINDINGS.md`.**
 | render-markdown.nvim | `plugin/editor/render-markdown.lua` | `<leader>um` toggle |
 | onedark.nvim | `lua/config/colorscheme.lua` (NOT under plugin/) | See §7 |
 | lualine.nvim | `plugin/ui/lualine.lua` | Starts from the `auto` theme, then blanks section b/c backgrounds (`bg = "none"`) for transparency — never hardcodes colors. Globalstatus; aerial breadcrumb in section c; buffers listed in the tabline |
-| which-key.nvim | `plugin/ui/whichkey.lua` | Helix preset. Defines leader groups (b/c/d/f/g/h/s/u and `<leader><leader>` "Custom"). Also holds all Snacks **toggles**: wrap, relativenumber, spell, diagnostic signs `<leader><leader>s`, diagnostic virtual text `<leader><leader>v`, format-on-save `<leader><leader>a`, git blame `<leader><leader>b`, plus `<leader><leader>` fzf shortcuts (cwd/home find & grep) |
+| which-key.nvim | `plugin/ui/whichkey.lua` | Helix preset. Defines leader groups (b/c/d/f/g/h/s/u and `<leader><leader>` "Custom"). Also holds all Snacks **toggles**: wrap, relativenumber, spell, diagnostic signs `<leader><leader>s`, diagnostic virtual text `<leader><leader>v`, format-on-save `<leader><leader>a`, smart wrap copy `<leader><leader>w`, git blame `<leader><leader>b`, plus `<leader><leader>` fzf shortcuts (cwd/home find & grep) |
 | snacks.nvim | `plugin/ui/snacks.lua` | bigfile handling, dashboard (NEOVIM ascii header with per-line gradient derived from current colorscheme highlights), indent guides, toggles. Notifier/scroll disabled. **Also contains the entire custom terminal system — see §9, it's the most custom code in the repo** |
 | noice.nvim (+ nui, nvim-notify) | `plugin/ui/noice.lua` | cmdline popup (`cmdheight=0`), messages, LSP progress. notify uses `background_colour = "#000000"` because the transparent theme gives it no bg to blend against. `<leader>n` history, `<leader>un` dismiss |
 | aerial.nvim | `plugin/ui/aerial.lua` | `<leader>o` outline sidebar; **remaps `{`/`}`** to prev/next symbol |
@@ -284,6 +285,18 @@ Clear the `mcp_highlight` / `mcp_virtual_text` extmark namespaces in all
 buffers. These exist because Paul drives this Neovim from LLM tooling via an
 **nvim-mcp** server (tools like `highlight_range` / `add_virtual_text` leave
 annotations; these commands wipe them).
+
+### Smart Wrap Copy — `lua/utils/smart_wrap_copy.lua`
+Terminal buffers store each screen row as its own buffer line, so yanking a
+soft-wrapped command captures hard newlines that were never in the output
+(neovim/neovim#30117). A `TextYankPost` autocmd (activated from keymaps.lua)
+rewrites yanks in terminal buffers: any yanked line whose display width
+exactly fills the terminal's text width (window width − textoff) is a wrapped
+continuation and gets joined with the next line. Rewrites the target register
+and, for unnamed yanks under `clipboard=unnamedplus`, the `+` register too.
+Skips blockwise yanks. Enabled by default; toggle `<leader><leader>w`
+(registered with the other Snacks toggles in whichkey.lua). Inherent
+limitation: a genuine line exactly as wide as the terminal gets joined.
 
 ### Directional resize — `lua/utils/resize.lua`
 `Alt+h/j/k/l` resizes the current window in the *intuitive* screen direction
