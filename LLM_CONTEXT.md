@@ -299,9 +299,13 @@ Skips blockwise yanks. Enabled by default; toggle `<leader><leader>w`
 limitation: a genuine line exactly as wide as the terminal gets joined.
 
 ### Directional resize — `lua/utils/resize.lua`
-`Alt+h/j/k/l` resizes the current window in the *intuitive* screen direction
-regardless of which neighbor the window has (temporarily hops to a neighbor
-when Vim's resize semantics would invert the direction).
+`Alt+h/j/k/l` moves the divider nearest to that side of the current window in
+that direction, like dragging it with the mouse. Implemented with
+`win_move_separator()` / `win_move_statusline()`, which target a specific
+divider and handle nested frames. Do NOT reimplement this with `:resize` /
+`:vertical resize` — those redistribute space among a window's frame siblings
+first, so in nested layouts (like the Term1-9 row + Term10 column) they move
+the wrong divider.
 
 ### Diffview buffer cleanup — `plugin/editor/diffview.lua`
 See §6 table. Controlled by the `AUTO_CLOSE_BROWSED_BUFFERS` flag at the top
