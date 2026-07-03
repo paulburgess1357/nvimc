@@ -322,6 +322,9 @@ of the file.
 - `showmode = false` (lualine shows mode).
 - System clipboard is the default register (`clipboard=unnamedplus`).
 - No swapfile, no backup, but persistent undo (`undofile`).
+- `scrollback = 2000` — terminal buffers keep 2k lines of history (down from
+  the 10k default) so scrollback reflow on terminal resizes stays cheap
+  (the Term system re-equalizes widths on Term10 toggles).
 - `confirm = true` — `:q` on modified buffers prompts instead of erroring.
 - Auto `checktime` on FocusGained/BufEnter/CursorHold (external file reloads —
   important because external tools edit files while Neovim is open).

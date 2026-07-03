@@ -47,6 +47,11 @@ vim.opt.splitbelow = true
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
 
+-- Terminal history per buffer (default 10000). Lower keeps memory down and
+-- makes width changes cheap: every terminal resize rewraps the whole
+-- scrollback, and the Term system re-equalizes widths on Term10 toggles.
+vim.opt.scrollback = 2000
+
 -- Undo and backup
 vim.opt.undofile = true
 vim.opt.backup = false
