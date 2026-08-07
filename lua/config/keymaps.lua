@@ -50,6 +50,16 @@ keymap.set("n", "<leader>bD", function()
 	Snacks.bufdelete({ force = true })
 end, { desc = "Delete buffer (force)" })
 
+-- Bisect jump: hold Ctrl+Shift and tap j/k to binary-search the visible window
+-- for the line your eyes are on. Each press halves the range (~6 to converge).
+local bisect = require("utils.bisect")
+keymap.set("n", "<C-S-k>", function()
+	bisect.step("up")
+end, { desc = "Bisect jump up" })
+keymap.set("n", "<C-S-j>", function()
+	bisect.step("down")
+end, { desc = "Bisect jump down" })
+
 -- Move lines up/down
 keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
 keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })

@@ -7,6 +7,7 @@ Leader key is `Space`.
 | Key | Action |
 | --- | ------ |
 | `<C-h/j/k/l>` | Window navigation |
+| `<C-S-j/k>` | Bisect jump — binary-search the visible window for a line |
 | `<S-h/l>` | Buffer prev/next |
 | `{` / `}` | Previous/next symbol |
 | `]]` / `[[` | Next/prev reference |
