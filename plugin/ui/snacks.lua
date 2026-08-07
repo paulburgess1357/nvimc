@@ -162,13 +162,18 @@ local function setup_term_buf(n, buf)
 		vim.keymap.set("n", key, "<nop>", { buffer = buf })
 	end
 	-- Term10 hosts streaming chat output: a terminal window only follows
-	-- output while its cursor is on the last line, so snap to the end when
-	-- leaving the window. Scrolling up to read while focused still works.
+	-- output while its cursor is on the last line. When leaving the window,
+	-- snap to the end only if the view is already at the bottom (so following
+	-- resumes even if the cursor drifted up a few lines). If scrolled up to
+	-- read back, keep the position; output pauses until you return and hit G.
 	if n == 10 then
 		vim.api.nvim_create_autocmd("WinLeave", {
 			buffer = buf,
 			callback = function()
-				pcall(vim.api.nvim_win_set_cursor, 0, { vim.api.nvim_buf_line_count(buf), 0 })
+				local last = vim.api.nvim_buf_line_count(buf)
+				if vim.fn.line("w$") >= last then
+					pcall(vim.api.nvim_win_set_cursor, 0, { last, 0 })
+				end
 			end,
 		})
 	end
