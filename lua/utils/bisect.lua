@@ -56,7 +56,6 @@ local function stop()
 	if vim.api.nvim_win_is_valid(state.win) then
 		set_scrolloff(state.win, state.scrolloff)
 	end
-	vim.api.nvim_echo({ { "" } }, false, {})
 	state = nil
 end
 
@@ -116,7 +115,6 @@ M.step = function(dir)
 		stop() -- landed; the cursor says everything the highlight would
 	else
 		mark(buf, pivot)
-		vim.api.nvim_echo({ { ("bisect: %d lines"):format(s.hi - s.lo + 1), "Comment" } }, false, {})
 	end
 end
 
