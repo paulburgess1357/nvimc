@@ -102,3 +102,15 @@ vim.keymap.set("n", "<leader>gh", function()
 	snapshot_buffers()
 	vim.cmd("DiffviewFileHistory %")
 end, { desc = "File history (current file)" })
+
+-- Review the current branch against a base ref (PR-style): prompts for the
+-- base, then diffs merge-base(base, HEAD)..HEAD -- only this branch's changes.
+vim.keymap.set("n", "<leader><leader>d", function()
+	vim.ui.input({ prompt = "Review against: " }, function(base)
+		if not base or base == "" then
+			return
+		end
+		snapshot_buffers()
+		vim.cmd("DiffviewOpen " .. vim.fn.fnameescape(base) .. "...HEAD")
+	end)
+end, { desc = "Review branch vs base" })
