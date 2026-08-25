@@ -13,7 +13,7 @@ end
 -- buffers, or buffers that already existed). Set to false to keep stock
 -- behavior (browsed files remain open).
 -- ===========================================================================
-local AUTO_CLOSE_BROWSED_BUFFERS = true
+local AUTO_CLOSE_BROWSED_BUFFERS = false
 
 local pre_diff_buffers = nil
 
