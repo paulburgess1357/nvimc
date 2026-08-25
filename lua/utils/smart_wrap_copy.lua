@@ -15,7 +15,7 @@
 -- Known limitation (inherent to the heuristic): a real output line that is
 -- exactly terminal-width, followed by another line, gets joined too.
 --
--- Toggle: <leader><leader>w (registered in plugin/ui/whichkey.lua).
+-- Toggle: <leader><leader>t (registered in plugin/ui/whichkey.lua).
 
 local M = {}
 

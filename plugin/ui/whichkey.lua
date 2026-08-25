@@ -26,7 +26,9 @@ wk.setup({
 local Snacks = require("snacks")
 local static_desc = { enabled = "", disabled = "" }
 
-Snacks.toggle.option("wrap", { name = "Wrap", wk_desc = static_desc }):map("<leader>uw")
+local wrap_toggle = Snacks.toggle.option("wrap", { name = "Wrap", wk_desc = static_desc })
+wrap_toggle:map("<leader>uw")
+wrap_toggle:map("<leader><leader>w")
 Snacks.toggle.option("relativenumber", { name = "Relative Number", wk_desc = static_desc }):map("<leader>ul")
 Snacks.toggle.option("spell", { name = "Spell", wk_desc = static_desc }):map("<leader>us")
 
@@ -75,7 +77,7 @@ Snacks.toggle({
 	wk_desc = static_desc,
 	get = smart_wrap_copy.is_enabled,
 	set = smart_wrap_copy.set_enabled,
-}):map("<leader><leader>w")
+}):map("<leader><leader>t")
 
 Snacks.toggle({
 	name = "Git Blame",
