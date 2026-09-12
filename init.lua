@@ -74,6 +74,7 @@ add("snacks", gh("folke/snacks.nvim"))
 add("noice", gh("MunifTanjim/nui.nvim"), gh("rcarriga/nvim-notify"), gh("folke/noice.nvim"))
 add("aerial", gh("stevearc/aerial.nvim"))
 add("rainbowdelimiters", gh("HiPhish/rainbow-delimiters.nvim"))
+add("stardust", gh("paulburgess1357/Stardust"))
 
 -- Debug
 add("dap", gh("mfussenegger/nvim-dap"), gh("nvim-neotest/nvim-nio"), gh("rcarriga/nvim-dap-ui"), gh("theHamsta/nvim-dap-virtual-text"), gh("Weissle/persistent-breakpoints.nvim"))

@@ -3,7 +3,6 @@ if cfg.enabled == false then
 	return
 end
 
-vim.opt.runtimepath:prepend(vim.fn.expand("~/Repos/Stardust"))
 require("stardust").setup({
 	fps = 60,
 	floating_windows = false, -- Also animate popups, pickers, and hover docs.
@@ -21,9 +20,9 @@ require("stardust").setup({
 	supernovas = 2,
 	comets = 6,
 	satellites = 4,
-	ufos = 0,
-	ships = 0,
-	battles = 0, -- Share of ship flybys that become a chase: 3 is about 30%.
+	ufos = 3,
+	ships = 6,
+	battles = 3, -- Share of ship flybys that become a chase: 3 is about 30%.
 
 	-- Optional #RRGGBB foreground overrides; omit to keep the defaults.
 	-- Stars take 1-8 colors; every other key is one color (meteors plus each kind above).

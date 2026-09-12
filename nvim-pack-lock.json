@@ -4,6 +4,10 @@
       "rev": "05e938c0aa5dfbdbb11972fa4c8a85f27f402ba0",
       "src": "https://github.com/b0o/SchemaStore.nvim"
     },
+    "Stardust": {
+      "rev": "99df642f9a47ab022e7a646cd2460126984108b5",
+      "src": "https://github.com/paulburgess1357/Stardust"
+    },
     "aerial.nvim": {
       "rev": "28fe6e822ae344544c379d60fcb13c9519a1f08a",
       "src": "https://github.com/stevearc/aerial.nvim"
