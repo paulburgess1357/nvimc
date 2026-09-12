@@ -43,11 +43,12 @@ return {
 	noice = { enabled = true }, -- Cmdline, messages, and popupmenu UI
 	rainbowdelimiters = { enabled = true }, -- Colored matching brackets
 	aerial = { enabled = true }, -- Code outline / symbol sidebar
+	stardust = { enabled = false }, -- Local twinkling stars and meteors
 	marks = { enabled = true }, -- Visual marks in the gutter
 
 	-- Debug
 	dap = { enabled = true }, -- Debug adapter protocol support
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false }, -- LeetCode integration
+	leetneo = { enabled = true }, -- LeetCode integration
 }

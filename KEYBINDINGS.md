@@ -106,3 +106,11 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | `<leader>\|` | Split vertical |
 | `gl` | Line diagnostics |
 | `Esc` | Clear search highlights |
+| `q` (in quickfix) | Close quickfix/location list |
+
+## FZF Picker (inside a picker)
+
+| Key | Action |
+| --- | ------ |
+| `<C-d>` / `<C-u>` | Scroll preview page-wise |
+| `<C-e>` / `<C-y>` | Scroll preview line-wise |

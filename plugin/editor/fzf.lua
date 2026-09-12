@@ -15,6 +15,8 @@ fzf.setup({
 		builtin = {
 			["<C-d>"] = "preview-page-down",
 			["<C-u>"] = "preview-page-up",
+			["<C-e>"] = "preview-down",
+			["<C-y>"] = "preview-up",
 		},
 	},
 	winopts = {

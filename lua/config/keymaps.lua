@@ -91,6 +91,16 @@ require("utils.smart_wrap_copy").setup()
 keymap.set("n", "<C-/>", "<cmd>Term1<CR>", { desc = "Toggle terminal" })
 keymap.set("n", "<C-S-Space>", "<cmd>Term10Focus<CR>", { desc = "Focus right terminal" })
 
+-- Close quickfix/location list with q. Without this, q starts recording a
+-- macro (stock Vim), and while a recording is active which-key stops
+-- opening its menus.
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "qf",
+	callback = function(ev)
+		vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = ev.buf, silent = true, desc = "Close quickfix" })
+	end,
+})
+
 -- Force LSP to index all project files (fixes clangd missing references)
 vim.api.nvim_create_user_command("LspIndexAll", function()
 	-- Get filetypes from current buffer's LSP clients
