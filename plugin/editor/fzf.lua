@@ -7,16 +7,22 @@ local actions = require("fzf-lua.actions")
 fzf.setup({
 	"default-title",
 	fzf_colors = true,
+	-- `true` as the first element inherits fzf-lua's defaults; without it the
+	-- table replaces them wholesale (losing alt-a, alt-q, F4, hide, etc.).
 	keymap = {
 		fzf = {
+			true,
 			["ctrl-j"] = "down",
 			["ctrl-k"] = "up",
+			["ctrl-a"] = "toggle-all", -- mark every line in the filtered list
 		},
 		builtin = {
+			true,
 			["<C-d>"] = "preview-page-down",
 			["<C-u>"] = "preview-page-up",
 			["<C-e>"] = "preview-down",
 			["<C-y>"] = "preview-up",
+			["<C-z>"] = "hide", -- hide picker; `:FzfLua unhide` / <leader><cr> restores it
 		},
 	},
 	winopts = {
@@ -46,10 +52,16 @@ fzf.setup({
 	},
 	actions = {
 		files = {
+			true,
 			["default"] = actions.file_edit,
 			["ctrl-s"] = actions.file_split,
 			["ctrl-v"] = actions.file_vsplit,
 			["ctrl-t"] = actions.file_tabedit,
+			-- Marked lines -> quickfix. Nothing marked -> the whole filtered list.
+			["ctrl-q"] = {
+				fn = actions.file_sel_to_qf,
+				prefix = 'transform([ "$FZF_SELECT_COUNT" -eq 0 ] && echo select-all)',
+			},
 		},
 	},
 })
