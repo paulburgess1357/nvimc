@@ -107,6 +107,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | `gl` | Line diagnostics |
 | `Esc` | Clear search highlights |
 | `q` (in quickfix) | Close quickfix/location list |
+| `<leader><CR>` | Resume last FZF picker (or unhide a hidden one) |
 
 ## FZF Picker (inside a picker)
 
@@ -114,3 +115,10 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | --- | ------ |
 | `<C-d>` / `<C-u>` | Scroll preview page-wise |
 | `<C-e>` / `<C-y>` | Scroll preview line-wise |
+| `<C-j>` / `<C-k>` | Move down / up |
+| `<C-s>` / `<C-v>` / `<C-t>` | Open in split / vsplit / tab |
+| `Tab` (or `<C-i>`) | Mark / unmark the current line |
+| `<C-a>` | Mark every line in the filtered list |
+| `<C-q>` | Send marked lines to quickfix; nothing marked sends the whole filtered list |
+| `<C-z>` | Hide the picker (keeps query, cursor, marks); `:FzfLua unhide` or `<leader><CR>` restores it |
+| `F4` | Toggle preview |
