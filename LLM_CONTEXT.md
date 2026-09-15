@@ -126,6 +126,7 @@ Single source of truth. Two kinds of entries:
   - `bigfile_max_mb = 1.5` — snacks bigfile threshold
   - `aerial_max_lines = 50000`
   - `cppcheck = false` — opt-in cppcheck for C/C++ in nvim-lint
+  - `send_term = 1` — which Term<n> `:TermRun` / `<F8>` pastes into
 - **Per-plugin entries** — `key = { enabled = bool, branch = "..."(optional) }`.
   Currently only treesitter uses `branch` (`"main"` — the new treesitter API,
   not the legacy `master`).
@@ -265,8 +266,22 @@ User commands `Term1`…`Term9`, `Term10`, `Term10Focus`:
   inside. On shell exit (`TermClose`) the buffer is deleted and the slot freed.
 - `WinClosed` on Term10 re-equalizes the bottom row (Term10 stealing/returning
   width otherwise deforms only the rightmost bottom terminal).
+- `ensure_term(n)` shows Term<n> (spawning a shell if needed) without ever
+  toggling it closed; the toggle commands, `Term10Focus`, and `TermRun` all
+  go through it.
+- **`:[range]TermRun` / `<F8>`** (normal: cursor line, visual: selection):
+  "paste and press Enter". The lines are sent verbatim to
+  Term<`settings.send_term`> (opened if hidden, spawned if missing) via
+  `nvim_chan_send`, each followed by `\r`. No interpreter is chosen — a bash
+  line runs in the shell, a python line runs in whatever REPL is already in
+  the foreground. Leading/trailing blank lines are dropped, the block is
+  dedented by its common indentation (markdown code blocks are indented, the
+  python REPL rejects that), and an extra Enter is appended when the last
+  line is still indented (closes an open python block). Focus returns to the
+  file and the cursor moves to the line after what was run. A freshly spawned
+  shell gets a 200 ms head start before the text is sent.
 - Keymaps: `<C-/>` toggles Term1; `<C-S-Space>` focuses Term10 (creating it if
-  needed) and enters insert mode.
+  needed) and enters insert mode; `<F8>` runs the line/selection (above).
 
 ### Literal-by-default search — `lua/config/keymaps.lua`
 `/` and `?` (n/x/o modes) auto-insert `\V` (very-nomagic) so searches need no

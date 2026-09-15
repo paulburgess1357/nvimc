@@ -193,58 +193,116 @@ local function setup_term_buf(n, buf)
 	})
 end
 
-local function make_term_cmd(n, open_win_fn)
-	return function()
-		local buf = term_bufs[n]
-		if buf and vim.api.nvim_buf_is_valid(buf) then
-			local win = find_buf_win(buf)
-			if win then
-				-- pcall: closing fails if this is the last window (E444)
-				pcall(vim.api.nvim_win_close, win, false)
-			else
-				open_win_fn(n)
-				vim.api.nvim_set_current_buf(buf)
-				if n == 10 then
-					pcall(vim.api.nvim_win_set_cursor, 0, { vim.api.nvim_buf_line_count(buf), 0 })
-				end
-			end
-			return
-		end
-		open_win_fn(n)
-		vim.cmd("terminal")
-		buf = vim.api.nvim_get_current_buf()
-		term_bufs[n] = buf
-		vim.api.nvim_buf_set_name(buf, "Term" .. n)
-		setup_term_buf(n, buf)
-		vim.cmd("stopinsert")
-	end
-end
-
-for i = 1, 9 do
-	vim.api.nvim_create_user_command("Term" .. i, make_term_cmd(i, open_bottom_term_win), {})
-end
-vim.api.nvim_create_user_command("Term10", make_term_cmd(10, open_right_term_win), {})
-
-vim.api.nvim_create_user_command("Term10Focus", function()
-	local buf = term_bufs[10]
+-- Show Term<n>, spawning a shell if none exists. Never toggles it closed.
+-- Leaves the terminal window current; callers move focus themselves.
+-- Returns the buffer and whether a new shell was spawned.
+local function ensure_term(n)
+	local open_win_fn = n == 10 and open_right_term_win or open_bottom_term_win
+	local buf = term_bufs[n]
 	if buf and vim.api.nvim_buf_is_valid(buf) then
 		local win = find_buf_win(buf)
 		if win then
 			vim.api.nvim_set_current_win(win)
 		else
-			open_right_term_win()
+			open_win_fn(n)
 			vim.api.nvim_set_current_buf(buf)
+			if n == 10 then
+				pcall(vim.api.nvim_win_set_cursor, 0, { vim.api.nvim_buf_line_count(buf), 0 })
+			end
 		end
-	else
-		open_right_term_win()
-		vim.cmd("terminal")
-		buf = vim.api.nvim_get_current_buf()
-		term_bufs[10] = buf
-		vim.api.nvim_buf_set_name(buf, "Term10")
-		setup_term_buf(10, buf)
+		return buf, false
 	end
+	open_win_fn(n)
+	vim.cmd("terminal")
+	buf = vim.api.nvim_get_current_buf()
+	term_bufs[n] = buf
+	vim.api.nvim_buf_set_name(buf, "Term" .. n)
+	setup_term_buf(n, buf)
+	vim.cmd("stopinsert")
+	return buf, true
+end
+
+local function make_term_cmd(n)
+	return function()
+		local buf = term_bufs[n]
+		local win = buf and vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
+		if win then
+			-- pcall: closing fails if this is the last window (E444)
+			pcall(vim.api.nvim_win_close, win, false)
+		else
+			ensure_term(n)
+		end
+	end
+end
+
+for i = 1, 10 do
+	vim.api.nvim_create_user_command("Term" .. i, make_term_cmd(i), {})
+end
+
+vim.api.nvim_create_user_command("Term10Focus", function()
+	ensure_term(10)
 	vim.cmd("startinsert")
 end, {})
+
+-----------------------------------------------------------
+-- :TermRun -- paste the current line / range into a terminal and press Enter
+-----------------------------------------------------------
+-- Target is settings.send_term (plugins.lua). Nothing is interpreted: the
+-- text lands in whatever is in the terminal's foreground, so a bash line
+-- runs in the shell and a python line runs in a REPL you already started.
+-- Bound to <F8> (normal: cursor line, visual: selection) in keymaps.lua.
+
+local function send_lines_to_term(lines)
+	-- Drop leading/trailing blank lines; interior ones stay (a blank line
+	-- ends a block in the python REPL, same as it would in a pasted file).
+	while lines[1] and lines[1]:match("^%s*$") do table.remove(lines, 1) end
+	while lines[#lines] and lines[#lines]:match("^%s*$") do table.remove(lines) end
+	if #lines == 0 then return end
+
+	-- Dedent by the common leading whitespace so a snippet indented inside a
+	-- markdown code block doesn't reach the python REPL as an "unexpected
+	-- indent". Relative indentation (python blocks) is preserved.
+	local common
+	for _, l in ipairs(lines) do
+		if not l:match("^%s*$") then
+			local indent = l:match("^[ \t]*")
+			if not common or #indent < #common then common = indent end
+		end
+	end
+	for i, l in ipairs(lines) do
+		lines[i] = l:sub(#common + 1)
+	end
+
+	local text = table.concat(lines, "\r") .. "\r"
+	-- An indented last line means a block is still open (python for/if/def):
+	-- the REPL needs one more empty line to close and run it. Harmless for a
+	-- shell, which just prints another prompt.
+	if lines[#lines]:match("^[ \t]") then text = text .. "\r" end
+
+	local origin = vim.api.nvim_get_current_win()
+	local buf, created = ensure_term(settings.send_term or 1)
+	-- A terminal window only follows new output while its cursor is on the
+	-- last line; park it there before handing focus back to the file.
+	pcall(vim.api.nvim_win_set_cursor, 0, { vim.api.nvim_buf_line_count(buf), 0 })
+	if vim.api.nvim_win_is_valid(origin) then vim.api.nvim_set_current_win(origin) end
+
+	local function send()
+		if vim.api.nvim_buf_is_valid(buf) then
+			vim.api.nvim_chan_send(vim.bo[buf].channel, text)
+		end
+	end
+	-- A freshly spawned shell needs a moment before it reads its input.
+	if created then vim.defer_fn(send, 200) else send() end
+end
+
+vim.api.nvim_create_user_command("TermRun", function(opts)
+	send_lines_to_term(vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, false))
+	-- Advance past what was run (blank or not) so repeated <F8> walks down
+	-- the file. Clamped at the last line.
+	local last = vim.api.nvim_buf_line_count(0)
+	local col = vim.api.nvim_win_get_cursor(0)[2]
+	vim.api.nvim_win_set_cursor(0, { math.min(opts.line2 + 1, last), col })
+end, { range = true, desc = "Run line/range in Term<settings.send_term>" })
 
 -----------------------------------------------------------
 -- Setup

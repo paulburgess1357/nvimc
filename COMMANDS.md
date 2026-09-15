@@ -15,6 +15,9 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | `:Commands` | Commands |
 | `:Keymaps` | Keymaps |
 | `:Aerials` | Toggle outline sidebar |
+| `:Term1`..`:Term9`, `:Term10` | Toggle a bottom (1-9) or right-column (10) terminal |
+| `:Term10Focus` | Show Term10 and enter insert mode |
+| `:[range]TermRun` | Paste the line/range into Term<`settings.send_term`> and press Enter, then move the cursor below it |
 
 ## Git / Diff
 

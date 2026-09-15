@@ -13,6 +13,7 @@ return {
 		bigfile_max_mb = 1.5, -- Snacks bigfile threshold (MB)
 		aerial_max_lines = 50000, -- Disable aerial for files with more lines
 		cppcheck = false, -- Enable cppcheck for C/C++ linting (requires nvim-lint)
+		send_term = 1, -- Term<n> (1-10) that <F8> / :TermRun pastes into
 	},
 
 	-- Coding
@@ -50,5 +51,5 @@ return {
 	dap = { enabled = true }, -- Debug adapter protocol support
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false }, -- LeetCode integration
+	leetneo = { enabled = true }, -- LeetCode integration
 }

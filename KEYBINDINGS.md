@@ -94,6 +94,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | --- | ------ |
 | `<C-/>` | Toggle bottom terminal (Term1) |
 | `<C-S-Space>` | Focus right terminal (Term10) and enter insert mode |
+| `<F8>` | Paste current line (visual: selection) into Term1 and press Enter, then move down (`:TermRun`; target set by `settings.send_term`) |
 | `Esc` (in terminal normal mode) | Jump to leftmost window |
 | `<leader>o` | Toggle outline |
 | `<leader>e` | File explorer (current file) |
