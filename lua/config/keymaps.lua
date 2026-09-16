@@ -90,8 +90,8 @@ keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 require("utils.smart_wrap_copy").setup()
 keymap.set("n", "<C-/>", "<cmd>Term1<CR>", { desc = "Toggle terminal" })
 keymap.set("n", "<C-S-Space>", "<cmd>Term10Focus<CR>", { desc = "Focus right terminal" })
-keymap.set("n", "<F8>", "<cmd>TermRun<CR>", { desc = "Run line in terminal" })
-keymap.set("x", "<F8>", ":TermRun<CR>", { silent = true, desc = "Run selection in terminal" })
+keymap.set("n", "<F9>", "<cmd>TermRun<CR>", { desc = "Run line in terminal" })
+keymap.set("x", "<F9>", ":TermRun<CR>", { silent = true, desc = "Run selection in terminal" })
 
 -- Close quickfix/location list with q. Without this, q starts recording a
 -- macro (stock Vim), and while a recording is active which-key stops

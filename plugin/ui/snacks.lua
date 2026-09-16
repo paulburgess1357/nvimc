@@ -250,7 +250,7 @@ end, {})
 -- Target is settings.send_term (plugins.lua). Nothing is interpreted: the
 -- text lands in whatever is in the terminal's foreground, so a bash line
 -- runs in the shell and a python line runs in a REPL you already started.
--- Bound to <F8> (normal: cursor line, visual: selection) in keymaps.lua.
+-- Bound to <F9> (normal: cursor line, visual: selection) in keymaps.lua.
 
 local function send_lines_to_term(lines)
 	-- Drop leading/trailing blank lines; interior ones stay (a blank line
@@ -297,7 +297,7 @@ end
 
 vim.api.nvim_create_user_command("TermRun", function(opts)
 	send_lines_to_term(vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, false))
-	-- Advance past what was run (blank or not) so repeated <F8> walks down
+	-- Advance past what was run (blank or not) so repeated <F9> walks down
 	-- the file. Clamped at the last line.
 	local last = vim.api.nvim_buf_line_count(0)
 	local col = vim.api.nvim_win_get_cursor(0)[2]

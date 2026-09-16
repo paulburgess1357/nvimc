@@ -217,7 +217,7 @@ vim.keymap.set("n", "<leader>du", function() dapui.toggle({}) end, { desc = "DAP
 vim.keymap.set({ "n", "v" }, "<leader>de", function() dapui.eval() end, { desc = "Eval" })
 -- F-key bindings
 vim.keymap.set("n", "<F5>", "<cmd>DapContinue<cr>", { desc = "Continue" })
-vim.keymap.set("n", "<F9>", pb.toggle_breakpoint, { desc = "Toggle Breakpoint" })
+vim.keymap.set("n", "<F8>", pb.toggle_breakpoint, { desc = "Toggle Breakpoint" })
 vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<cr>", { desc = "Step Over" })
 vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<cr>", { desc = "Step Into" })
 vim.keymap.set("n", "<S-F11>", function() dap.step_out() end, { desc = "Step Out" })
