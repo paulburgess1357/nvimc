@@ -1,4 +1,5 @@
-local cfg = require("config.plugins").lualine or {}
+local plugins = require("config.plugins")
+local cfg = plugins.lualine or {}
 if cfg.enabled == false then return end
 
 -- Start from lualine's `auto` theme: it derives every color from the ACTIVE
@@ -17,6 +18,31 @@ for _, mode in pairs(custom_theme) do
 			mode[key].bg = "none"
 		end
 	end
+end
+
+-- bufferline.nvim owns the tabline when enabled (it can reorder tabs, lualine's
+-- `buffers` component cannot). This is the fallback if bufferline is disabled.
+local tabline = nil
+if (plugins.bufferline or {}).enabled == false then
+	tabline = {
+		lualine_a = {},
+		lualine_b = {},
+		lualine_c = {
+			{
+				"buffers",
+				show_filename_only = true,
+				show_modified_status = true,
+				mode = 0,
+				symbols = {
+					modified = " ●",
+					alternate_file = "",
+				},
+			},
+		},
+		lualine_x = {},
+		lualine_y = {},
+		lualine_z = {},
+	}
 end
 
 require("lualine").setup({
@@ -42,23 +68,5 @@ require("lualine").setup({
 		lualine_y = { "progress" },
 		lualine_z = { "location" },
 	},
-	tabline = {
-		lualine_a = {},
-		lualine_b = {},
-		lualine_c = {
-			{
-				"buffers",
-				show_filename_only = true,
-				show_modified_status = true,
-				mode = 0,
-				symbols = {
-					modified = " ●",
-					alternate_file = "",
-				},
-			},
-		},
-		lualine_x = {},
-		lualine_y = {},
-		lualine_z = {},
-	},
+	tabline = tabline,
 })

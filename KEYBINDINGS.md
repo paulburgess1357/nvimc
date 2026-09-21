@@ -8,7 +8,8 @@ Leader key is `Space`.
 | --- | ------ |
 | `<C-h/j/k/l>` | Window navigation |
 | `<C-S-j/k>` | Bisect jump — binary-search the visible window for a line |
-| `<S-h/l>` | Buffer prev/next |
+| `<S-h/l>` | Buffer prev/next (tabline order) |
+| `<C-S-h/l>` | Move current buffer tab left/right |
 | `{` / `}` | Previous/next symbol |
 | `]]` / `[[` | Next/prev reference |
 

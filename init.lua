@@ -69,6 +69,7 @@ local colorscheme_specs = {
 add("colorscheme", colorscheme_specs[theme])
 
 add("lualine", gh("nvim-lualine/lualine.nvim"))
+add("bufferline", gh("akinsho/bufferline.nvim"))
 add("whichkey", gh("folke/which-key.nvim"))
 add("snacks", gh("folke/snacks.nvim"))
 add("noice", gh("MunifTanjim/nui.nvim"), gh("rcarriga/nvim-notify"), gh("folke/noice.nvim"))

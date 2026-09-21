@@ -47,7 +47,7 @@ plugin/                     Per-plugin config, auto-sourced by Neovim natively
                               increname, leetneocode
   editor/                     fzf, gitsigns, diffview, mini-files, illuminate,
                               marks, spider, todo-comments, render-markdown
-  ui/                         snacks (dashboard + terminals), lualine, noice,
+  ui/                         snacks (dashboard + terminals), lualine, bufferline, noice,
                               whichkey, aerial, rainbow-delimiters
   debug/                      dap (adapters, dap-ui, virtual text, breakpoints)
 
@@ -186,7 +186,8 @@ plugin's file under `plugin/`. **Always update `KEYBINDINGS.md`.**
 | todo-comments.nvim (+ plenary) | `plugin/editor/todo-comments.lua` | `]t`/`[t`, `<leader>st` picker |
 | render-markdown.nvim | `plugin/editor/render-markdown.lua` | `<leader>um` toggle |
 | onedark.nvim | `lua/config/colorscheme.lua` (NOT under plugin/) | See §7 |
-| lualine.nvim | `plugin/ui/lualine.lua` | Starts from the `auto` theme, then blanks section b/c backgrounds (`bg = "none"`) for transparency — never hardcodes colors. Globalstatus; aerial breadcrumb in section c; buffers listed in the tabline |
+| lualine.nvim | `plugin/ui/lualine.lua` | Starts from the `auto` theme, then blanks section b/c backgrounds (`bg = "none"`) for transparency — never hardcodes colors. Globalstatus; aerial breadcrumb in section c; its `buffers` tabline is only a fallback, used when `bufferline` is disabled |
+| bufferline.nvim | `plugin/ui/bufferline.lua` | Owns the tabline (listed buffers as tabs). Rebinds `<S-h>/<S-l>` to `BufferLineCyclePrev/Next` so cycling follows the VISUAL tab order, and adds `<C-S-h>/<C-S-l>` to move the current tab left/right. The Ctrl+Shift maps need kitty's default `ctrl+shift+h` / `ctrl+shift+l` bindings set to `no_op` in kitty.conf |
 | which-key.nvim | `plugin/ui/whichkey.lua` | Helix preset. Defines leader groups (b/c/d/f/g/h/s/u and `<leader><leader>` "Custom"). Also holds all Snacks **toggles**: wrap, relativenumber, spell, diagnostic signs `<leader><leader>s`, diagnostic virtual text `<leader><leader>v`, format-on-save `<leader><leader>a`, smart wrap copy `<leader><leader>w`, git blame `<leader><leader>b`, plus `<leader><leader>` fzf shortcuts (cwd/home find & grep) |
 | snacks.nvim | `plugin/ui/snacks.lua` | bigfile handling, dashboard (NEOVIM ascii header with per-line gradient derived from current colorscheme highlights), indent guides, toggles. Notifier/scroll disabled. **Also contains the entire custom terminal system — see §9, it's the most custom code in the repo** |
 | noice.nvim (+ nui, nvim-notify) | `plugin/ui/noice.lua` | cmdline popup (`cmdheight=0`), messages, LSP progress. notify uses `background_colour = "#000000"` because the transparent theme gives it no bg to blend against. `<leader>n` history, `<leader>un` dismiss |

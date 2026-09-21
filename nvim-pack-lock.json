@@ -1,7 +1,7 @@
 {
   "plugins": {
     "SchemaStore.nvim": {
-      "rev": "71cd0300fcf13179978e6a6b1f2fc2db677f9c94",
+      "rev": "460358f4de896230269a76c23ab558069f6e1e43",
       "src": "https://github.com/b0o/SchemaStore.nvim"
     },
     "Stardust": {
@@ -16,6 +16,10 @@
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/saghen/blink.cmp",
       "version": ">=0.0.0"
+    },
+    "bufferline.nvim": {
+      "rev": "655133c3b4c3e5e05ec549b9f8cc2894ac6f51b3",
+      "src": "https://github.com/akinsho/bufferline.nvim"
     },
     "conform.nvim": {
       "rev": "016802de402556da54c36bd7359b441266b01cdd",
@@ -34,7 +38,7 @@
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
-      "rev": "aafce231e57bf2c06940b6de90b9f396aee94754",
+      "rev": "8d79f2410c76e62b92e51c28c82e28c1c5a3daeb",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "inc-rename.nvim": {
@@ -50,7 +54,7 @@
       "src": "https://github.com/chentoast/marks.nvim"
     },
     "mason-lspconfig.nvim": {
-      "rev": "77e06f7d2fc127e6ef0a720b59acbc50757cff19",
+      "rev": "49b16d699f9ca83184330c6eb886737a27f23bdd",
       "src": "https://github.com/mason-org/mason-lspconfig.nvim"
     },
     "mason.nvim": {
@@ -90,7 +94,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "ac9d2f7c4757db6320cab6697fe73e5e8adb2457",
+      "rev": "ffd261c09c3dabd0bf1a438f47a8ae3b22f3c3ff",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -111,7 +115,7 @@
       "version": "'main'"
     },
     "nvim-web-devicons": {
-      "rev": "5f032a85be210cd1c6ac98861eb3b187ff3bd5eb",
+      "rev": "914decffe650296c87312c53b7933ecb86718499",
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "onedark.nvim": {

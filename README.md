@@ -72,6 +72,7 @@ install/                    Install and migration scripts
 
 - **Colorscheme** - onedark (transparent). Adding another theme: register its repo in `init.lua`, add a setup branch in `lua/config/colorscheme.lua`, and set `theme` in `lua/config/plugins.lua`.
 - **lualine** - Statusline
+- **bufferline** - Buffer tabs in the tabline (reorder with `<C-S-h/l>`)
 - **which-key** - Keybinding hints
 - **snacks** - Dashboard, indent guides, terminal
 - **noice** - Modern cmdline/messages/notifications
