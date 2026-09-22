@@ -39,7 +39,6 @@ return {
 	-- UI
 	colorscheme = { enabled = true, theme = "onedark" }, -- Color theme
 	lualine = { enabled = true }, -- Statusline
-	bufferline = { enabled = true }, -- Buffer tabs in the tabline (reorderable)
 	whichkey = { enabled = true }, -- Keybinding hints popup
 	snacks = { enabled = true }, -- UI utilities (bigfile, dashboard, etc.)
 	noice = { enabled = true }, -- Cmdline, messages, and popupmenu UI
@@ -52,5 +51,5 @@ return {
 	dap = { enabled = true }, -- Debug adapter protocol support
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false }, -- LeetCode integration
+	leetneo = { enabled = true }, -- LeetCode integration
 }

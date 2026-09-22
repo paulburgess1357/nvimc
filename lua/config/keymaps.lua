@@ -38,9 +38,25 @@ keymap.set("n", "<leader>-", "<cmd>split<CR>", { desc = "Split horizontally" })
 keymap.set("n", "<leader>|", "<cmd>vsplit<CR>", { desc = "Split vertically" })
 keymap.set("n", "<leader>wd", "<cmd>close<CR>", { desc = "Delete window" })
 
--- Buffer navigation
-keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
-keymap.set("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
+-- Buffer navigation: cycles in tabline order (utils.buftabs), which differs
+-- from :bnext/:bprevious buffer-number order once a tab has been moved.
+local buftabs = require("utils.buftabs")
+keymap.set("n", "<S-h>", function()
+	buftabs.cycle(-1)
+end, { desc = "Previous buffer" })
+keymap.set("n", "<S-l>", function()
+	buftabs.cycle(1)
+end, { desc = "Next buffer" })
+
+-- Hold Ctrl+Shift and tap h/l to drag the current buffer tab left/right.
+-- Needs a terminal that reports Ctrl+Shift+letter (kitty does; its default
+-- ctrl+shift+h / ctrl+shift+l bindings must be set to no_op in kitty.conf).
+keymap.set("n", "<C-S-h>", function()
+	buftabs.move(-1)
+end, { desc = "Move buffer tab left" })
+keymap.set("n", "<C-S-l>", function()
+	buftabs.move(1)
+end, { desc = "Move buffer tab right" })
 
 -- Buffer management
 keymap.set("n", "<leader>bd", function()
