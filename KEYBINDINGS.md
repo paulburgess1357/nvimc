@@ -110,6 +110,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | `Esc` | Clear search highlights |
 | `q` (in quickfix) | Close quickfix/location list |
 | `<leader><CR>` | Resume last FZF picker (or unhide a hidden one) |
+| `s` (on dashboard) | Restore this directory's session (auto-saved on quit); also `:SessionRestore` / `:SessionSave` / `:SessionDelete` |
 
 ## FZF Picker (inside a picker)
 

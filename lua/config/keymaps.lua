@@ -99,6 +99,9 @@ keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
 -- Comment (visual mode only)
 keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Comment" })
 
+-- Per-directory sessions: auto-save on quit, restore from the dashboard (`s`)
+require("utils.session").setup()
+
 -- Terminal
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 -- Smart Wrap Copy: yanks in terminal buffers rejoin soft-wrapped lines so

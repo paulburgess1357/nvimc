@@ -41,6 +41,7 @@ lua/config/plugins.lua      ★ Central on/off switch for every plugin + setting
 lua/config/colorscheme.lua  Theme setup (loaded explicitly at end of init.lua)
 lua/utils/resize.lua        Directional window-resize helper (Alt+hjkl)
 lua/utils/buftabs.lua       Reorderable buffer-tab order (Shift/Ctrl+Shift + h/l)
+lua/utils/session.lua       Per-directory sessions (auto-save on quit, dashboard `s`)
 lua/utils/smart_wrap_copy.lua  Rejoins soft-wrapped lines yanked from terminals
 
 plugin/                     Per-plugin config, auto-sourced by Neovim natively
@@ -313,6 +314,20 @@ and, for unnamed yanks under `clipboard=unnamedplus`, the `+` register too.
 Skips blockwise yanks. Enabled by default; toggle `<leader><leader>w`
 (registered with the other Snacks toggles in whichkey.lua). Inherent
 limitation: a genuine line exactly as wide as the terminal gets joined.
+
+### Sessions — `lua/utils/session.lua`
+Plugin-free `:mksession` wrapper, activated from keymaps.lua. One session per
+LAUNCH directory in `stdpath("state")/sessions/` (`<dir>.vim` plus `<dir>.json`
+holding the `utils.buftabs` tab order). Saved on `VimLeavePre`, skipped when no
+named file buffers are open, when launched as git's editor, or after
+`:SessionDelete`. Never restored automatically: dashboard key `s` (hidden when
+no session exists) or `:SessionRestore`. `sessionoptions` omits `blank` and
+`terminal` on purpose: plugin windows are not saved, and terminals go through
+the `M.term` provider that `plugin/ui/snacks.lua` registers instead. It records
+the visible `Term<n>` numbers plus each shell's cwd (`/proc/<pid>/cwd`) in the
+`.json`, and on restore respawns FRESH shells there via `ensure_term(n, cwd)`
+(no scrollback, no running programs), then rescales file-window widths so
+Term10 doesn't eat only the rightmost split.
 
 ### Directional resize — `lua/utils/resize.lua`
 `Alt+h/j/k/l` moves the divider nearest to that side of the current window in

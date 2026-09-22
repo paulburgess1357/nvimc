@@ -195,8 +195,9 @@ end
 
 -- Show Term<n>, spawning a shell if none exists. Never toggles it closed.
 -- Leaves the terminal window current; callers move focus themselves.
--- Returns the buffer and whether a new shell was spawned.
-local function ensure_term(n)
+-- Returns the buffer and whether a new shell was spawned. `cwd` (optional)
+-- is the directory a newly spawned shell starts in.
+local function ensure_term(n, cwd)
 	local open_win_fn = n == 10 and open_right_term_win or open_bottom_term_win
 	local buf = term_bufs[n]
 	if buf and vim.api.nvim_buf_is_valid(buf) then
@@ -213,7 +214,12 @@ local function ensure_term(n)
 		return buf, false
 	end
 	open_win_fn(n)
-	vim.cmd("terminal")
+	if cwd then
+		vim.cmd("enew")
+		vim.fn.jobstart(vim.o.shell, { term = true, cwd = cwd })
+	else
+		vim.cmd("terminal")
+	end
 	buf = vim.api.nvim_get_current_buf()
 	term_bufs[n] = buf
 	vim.api.nvim_buf_set_name(buf, "Term" .. n)
@@ -243,6 +249,45 @@ vim.api.nvim_create_user_command("Term10Focus", function()
 	ensure_term(10)
 	vim.cmd("startinsert")
 end, {})
+
+-- Session support (utils.session): terminals can't be saved by :mksession,
+-- so record which Term<n> windows are visible and each shell's directory,
+-- and respawn fresh shells there on restore.
+require("utils.session").term = {
+	snapshot = function()
+		local terms = {}
+		for n, buf in pairs(term_bufs) do
+			if vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf) then
+				local ok, pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
+				local cwd = ok and vim.uv.fs_readlink("/proc/" .. pid .. "/cwd") or nil
+				table.insert(terms, { n = n, cwd = cwd })
+			end
+		end
+		table.sort(terms, function(a, b) return a.n < b.n end)
+		return terms
+	end,
+	restore = function(terms)
+		local origin = vim.api.nvim_get_current_win()
+		local widths = {}
+		for _, w in ipairs(vim.api.nvim_list_wins()) do
+			widths[w] = vim.api.nvim_win_get_width(w)
+		end
+		for _, t in ipairs(terms) do
+			local cwd = t.cwd and vim.fn.isdirectory(t.cwd) == 1 and t.cwd or vim.fn.getcwd()
+			if type(t.n) == "number" and t.n >= 1 and t.n <= 10 then ensure_term(t.n, cwd) end
+		end
+		-- Term10 takes its whole width from the rightmost file window; shrink
+		-- the restored file windows proportionally instead.
+		local win10 = term_bufs[10] and find_buf_win(term_bufs[10])
+		if win10 then
+			local scale = 1 - (vim.api.nvim_win_get_width(win10) + 1) / vim.o.columns
+			for w, width in pairs(widths) do
+				vim.api.nvim_win_set_width(w, math.floor(width * scale))
+			end
+		end
+		if vim.api.nvim_win_is_valid(origin) then vim.api.nvim_set_current_win(origin) end
+	end,
+}
 
 -----------------------------------------------------------
 -- :TermRun -- paste the current line / range into a terminal and press Enter
@@ -328,6 +373,13 @@ require("snacks").setup({
 		enabled = true,
 		preset = {
 			keys = {
+				{
+					icon = "󰦛 ",
+					key = "s",
+					desc = "Restore Session",
+					action = ":lua require('utils.session').restore()",
+					enabled = function() return require("utils.session").exists() end,
+				},
 				{ icon = "󰋚 ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
 				{ icon = "󰒓 ", key = "c", desc = "Config", action = ":e " .. vim.fn.stdpath("config") .. "/lua/config/plugins.lua" },
 				{ icon = "󰚰 ", key = "u", desc = "Update Plugins", action = ":lua vim.pack.update()" },

@@ -5,7 +5,7 @@ local M = {}
 -- in bufnr order. This module keeps its own ordered list of listed buffers;
 -- plugin/ui/lualine.lua points the `buffers` component at it, and the
 -- <S-h>/<S-l> cycle maps follow it too, so cycling always matches what the
--- tabline shows. The order lives in memory only (resets on restart).
+-- tabline shows. The order lives in memory; utils.session saves/restores it.
 
 -- Bufnrs in display order. Synced lazily by M.list().
 local order = {}
@@ -31,6 +31,25 @@ function M.list()
 	end
 	order = synced
 	return order
+end
+
+-- File names in display order, for utils.session to save.
+function M.names()
+	return vim.tbl_map(vim.api.nvim_buf_get_name, M.list())
+end
+
+-- Re-apply a saved M.names() order. Unknown names are ignored; buffers not in
+-- `names` keep their place after the ones that are.
+function M.restore(names)
+	local by_name = {}
+	for _, buf in ipairs(M.list()) do
+		by_name[vim.api.nvim_buf_get_name(buf)] = buf
+	end
+	order = {}
+	for _, name in ipairs(names) do
+		order[#order + 1] = by_name[name]
+	end
+	M.list()
 end
 
 local function current_index(bufs)
