@@ -339,12 +339,13 @@ require("utils.session").term = {
 -----------------------------------------------------------
 -- :TermRun -- paste the current line / range into a terminal and press Enter
 -----------------------------------------------------------
--- Target is settings.send_term (plugins.lua). Nothing is interpreted: the
--- text lands in whatever is in the terminal's foreground, so a bash line
--- runs in the shell and a python line runs in a REPL you already started.
--- Bound to <F9> (normal: cursor line, visual: selection) in keymaps.lua.
+-- `:TermRun [n]` targets Term<n>, default settings.send_term (plugins.lua).
+-- Nothing is interpreted: the text lands in whatever is in the terminal's
+-- foreground, so a bash line runs in the shell and a python line runs in a
+-- REPL you already started. Bound to <F9> (normal: cursor line, visual:
+-- selection) in keymaps.lua, where a count picks the terminal: 3<F9>.
 
-local function send_lines_to_term(lines)
+local function send_lines_to_term(lines, n)
 	-- Drop leading/trailing blank lines; interior ones stay (a blank line
 	-- ends a block in the python REPL, same as it would in a pasted file).
 	while lines[1] and lines[1]:match("^%s*$") do table.remove(lines, 1) end
@@ -372,7 +373,7 @@ local function send_lines_to_term(lines)
 	if lines[#lines]:match("^[ \t]") then text = text .. "\r" end
 
 	local origin = vim.api.nvim_get_current_win()
-	local buf, created = ensure_term(settings.send_term or 1)
+	local buf, created = ensure_term(n)
 	-- A terminal window only follows new output while its cursor is on the
 	-- last line; park it there before handing focus back to the file.
 	pcall(vim.api.nvim_win_set_cursor, 0, { vim.api.nvim_buf_line_count(buf), 0 })
@@ -388,13 +389,18 @@ local function send_lines_to_term(lines)
 end
 
 vim.api.nvim_create_user_command("TermRun", function(opts)
-	send_lines_to_term(vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, false))
+	local n = tonumber(opts.args) or settings.send_term or 1
+	if n < 1 or n > 10 then
+		vim.notify("TermRun: terminal must be 1-10", vim.log.levels.ERROR)
+		return
+	end
+	send_lines_to_term(vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, false), n)
 	-- Advance past what was run (blank or not) so repeated <F9> walks down
 	-- the file. Clamped at the last line.
 	local last = vim.api.nvim_buf_line_count(0)
 	local col = vim.api.nvim_win_get_cursor(0)[2]
 	vim.api.nvim_win_set_cursor(0, { math.min(opts.line2 + 1, last), col })
-end, { range = true, desc = "Run line/range in Term<settings.send_term>" })
+end, { range = true, nargs = "?", desc = "Run line/range in Term<n> (default settings.send_term)" })
 
 -----------------------------------------------------------
 -- Setup

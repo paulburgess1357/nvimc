@@ -109,8 +109,17 @@ keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 require("utils.smart_wrap_copy").setup()
 keymap.set("n", "<C-/>", "<cmd>Term1<CR>", { desc = "Toggle terminal" })
 keymap.set("n", "<C-S-Space>", "<cmd>Term10Focus<CR>", { desc = "Focus right terminal" })
-keymap.set("n", "<F9>", "<cmd>TermRun<CR>", { desc = "Run line in terminal" })
-keymap.set("x", "<F9>", ":TermRun<CR>", { silent = true, desc = "Run selection in terminal" })
+-- <F9> runs in the default terminal (settings.send_term); a count picks
+-- another one: 3<F9> runs in Term3. The visual map leaves visual mode first
+-- so '< '> are set, then runs the command on the old selection.
+keymap.set("n", "<F9>", function()
+	vim.cmd("TermRun " .. (vim.v.count > 0 and vim.v.count or ""))
+end, { desc = "Run line in terminal" })
+keymap.set("x", "<F9>", function()
+	local n = vim.v.count
+	vim.cmd("normal! \27") -- <Esc>
+	vim.cmd("'<,'>TermRun " .. (n > 0 and n or ""))
+end, { desc = "Run selection in terminal" })
 
 -- Close quickfix/location list with q. Without this, q starts recording a
 -- macro (stock Vim), and while a recording is active which-key stops
