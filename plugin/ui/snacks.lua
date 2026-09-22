@@ -131,21 +131,50 @@ local function equalize_bottom_terms()
 	end
 end
 
+-- `botright vsplit` takes Term10's whole width from the rightmost column, so
+-- one file split gets squashed while the others keep their size. Shrink every
+-- pre-existing window proportionally instead.
 local function open_right_term_win()
+	local widths = {}
+	for _, w in ipairs(vim.api.nvim_list_wins()) do
+		widths[w] = vim.api.nvim_win_get_width(w)
+	end
 	vim.cmd("botright vsplit")
-	vim.api.nvim_win_set_width(0, math.floor(vim.o.columns * 0.28))
+	local width = math.floor(vim.o.columns * 0.28)
+	vim.api.nvim_win_set_width(0, width)
+	local scale = 1 - (width + 1) / vim.o.columns
+	for w, old in pairs(widths) do
+		if vim.api.nvim_win_is_valid(w) then
+			vim.api.nvim_win_set_width(w, math.floor(old * scale))
+		end
+	end
+	vim.api.nvim_win_set_width(0, width)
 	equalize_bottom_terms()
 end
 
--- Re-equalize the bottom row when Term10's window goes away (toggle, q,
--- :q, or shell exit -- all funnel through WinClosed).
+-- When Term10's window goes away (toggle, q, :q, or shell exit -- all funnel
+-- through WinClosed) its width lands on the rightmost column only. Grow every
+-- other window proportionally instead (the inverse of open_right_term_win),
+-- then re-equalize the bottom row.
 vim.api.nvim_create_autocmd("WinClosed", {
 	callback = function(ev)
 		local win = tonumber(ev.match)
 		local buf10 = term_bufs[10]
 		if buf10 and win and vim.api.nvim_win_is_valid(win)
 			and vim.api.nvim_win_get_buf(win) == buf10 then
-			vim.schedule(equalize_bottom_terms)
+			local scale = vim.o.columns / (vim.o.columns - vim.api.nvim_win_get_width(win) - 1)
+			local widths = {}
+			for _, w in ipairs(vim.api.nvim_list_wins()) do
+				if w ~= win then widths[w] = vim.api.nvim_win_get_width(w) end
+			end
+			vim.schedule(function()
+				for w, old in pairs(widths) do
+					if vim.api.nvim_win_is_valid(w) then
+						vim.api.nvim_win_set_width(w, math.floor(old * scale))
+					end
+				end
+				equalize_bottom_terms()
+			end)
 		end
 	end,
 })
@@ -268,22 +297,9 @@ require("utils.session").term = {
 	end,
 	restore = function(terms)
 		local origin = vim.api.nvim_get_current_win()
-		local widths = {}
-		for _, w in ipairs(vim.api.nvim_list_wins()) do
-			widths[w] = vim.api.nvim_win_get_width(w)
-		end
 		for _, t in ipairs(terms) do
 			local cwd = t.cwd and vim.fn.isdirectory(t.cwd) == 1 and t.cwd or vim.fn.getcwd()
 			if type(t.n) == "number" and t.n >= 1 and t.n <= 10 then ensure_term(t.n, cwd) end
-		end
-		-- Term10 takes its whole width from the rightmost file window; shrink
-		-- the restored file windows proportionally instead.
-		local win10 = term_bufs[10] and find_buf_win(term_bufs[10])
-		if win10 then
-			local scale = 1 - (vim.api.nvim_win_get_width(win10) + 1) / vim.o.columns
-			for w, width in pairs(widths) do
-				vim.api.nvim_win_set_width(w, math.floor(width * scale))
-			end
 		end
 		if vim.api.nvim_win_is_valid(origin) then vim.api.nvim_set_current_win(origin) end
 	end,

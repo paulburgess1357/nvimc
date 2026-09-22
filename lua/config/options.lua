@@ -42,6 +42,10 @@ vim.opt.clipboard:append("unnamedplus")
 -- Split windows
 vim.opt.splitright = true
 vim.opt.splitbelow = true
+-- Don't re-equalize every window whenever one opens or closes: hand-resized
+-- splits keep their size when a terminal, aerial, etc. comes and goes.
+-- <C-w>= equalizes on demand.
+vim.opt.equalalways = false
 
 -- Scrolling
 vim.opt.scrolloff = 8
