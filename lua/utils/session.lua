@@ -17,7 +17,7 @@ local dir = vim.fn.stdpath("state") .. "/sessions/"
 local base = dir .. vim.fn.getcwd():gsub("[/\\:]", "%%")
 
 -- Terminal provider, registered by plugin/ui/snacks.lua:
---   { snapshot = fun(): table, restore = fun(terms: table) }
+--   { close_all = fun(), snapshot = fun(): table, restore = fun(terms: table) }
 M.term = nil
 
 local deleted = false
@@ -51,6 +51,11 @@ function M.restore()
 		vim.notify("No session for " .. vim.fn.getcwd(), vim.log.levels.WARN)
 		return
 	end
+	-- Start from a clean slate: the session script's `only` must run from a
+	-- plain window, not a terminal, and with no layout hooks pending.
+	if M.term then M.term.close_all() end
+	if vim.bo.buftype == "terminal" then vim.cmd("new") end
+	vim.cmd("silent! only")
 	vim.cmd("silent! source " .. vim.fn.fnameescape(base .. ".vim"))
 	local ok, extra = pcall(function()
 		return vim.json.decode(table.concat(vim.fn.readfile(base .. ".json")))

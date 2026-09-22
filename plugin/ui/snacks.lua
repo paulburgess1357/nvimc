@@ -94,6 +94,30 @@ local function fix_term10_layout()
 	end
 end
 
+-- Opening/closing Term10 steals/returns width only at the layout's right
+-- edge, so the rightmost bottom terminal absorbs the whole change while the
+-- others keep their widths. Redistribute the bottom row evenly afterwards.
+-- `extra` is a window in the row that has no terminal buffer yet (a split just
+-- made by open_bottom_term_win) and must be counted too.
+local function equalize_bottom_terms(extra)
+	local wins = get_bottom_term_wins()
+	if extra then
+		table.insert(wins, { win = extra, num = 0 })
+		table.sort(wins, function(a, b)
+			return vim.api.nvim_win_get_position(a.win)[2] < vim.api.nvim_win_get_position(b.win)[2]
+		end)
+	end
+	if #wins < 2 then return end
+	local total = 0
+	for _, tw in ipairs(wins) do
+		total = total + vim.api.nvim_win_get_width(tw.win)
+	end
+	local each, rem = math.floor(total / #wins), total % #wins
+	for i = 1, #wins - 1 do
+		vim.api.nvim_win_set_width(wins[i].win, each + (i <= rem and 1 or 0))
+	end
+end
+
 local function open_bottom_term_win(n)
 	local wins = get_bottom_term_wins()
 	local after, before
@@ -101,33 +125,21 @@ local function open_bottom_term_win(n)
 		if tw.num < n then after = tw.win
 		elseif tw.num > n then before = before or tw.win end
 	end
+	-- With equalalways off, a vsplit halves only the terminal it splits, so
+	-- the row is re-equalized by hand after the new window is added.
 	if after then
 		vim.api.nvim_set_current_win(after)
 		vim.cmd("vertical belowright split")
+		equalize_bottom_terms(vim.api.nvim_get_current_win())
 	elseif before then
 		vim.api.nvim_set_current_win(before)
 		vim.cmd("vertical aboveleft split")
+		equalize_bottom_terms(vim.api.nvim_get_current_win())
 	else
 		vim.cmd("botright split")
 		local bottom = vim.api.nvim_get_current_win()
 		fix_term10_layout()
 		vim.api.nvim_win_set_height(bottom, math.floor(vim.o.lines * 0.3))
-	end
-end
-
--- Opening/closing Term10 steals/returns width only at the layout's right
--- edge, so the rightmost bottom terminal absorbs the whole change while the
--- others keep their widths. Redistribute the bottom row evenly afterwards.
-local function equalize_bottom_terms()
-	local wins = get_bottom_term_wins()
-	if #wins < 2 then return end
-	local total = 0
-	for _, tw in ipairs(wins) do
-		total = total + vim.api.nvim_win_get_width(tw.win)
-	end
-	local each = math.floor(total / #wins)
-	for i = 1, #wins - 1 do
-		vim.api.nvim_win_set_width(wins[i].win, each)
 	end
 end
 
@@ -156,12 +168,21 @@ end
 -- through WinClosed) its width lands on the rightmost column only. Grow every
 -- other window proportionally instead (the inverse of open_right_term_win),
 -- then re-equalize the bottom row.
+local suppress_layout = false
 vim.api.nvim_create_autocmd("WinClosed", {
 	callback = function(ev)
 		local win = tonumber(ev.match)
+		if suppress_layout or not (win and vim.api.nvim_win_is_valid(win)) then return end
+		local buf = vim.api.nvim_win_get_buf(win)
+		-- Closing a bottom terminal hands its width to one neighbour only.
+		for n = 1, 9 do
+			if term_bufs[n] == buf then
+				vim.schedule(equalize_bottom_terms)
+				return
+			end
+		end
 		local buf10 = term_bufs[10]
-		if buf10 and win and vim.api.nvim_win_is_valid(win)
-			and vim.api.nvim_win_get_buf(win) == buf10 then
+		if buf10 and buf == buf10 then
 			local scale = vim.o.columns / (vim.o.columns - vim.api.nvim_win_get_width(win) - 1)
 			local widths = {}
 			for _, w in ipairs(vim.api.nvim_list_wins()) do
@@ -283,6 +304,16 @@ end, {})
 -- so record which Term<n> windows are visible and each shell's directory,
 -- and respawn fresh shells there on restore.
 require("utils.session").term = {
+	-- Close every terminal window without the WinClosed layout fix-ups, which
+	-- would otherwise run after the session loads and resize its windows.
+	close_all = function()
+		suppress_layout = true
+		for _, buf in pairs(term_bufs) do
+			local win = vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
+			if win then pcall(vim.api.nvim_win_close, win, false) end
+		end
+		suppress_layout = false
+	end,
 	snapshot = function()
 		local terms = {}
 		for n, buf in pairs(term_bufs) do
