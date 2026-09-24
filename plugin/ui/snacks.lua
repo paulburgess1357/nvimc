@@ -94,6 +94,20 @@ local function fix_term10_layout()
 	end
 end
 
+-- :copen also splits `botright` (full width), cutting Term10 short exactly
+-- like the first bottom terminal does, so give it the same treatment: Term10
+-- stays a full-height column and the quickfix window sits to its left.
+-- 'filetype' is re-set on every :copen, so FileType fires each time; location
+-- lists split below the current window and never reach Term10.
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "qf",
+	callback = function()
+		if vim.fn.win_gettype() == "quickfix" then
+			vim.schedule(fix_term10_layout)
+		end
+	end,
+})
+
 -- Opening/closing Term10 steals/returns width only at the layout's right
 -- edge, so the rightmost bottom terminal absorbs the whole change while the
 -- others keep their widths. Redistribute the bottom row evenly afterwards.
@@ -301,8 +315,10 @@ vim.api.nvim_create_user_command("Term10Focus", function()
 end, {})
 
 -- Session support (utils.session): terminals can't be saved by :mksession,
--- so record which Term<n> windows are visible and each shell's directory,
--- and respawn fresh shells there on restore.
+-- so record which Term<n> windows are visible, each shell's directory, and
+-- which terminal (if any) had focus, then respawn fresh shells there on
+-- restore. :mksession also can't point its final `wincmd w` at a skipped
+-- terminal window, so `focus` is what puts the cursor back in it.
 require("utils.session").term = {
 	-- Close every terminal window without the WinClosed layout fix-ups, which
 	-- would otherwise run after the session loads and resize its windows.
@@ -316,11 +332,12 @@ require("utils.session").term = {
 	end,
 	snapshot = function()
 		local terms = {}
+		local cur_buf = vim.api.nvim_get_current_buf()
 		for n, buf in pairs(term_bufs) do
 			if vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf) then
 				local ok, pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
 				local cwd = ok and vim.uv.fs_readlink("/proc/" .. pid .. "/cwd") or nil
-				table.insert(terms, { n = n, cwd = cwd })
+				table.insert(terms, { n = n, cwd = cwd, focus = buf == cur_buf or nil })
 			end
 		end
 		table.sort(terms, function(a, b) return a.n < b.n end)
@@ -328,11 +345,16 @@ require("utils.session").term = {
 	end,
 	restore = function(terms)
 		local origin = vim.api.nvim_get_current_win()
+		local focus
 		for _, t in ipairs(terms) do
 			local cwd = t.cwd and vim.fn.isdirectory(t.cwd) == 1 and t.cwd or vim.fn.getcwd()
-			if type(t.n) == "number" and t.n >= 1 and t.n <= 10 then ensure_term(t.n, cwd) end
+			if type(t.n) == "number" and t.n >= 1 and t.n <= 10 then
+				ensure_term(t.n, cwd) -- leaves the terminal window current
+				if t.focus then focus = vim.api.nvim_get_current_win() end
+			end
 		end
-		if vim.api.nvim_win_is_valid(origin) then vim.api.nvim_set_current_win(origin) end
+		local target = focus or origin
+		if vim.api.nvim_win_is_valid(target) then vim.api.nvim_set_current_win(target) end
 	end,
 }
 

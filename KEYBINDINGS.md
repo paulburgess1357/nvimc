@@ -108,6 +108,7 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | `<leader>-` | Split horizontal |
 | `<leader>\|` | Split vertical |
 | `gl` | Line diagnostics |
+| `gR` | LSP finder: references, definitions, implementations, calls, all in one picker |
 | `Esc` | Clear search highlights |
 | `q` (in quickfix) | Close quickfix/location list |
 | `<leader><CR>` | Resume last FZF picker (or unhide a hidden one) |
