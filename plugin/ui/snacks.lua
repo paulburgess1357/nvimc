@@ -214,8 +214,34 @@ vim.api.nvim_create_autocmd("WinClosed", {
 	end,
 })
 
+-----------------------------------------------------------
+-- Terminal winbar: "Term<n> · title". With globalstatus a terminal window
+-- shows no name, so label it and show the live terminal title
+-- (b:term_title: shell prompt, running program, an agent's status).
+-----------------------------------------------------------
+local WINBAR_TAG = "%#Title#Term"
+
+local function term_winbar(n)
+	return " " .. WINBAR_TAG .. n .. "%* · %<%{get(b:, 'term_title', '')}"
+end
+
+-- winbar is window-local: drop it if a non-terminal buffer lands in the window.
+vim.api.nvim_create_autocmd("BufWinEnter", {
+	callback = function()
+		if vim.bo.buftype ~= "terminal" and vim.wo.winbar:find(WINBAR_TAG, 1, true) then
+			vim.wo.winbar = ""
+		end
+	end,
+})
+
 local function setup_term_buf(n, buf)
 	vim.bo[buf].buflisted = false
+	vim.wo.winbar = term_winbar(n)
+	-- The buffer gets a fresh window every time Term<n> is reopened.
+	vim.api.nvim_create_autocmd("BufWinEnter", {
+		buffer = buf,
+		callback = function() vim.wo.winbar = term_winbar(n) end,
+	})
 	vim.keymap.set("n", "q", function()
 		local w = find_buf_win(buf)
 		-- pcall: closing fails if this is the last window (E444)
