@@ -220,7 +220,8 @@ vim.api.nvim_create_autocmd("WinClosed", {
 -- shows no name, so label it and show the live terminal title
 -- (b:term_title: shell prompt, running program, an agent's status).
 -----------------------------------------------------------
-local WINBAR_TAG = "%#Title#Term"
+-- WinBar (not Title): same foreground as the buffer tabs in the tabline.
+local WINBAR_TAG = "%#WinBar#Term"
 
 -- Winbar title segment. An idle shell's title is "user@host: path", which the
 -- prompt already shows, so drop it and only display titles a program set.
