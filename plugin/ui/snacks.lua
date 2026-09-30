@@ -338,28 +338,58 @@ local function ensure_term(n, cwd)
 	return buf, true
 end
 
+-- Slot number for a `:Term` / `:TermRun` argument: a number 1-10 or a label
+-- given with `:Term<n> <name>`. nil when it is neither.
+local function resolve_term(arg)
+	local n = tonumber(arg)
+	if n then return (n >= 1 and n <= 10) and n or nil end
+	for i, name in pairs(term_names) do
+		if name == arg then return i end
+	end
+end
+
+local function complete_term_names()
+	local names = vim.tbl_values(term_names)
+	table.sort(names)
+	return names
+end
+
+local function toggle_term(n)
+	local buf = term_bufs[n]
+	local win = buf and vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
+	if win then
+		-- pcall: closing fails if this is the last window (E444)
+		pcall(vim.api.nvim_win_close, win, false)
+	else
+		ensure_term(n)
+	end
+end
+
 -- `:Term<n>` toggles the terminal. `:Term<n> <name>` never closes it: the
 -- terminal is shown (spawned or re-opened if needed) and labelled <name>.
+-- `:Term<n> -` does the same but clears the label.
 local function make_term_cmd(n)
 	return function(opts)
-		local name = opts.args ~= "" and opts.args or nil
+		if opts.args == "" then return toggle_term(n) end
 		local buf = term_bufs[n]
-		local win = buf and vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
-		if name then
-			if not win then ensure_term(n) end
-			set_term_name(n, name)
-		elseif win then
-			-- pcall: closing fails if this is the last window (E444)
-			pcall(vim.api.nvim_win_close, win, false)
-		else
-			ensure_term(n)
-		end
+		if not (buf and vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)) then ensure_term(n) end
+		set_term_name(n, opts.args ~= "-" and opts.args or nil)
 	end
 end
 
 for i = 1, 10 do
 	vim.api.nvim_create_user_command("Term" .. i, make_term_cmd(i), { nargs = "*" })
 end
+
+-- `:Term <name>` (or `:Term <n>`) toggles a terminal by its label, like Term<n>.
+vim.api.nvim_create_user_command("Term", function(opts)
+	local n = resolve_term(opts.args)
+	if not n then
+		vim.notify("Term: no terminal named " .. opts.args, vim.log.levels.ERROR)
+		return
+	end
+	toggle_term(n)
+end, { nargs = "+", complete = complete_term_names, desc = "Toggle terminal by name or number" })
 
 vim.api.nvim_create_user_command("Term10Focus", function()
 	ensure_term(10)
@@ -371,6 +401,30 @@ end, {})
 -- which terminal (if any) had focus, then respawn fresh shells there on
 -- restore. :mksession also can't point its final `wincmd w` at a skipped
 -- terminal window, so `focus` is what puts the cursor back in it.
+-- Terminals respawn at their default size (30% height, Term10 28% width),
+-- so put back what the snapshot recorded: Term10's width first (it takes
+-- from the whole layout), then the bottom row's height, then each bottom
+-- terminal's width (all but the rightmost, which absorbs the remainder).
+local function restore_sizes(terms)
+	local bottom = {}
+	for _, t in ipairs(terms) do
+		local buf = term_bufs[t.n]
+		local win = buf and vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
+		if win then
+			if t.n == 10 then
+				if t.width then pcall(vim.api.nvim_win_set_width, win, t.width) end
+			else
+				table.insert(bottom, { win = win, width = t.width, height = t.height })
+			end
+		end
+	end
+	if #bottom == 0 then return end
+	if bottom[1].height then pcall(vim.api.nvim_win_set_height, bottom[1].win, bottom[1].height) end
+	for i = 1, #bottom - 1 do
+		if bottom[i].width then pcall(vim.api.nvim_win_set_width, bottom[i].win, bottom[i].width) end
+	end
+end
+
 require("utils.session").term = {
 	-- Close every terminal window without the WinClosed layout fix-ups, which
 	-- would otherwise run after the session loads and resize its windows.
@@ -386,10 +440,18 @@ require("utils.session").term = {
 		local terms = {}
 		local cur_buf = vim.api.nvim_get_current_buf()
 		for n, buf in pairs(term_bufs) do
-			if vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf) then
+			local win = vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
+			if win then
 				local ok, pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
 				local cwd = ok and vim.uv.fs_readlink("/proc/" .. pid .. "/cwd") or nil
-				table.insert(terms, { n = n, cwd = cwd, name = term_names[n], focus = buf == cur_buf or nil })
+				table.insert(terms, {
+					n = n,
+					cwd = cwd,
+					name = term_names[n],
+					focus = buf == cur_buf or nil,
+					width = vim.api.nvim_win_get_width(win),
+					height = vim.api.nvim_win_get_height(win),
+				})
 			end
 		end
 		table.sort(terms, function(a, b) return a.n < b.n end)
@@ -406,6 +468,7 @@ require("utils.session").term = {
 				if t.focus then focus = vim.api.nvim_get_current_win() end
 			end
 		end
+		restore_sizes(terms)
 		local target = focus or origin
 		if vim.api.nvim_win_is_valid(target) then vim.api.nvim_set_current_win(target) end
 	end,
@@ -414,7 +477,8 @@ require("utils.session").term = {
 -----------------------------------------------------------
 -- :TermRun -- paste the current line / range into a terminal and press Enter
 -----------------------------------------------------------
--- `:TermRun [n]` targets Term<n>, default settings.send_term (plugins.lua).
+-- `:TermRun [n|name]` targets Term<n> or the terminal labelled <name>,
+-- default settings.send_term (plugins.lua).
 -- Nothing is interpreted: the text lands in whatever is in the terminal's
 -- foreground, so a bash line runs in the shell and a python line runs in a
 -- REPL you already started. Bound to <F9> (normal: cursor line, visual:
@@ -464,10 +528,13 @@ local function send_lines_to_term(lines, n)
 end
 
 vim.api.nvim_create_user_command("TermRun", function(opts)
-	local n = tonumber(opts.args) or settings.send_term or 1
-	if n < 1 or n > 10 then
-		vim.notify("TermRun: terminal must be 1-10", vim.log.levels.ERROR)
-		return
+	local n = settings.send_term or 1
+	if opts.args ~= "" then
+		n = resolve_term(opts.args)
+		if not n then
+			vim.notify("TermRun: no terminal 1-10 or named " .. opts.args, vim.log.levels.ERROR)
+			return
+		end
 	end
 	send_lines_to_term(vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, false), n)
 	-- Advance past what was run (blank or not) so repeated <F9> walks down
@@ -475,7 +542,7 @@ vim.api.nvim_create_user_command("TermRun", function(opts)
 	local last = vim.api.nvim_buf_line_count(0)
 	local col = vim.api.nvim_win_get_cursor(0)[2]
 	vim.api.nvim_win_set_cursor(0, { math.min(opts.line2 + 1, last), col })
-end, { range = true, nargs = "?", desc = "Run line/range in Term<n> (default settings.send_term)" })
+end, { range = true, nargs = "*", complete = complete_term_names, desc = "Run line/range in Term<n|name> (default settings.send_term)" })
 
 -----------------------------------------------------------
 -- Setup
