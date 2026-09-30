@@ -90,21 +90,35 @@ Snacks.toggle({
 	end,
 }):map("<leader><leader>b")
 
+-- Search root: cwd (default) or the current file's directory. Session-only.
+-- Applies to every directory-scoped fzf picker (see utils.search_root).
+local search_root = require("utils.search_root")
+Snacks.toggle({
+	name = "Search From File Dir",
+	wk_desc = static_desc,
+	get = function()
+		return search_root.file_dir
+	end,
+	set = function(state)
+		search_root.file_dir = state
+	end,
+}):map("<leader><leader>.")
+
 -- Custom menu keymaps
 vim.keymap.set("n", "<leader><leader>f", function()
-	require("fzf-lua").files({ cwd = vim.fn.getcwd() })
-end, { desc = "Find files (cwd)" })
+	require("fzf-lua").files(search_root.opts("Files"))
+end, { desc = "Find files (root)" })
 
 vim.keymap.set("n", "<leader><leader>g", function()
-	require("fzf-lua").grep({ search = "", cwd = vim.fn.getcwd() })
-end, { desc = "Grep (cwd)" })
+	require("fzf-lua").grep(search_root.opts("Grep", { search = "" }))
+end, { desc = "Grep (root)" })
 
 vim.keymap.set("n", "<leader><leader>h", function()
-	require("fzf-lua").files({ cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":h:h") })
+	require("fzf-lua").files({ cwd = vim.uv.os_homedir() })
 end, { desc = "Find files (home)" })
 
 vim.keymap.set("n", "<leader><leader>j", function()
-	require("fzf-lua").grep({ search = "", cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":h:h") })
+	require("fzf-lua").grep({ search = "", cwd = vim.uv.os_homedir() })
 end, { desc = "Grep (home)" })
 
 vim.keymap.set("n", "<leader><leader>r", function()

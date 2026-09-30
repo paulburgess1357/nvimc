@@ -77,8 +77,8 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 
 | Key | Action |
 | --- | ------ |
-| `f` | Files (cwd) |
-| `g` | Grep (cwd) |
+| `f` | Files (search root) |
+| `g` | Grep (search root) |
 | `h` | Files (home) |
 | `j` | Grep (home) |
 | `r` | Recent files |
@@ -87,7 +87,9 @@ See [lua/plugins/debug/README.md](lua/plugins/debug/README.md) for full debug do
 | `a` | Toggle format on save |
 | `s` | Toggle diagnostic signs |
 | `v` | Toggle virtual text |
-| `w` | Toggle smart wrap copy (rejoin soft-wrapped lines yanked from terminals) |
+| `w` | Toggle line wrap |
+| `t` | Toggle smart wrap copy (rejoin soft-wrapped lines yanked from terminals) |
+| `.` | Toggle search root: cwd (default) or the current file's directory. Applies to all files/grep pickers; the picker title shows the active root |
 
 ## Other
 

@@ -58,6 +58,7 @@ end
 -- Terminal management: Term1-9 (bottom), Term10 (right)
 -----------------------------------------------------------
 local term_bufs = {}
+local term_names = {} -- optional label per Term<n>, set with `:Term<n> <name>`
 
 local function find_buf_win(buf)
 	for _, w in ipairs(vim.api.nvim_list_wins()) do
@@ -221,8 +222,26 @@ vim.api.nvim_create_autocmd("WinClosed", {
 -----------------------------------------------------------
 local WINBAR_TAG = "%#Title#Term"
 
+-- Winbar title segment. An idle shell's title is "user@host: path", which the
+-- prompt already shows, so drop it and only display titles a program set.
+function _G.term_winbar_title()
+	local title = vim.b.term_title or ""
+	if title == "" or title:match("^[^@%s]+@[^:%s]+:") then return "" end
+	return " · " .. title
+end
+
 local function term_winbar(n)
-	return " " .. WINBAR_TAG .. n .. "%* · %<%{get(b:, 'term_title', '')}"
+	local name = term_names[n]
+	local label = name and (" (" .. name:gsub("%%", "%%%%") .. ")") or ""
+	return " " .. WINBAR_TAG .. n .. label .. "%*%<%{v:lua.term_winbar_title()}"
+end
+
+-- Label Term<n> and refresh its winbar if it is on screen.
+local function set_term_name(n, name)
+	term_names[n] = name
+	local buf = term_bufs[n]
+	local win = buf and vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
+	if win then vim.wo[win].winbar = term_winbar(n) end
 end
 
 -- winbar is window-local: drop it if a non-terminal buffer lands in the window.
@@ -274,6 +293,7 @@ local function setup_term_buf(n, buf)
 		buffer = buf,
 		callback = function()
 			term_bufs[n] = nil
+			term_names[n] = nil
 			vim.schedule(function()
 				if vim.api.nvim_buf_is_valid(buf) then
 					pcall(vim.api.nvim_buf_delete, buf, { force = true })
@@ -318,11 +338,17 @@ local function ensure_term(n, cwd)
 	return buf, true
 end
 
+-- `:Term<n>` toggles the terminal. `:Term<n> <name>` never closes it: the
+-- terminal is shown (spawned or re-opened if needed) and labelled <name>.
 local function make_term_cmd(n)
-	return function()
+	return function(opts)
+		local name = opts.args ~= "" and opts.args or nil
 		local buf = term_bufs[n]
 		local win = buf and vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
-		if win then
+		if name then
+			if not win then ensure_term(n) end
+			set_term_name(n, name)
+		elseif win then
 			-- pcall: closing fails if this is the last window (E444)
 			pcall(vim.api.nvim_win_close, win, false)
 		else
@@ -332,7 +358,7 @@ local function make_term_cmd(n)
 end
 
 for i = 1, 10 do
-	vim.api.nvim_create_user_command("Term" .. i, make_term_cmd(i), {})
+	vim.api.nvim_create_user_command("Term" .. i, make_term_cmd(i), { nargs = "*" })
 end
 
 vim.api.nvim_create_user_command("Term10Focus", function()
@@ -363,7 +389,7 @@ require("utils.session").term = {
 			if vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf) then
 				local ok, pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
 				local cwd = ok and vim.uv.fs_readlink("/proc/" .. pid .. "/cwd") or nil
-				table.insert(terms, { n = n, cwd = cwd, focus = buf == cur_buf or nil })
+				table.insert(terms, { n = n, cwd = cwd, name = term_names[n], focus = buf == cur_buf or nil })
 			end
 		end
 		table.sort(terms, function(a, b) return a.n < b.n end)
@@ -376,6 +402,7 @@ require("utils.session").term = {
 			local cwd = t.cwd and vim.fn.isdirectory(t.cwd) == 1 and t.cwd or vim.fn.getcwd()
 			if type(t.n) == "number" and t.n >= 1 and t.n <= 10 then
 				ensure_term(t.n, cwd) -- leaves the terminal window current
+				if type(t.name) == "string" then set_term_name(t.n, t.name) end
 				if t.focus then focus = vim.api.nvim_get_current_win() end
 			end
 		end

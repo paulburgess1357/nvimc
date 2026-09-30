@@ -3,6 +3,9 @@ if cfg.enabled == false then return end
 
 local fzf = require("fzf-lua")
 local actions = require("fzf-lua.actions")
+-- Directory-scoped pickers take their root from utils.search_root (cwd, or
+-- the current file's directory when the <leader><leader>. toggle is on).
+local root = require("utils.search_root")
 
 fzf.setup({
 	"default-title",
@@ -71,25 +74,25 @@ fzf.register_ui_select()
 -- User commands
 local cmd = vim.api.nvim_create_user_command
 cmd("Symbols", fzf.lsp_document_symbols, { desc = "Document symbols" })
-cmd("SymbolsAll", function() fzf.lsp_live_workspace_symbols({ cwd_only = true }) end, { desc = "Workspace symbols (live)" })
+cmd("SymbolsAll", function() fzf.lsp_live_workspace_symbols(root.opts("Workspace Symbols", { cwd_only = true })) end, { desc = "Workspace symbols (live)" })
 cmd("Marks", fzf.marks, { desc = "Marks" })
-cmd("Files", fzf.files, { desc = "Find files" })
+cmd("Files", function() fzf.files(root.opts("Files")) end, { desc = "Find files" })
 cmd("Buffers", fzf.buffers, { desc = "Buffers" })
-cmd("Rg", function() fzf.grep({ search = "" }) end, { desc = "Grep" })
-cmd("Grep", function() fzf.grep({ search = "" }) end, { desc = "Grep" })
+cmd("Rg", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
+cmd("Grep", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
 cmd("Help", fzf.help_tags, { desc = "Help tags" })
 cmd("Commands", fzf.commands, { desc = "Commands" })
 cmd("Keymaps", fzf.keymaps, { desc = "Keymaps" })
 
 -- Find
-vim.keymap.set("n", "<leader>ff", "<cmd>FzfLua files<cr>", { desc = "Files" })
+vim.keymap.set("n", "<leader>ff", function() fzf.files(root.opts("Files")) end, { desc = "Files" })
 vim.keymap.set("n", "<leader>fr", "<cmd>FzfLua oldfiles<cr>", { desc = "Recent files" })
 vim.keymap.set("n", "<leader>fb", "<cmd>FzfLua buffers<cr>", { desc = "Buffers" })
 -- Grep
-vim.keymap.set("n", "<leader>sg", function() fzf.grep({ search = "" }) end, { desc = "Grep" })
-vim.keymap.set("n", "<leader>sw", "<cmd>FzfLua grep_cword<cr>", { desc = "Word under cursor" })
-vim.keymap.set("n", "<leader>sW", "<cmd>FzfLua grep_cWORD<cr>", { desc = "WORD under cursor" })
-vim.keymap.set("v", "<leader>sv", "<cmd>FzfLua grep_visual<cr>", { desc = "Selection" })
+vim.keymap.set("n", "<leader>sg", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
+vim.keymap.set("n", "<leader>sw", function() fzf.grep_cword(root.opts("Grep word")) end, { desc = "Word under cursor" })
+vim.keymap.set("n", "<leader>sW", function() fzf.grep_cWORD(root.opts("Grep WORD")) end, { desc = "WORD under cursor" })
+vim.keymap.set("v", "<leader>sv", function() fzf.grep_visual(root.opts("Grep selection")) end, { desc = "Selection" })
 vim.keymap.set("n", "<leader>sb", "<cmd>FzfLua grep_curbuf<cr>", { desc = "Buffer" })
 -- Git
 vim.keymap.set("n", "<leader>gf", "<cmd>FzfLua git_files<cr>", { desc = "Git files" })
