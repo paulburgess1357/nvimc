@@ -684,9 +684,15 @@ function M.back()
 		win = win or other
 	end
 	if not win then return end
-	vim.cmd("stopinsert")
-	vim.api.nvim_set_current_win(win)
-	if buftype(win) == "terminal" then vim.cmd("startinsert") end
+	-- Not both: a :stopinsert issued from terminal mode only takes effect
+	-- after the mapping returns, and would cancel the :startinsert.
+	if buftype(win) == "terminal" then
+		vim.api.nvim_set_current_win(win)
+		vim.cmd("startinsert")
+	else
+		vim.cmd("stopinsert")
+		vim.api.nvim_set_current_win(win)
+	end
 end
 
 --   no count, in a file      -> Term10 in insert mode (opened if needed)
