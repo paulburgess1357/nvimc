@@ -152,7 +152,7 @@ Leader key is `Space`.
 | Key | Action |
 | --- | ------ |
 | `<C-/>` | Toggle bottom terminal (Term1) |
-| `<C-S-Space>` | Focus right terminal (Term10) and enter insert mode |
+| `<C-S-Space>` | Focus the far-right terminal (Term10) and enter insert mode |
 | `<F9>` | Paste current line (visual: selection) into the default terminal and press Enter, then move down (`:TermRun`; default set by `settings.send_term`) |
 | `{n}<F9>` | Same, into Term{n}: `3<F9>` runs in Term3 (`:TermRun 3`) |
 | `<Esc><Esc>` (terminal mode) | Back to normal mode |

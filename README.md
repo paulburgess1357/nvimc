@@ -37,6 +37,7 @@ lua/config/options.lua      Editor options
 lua/config/keymaps.lua      Key mappings
 lua/config/plugins.lua      Plugin enable/disable and settings
 lua/config/colorscheme.lua  Colorscheme setup (loaded immediately after vim.pack.add)
+lua/utils/                  Hand-rolled features: terminals, sessions, buffer tabs, resize, ...
 plugin/coding/              Plugin configs: treesitter, lsp, blink, conform, lint, etc.
 plugin/editor/              Plugin configs: fzf, gitsigns, mini.files, etc.
 plugin/ui/                  Plugin configs: lualine, noice, snacks, whichkey, etc.
@@ -73,7 +74,7 @@ install/                    Install and migration scripts
 - **Colorscheme** - onedark (transparent). Adding another theme: register its repo in `init.lua`, add a setup branch in `lua/config/colorscheme.lua`, and set `theme` in `lua/config/plugins.lua`.
 - **lualine** - Statusline
 - **which-key** - Keybinding hints
-- **snacks** - Dashboard, indent guides, terminal
+- **snacks** - Dashboard, indent guides, bigfile
 - **noice** - Modern cmdline/messages/notifications
 - **rainbow-delimiters** - Colored brackets
 - **aerial** - Code outline sidebar

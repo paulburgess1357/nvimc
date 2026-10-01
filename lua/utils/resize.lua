@@ -5,7 +5,7 @@ local M = {}
 -- mouse). Uses win_move_separator()/win_move_statusline(), which move a
 -- specific divider and handle nested frames correctly. Plain `:resize` on a
 -- window redistributes space among its frame SIBLINGS first, so in nested
--- layouts (e.g. Term1/Term2 bottom row + Term10 right column) it can move an
+-- layouts (e.g. Term1/Term2 bottom row + Term9/Term10 right columns) it can move an
 -- unrelated inner divider instead of the one facing the neighbor.
 
 -- Window id of the neighbor in direction "h"/"j"/"k"/"l", or nil.

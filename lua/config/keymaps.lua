@@ -102,13 +102,14 @@ keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Comment" })
 -- Per-directory sessions: auto-save on quit, restore from the dashboard (`s`)
 require("utils.session").setup()
 
--- Terminal
+-- Terminal: Term1-10 slots, :Term / :TermRun, session support (utils.terms)
+require("utils.terms").setup()
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 -- Smart Wrap Copy: yanks in terminal buffers rejoin soft-wrapped lines so
 -- pasted commands/output keep their real line breaks (toggle: <leader><leader>t)
 require("utils.smart_wrap_copy").setup()
 keymap.set("n", "<C-/>", "<cmd>Term1<CR>", { desc = "Toggle terminal" })
-keymap.set("n", "<C-S-Space>", "<cmd>Term10Focus<CR>", { desc = "Focus right terminal" })
+keymap.set("n", "<C-S-Space>", "<cmd>Term10Focus<CR>", { desc = "Focus Term10 (far right)" })
 -- <F9> runs in the default terminal (settings.send_term); a count picks
 -- another one: 3<F9> runs in Term3. The visual map leaves visual mode first
 -- so '< '> are set, then runs the command on the old selection.

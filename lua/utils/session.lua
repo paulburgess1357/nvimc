@@ -16,7 +16,7 @@ vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize"
 local dir = vim.fn.stdpath("state") .. "/sessions/"
 local base = dir .. vim.fn.getcwd():gsub("[/\\:]", "%%")
 
--- Terminal provider, registered by plugin/ui/snacks.lua:
+-- Terminal provider, registered by utils.terms:
 --   { close_all = fun(), snapshot = fun(): table, restore = fun(terms: table) }
 M.term = nil
 
