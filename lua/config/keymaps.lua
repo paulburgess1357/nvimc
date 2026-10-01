@@ -109,11 +109,16 @@ keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 -- pasted commands/output keep their real line breaks (toggle: <leader><leader>t)
 require("utils.smart_wrap_copy").setup()
 keymap.set("n", "<C-/>", "<cmd>Term1<CR>", { desc = "Toggle terminal" })
--- <C-S-Space> focuses Term10 in insert mode (opening it if needed); a count
--- picks another terminal: 8<C-S-Space> focuses Term8.
+-- <C-S-Space> bounces between the code and the terminals. From a file it
+-- focuses Term10 in insert mode (opening it if needed). From inside any
+-- terminal, in any mode, it returns to the window the cursor was in before
+-- (a file, or another terminal). A count goes to that terminal from
+-- anywhere: 8<C-S-Space> focuses Term8.
+local terms = require("utils.terms")
 keymap.set("n", "<C-S-Space>", function()
-	vim.cmd("TermFocus " .. (vim.v.count > 0 and vim.v.count or 10))
-end, { desc = "Focus terminal (default Term10, count picks another)" })
+	terms.bounce(vim.v.count)
+end, { desc = "Focus terminal (default Term10, count picks another) / back to file" })
+keymap.set("t", "<C-S-Space>", terms.back, { desc = "Back to the previous window" })
 -- <F9> runs in the default terminal (settings.send_term); a count picks
 -- another one: 3<F9> runs in Term3. The visual map leaves visual mode first
 -- so '< '> are set, then runs the command on the old selection.

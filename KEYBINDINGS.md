@@ -152,8 +152,8 @@ Leader key is `Space`.
 | Key | Action |
 | --- | ------ |
 | `<C-/>` | Toggle bottom terminal (Term1) |
-| `<C-S-Space>` | Focus the far-right terminal (Term10) and enter insert mode, opening it if needed |
-| `{n}<C-S-Space>` | Same, for Term{n}: `8<C-S-Space>` focuses Term8 |
+| `<C-S-Space>` | Bounce between code and terminals: from a file, focus Term10 in insert mode (opening it if needed); from inside any terminal, return to the window you were in before (file or terminal) |
+| `{n}<C-S-Space>` | Go to Term{n} in insert mode from anywhere: `8<C-S-Space>` focuses Term8 |
 | `<F9>` | Paste current line (visual: selection) into the default terminal and press Enter, then move down (`:TermRun`; default set by `settings.send_term`) |
 | `{n}<F9>` | Same, into Term{n}: `3<F9>` runs in Term3 (`:TermRun 3`) |
 | `<Esc><Esc>` (terminal mode) | Back to normal mode |

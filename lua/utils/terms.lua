@@ -33,6 +33,9 @@ local term_names = {} -- slot -> optional label, set with `:Term<n> <name>`
 -- split still displays the buffer it was split from, so while a slot is being
 -- opened its window is tracked here rather than looked up by buffer.
 local pending = {}
+-- For the <C-S-Space> bounce: the window the cursor was in before the current
+-- one, and the last non-terminal window it left.
+local prev_win, last_file_win
 
 local function is_right(n)
 	return n > BOTTOM_MAX
@@ -445,11 +448,16 @@ local function ensure_term(n, cwd)
 			return buf, false
 		end
 	end
+	-- Opening the window hops through others (the neighbour it splits, the
+	-- new split), each of which looks like "the previous window". Put the
+	-- real origin back once the terminal's window is current.
+	local origin = vim.api.nvim_get_current_win()
 	local ok, err = pcall(is_right(n) and open_right_win or open_bottom_win, n)
 	if not ok then
 		pending[n] = nil
 		error(err, 0)
 	end
+	if origin ~= vim.api.nvim_get_current_win() then prev_win = origin end
 	if live then
 		vim.api.nvim_set_current_buf(buf)
 		pending[n] = nil
@@ -647,10 +655,72 @@ local function send_lines_to_term(lines, n)
 end
 
 -----------------------------------------------------------
+-- Bounce between the code and the terminals (<C-S-Space>, keymaps.lua)
+-----------------------------------------------------------
+
+-- Back to the window the cursor was in before this one, in insert mode if
+-- that is a terminal. If that window is gone: the last file window the
+-- cursor left, then any file window, then anything that is not a terminal.
+function M.back()
+	local cur = vim.api.nvim_get_current_win()
+	local function buftype(w)
+		return vim.bo[vim.api.nvim_win_get_buf(w)].buftype
+	end
+	local function usable(w)
+		return w and w ~= cur and vim.api.nvim_win_is_valid(w)
+	end
+	local win = usable(prev_win) and prev_win or nil
+	if not win and usable(last_file_win) and buftype(last_file_win) ~= "terminal" then win = last_file_win end
+	if not win then
+		local other
+		for _, w in ipairs(left_wins()) do
+			if w ~= cur and buftype(w) == "" then
+				win = w
+				break
+			elseif w ~= cur and buftype(w) ~= "terminal" then
+				other = other or w
+			end
+		end
+		win = win or other
+	end
+	if not win then return end
+	vim.cmd("stopinsert")
+	vim.api.nvim_set_current_win(win)
+	if buftype(win) == "terminal" then vim.cmd("startinsert") end
+end
+
+--   no count, in a file      -> Term10 in insert mode (opened if needed)
+--   no count, in a terminal  -> back to the previous window (M.back)
+--   count n                  -> Term<n> in insert mode, from anywhere
+--                               (already in Term<n>: back instead)
+function M.bounce(count)
+	if count == 0 then
+		if vim.bo.buftype == "terminal" then return M.back() end
+		count = 10
+	end
+	if count > 10 then
+		vim.notify("No Term" .. count .. " (terminals are 1-10)", vim.log.levels.ERROR)
+		return
+	end
+	if slot_win(count) == vim.api.nvim_get_current_win() then return M.back() end
+	ensure_term(count)
+	vim.cmd("startinsert")
+end
+
+-----------------------------------------------------------
 -- Setup: commands and autocmds
 -----------------------------------------------------------
 function M.setup()
 	local settings = require("config.plugins").settings or {}
+
+	vim.api.nvim_create_autocmd("WinLeave", {
+		callback = function()
+			local win = vim.api.nvim_get_current_win()
+			if vim.api.nvim_win_get_config(win).relative ~= "" then return end -- floats
+			prev_win = win
+			if vim.bo.buftype ~= "terminal" then last_file_win = win end
+		end,
+	})
 
 	vim.api.nvim_create_autocmd("FileType", { pattern = "qf", callback = on_quickfix })
 	vim.api.nvim_create_autocmd("WinClosed", { callback = on_win_closed })
