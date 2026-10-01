@@ -104,6 +104,23 @@ Snacks.toggle({
 	end,
 }):map("<leader><leader>.")
 
+-- Zoom: the current window's buffer in a full-size float (file or terminal).
+-- The layout underneath is untouched, so toggling off restores it exactly.
+Snacks.toggle({
+	name = "Zoom",
+	wk_desc = static_desc,
+	get = function()
+		return Snacks.zen.win ~= nil and Snacks.zen.win:valid()
+	end,
+	set = function(state)
+		if state then
+			Snacks.zen.zoom()
+		elseif Snacks.zen.win then
+			Snacks.zen.win:close()
+		end
+	end,
+}):map("<leader><leader>z")
+
 -- Custom menu keymaps
 vim.keymap.set("n", "<leader><leader>f", function()
 	require("fzf-lua").files(search_root.opts("Files"))

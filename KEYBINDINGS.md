@@ -145,6 +145,7 @@ Leader key is `Space`.
 | `b` | Toggle git blame (current line) |
 | `w` | Toggle line wrap |
 | `t` | Toggle smart wrap copy (rejoin soft-wrapped lines yanked from terminals) |
+| `z` | Toggle zoom: current window (file or terminal) fills the screen; again restores the layout |
 | `.` | Toggle search root: cwd (default) or the current file's directory. Applies to all files/grep pickers; the picker title shows the active root |
 
 ## Other

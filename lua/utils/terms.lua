@@ -34,8 +34,9 @@ local term_names = {} -- slot -> optional label, set with `:Term<n> <name>`
 -- opened its window is tracked here rather than looked up by buffer.
 local pending = {}
 -- For the <C-S-Space> bounce: the window the cursor was in before the current
--- one, and the last non-terminal window it left.
-local prev_win, last_file_win
+-- one, and the last non-terminal window it left. Floats (pickers, the zoom
+-- window) never count, so `tracked_win` is the current non-floating window.
+local prev_win, last_file_win, tracked_win
 
 local function is_right(n)
 	return n > BOTTOM_MAX
@@ -56,9 +57,15 @@ local function is_pending(win)
 	return false
 end
 
+local function is_float(win)
+	return vim.api.nvim_win_get_config(win).relative ~= ""
+end
+
+-- The layout window showing `buf`. Floats are skipped: the zoom window
+-- (<leader><leader>z) shows a terminal's buffer without being its slot.
 local function find_buf_win(buf)
 	for _, w in ipairs(vim.api.nvim_list_wins()) do
-		if vim.api.nvim_win_get_buf(w) == buf and not is_pending(w) then return w end
+		if vim.api.nvim_win_get_buf(w) == buf and not is_pending(w) and not is_float(w) then return w end
 	end
 end
 
@@ -329,7 +336,7 @@ local suppress_layout = false
 
 local function on_win_closed(ev)
 	local win = tonumber(ev.match)
-	if suppress_layout or not (win and vim.api.nvim_win_is_valid(win)) then return end
+	if suppress_layout or not (win and vim.api.nvim_win_is_valid(win)) or is_float(win) then return end
 	local buf = vim.api.nvim_win_get_buf(win)
 	local slot
 	for n, b in pairs(term_bufs) do
@@ -719,12 +726,18 @@ end
 function M.setup()
 	local settings = require("config.plugins").settings or {}
 
+	tracked_win = vim.api.nvim_get_current_win()
+	vim.api.nvim_create_autocmd("WinEnter", {
+		callback = function()
+			local win = vim.api.nvim_get_current_win()
+			if is_float(win) or win == tracked_win then return end
+			prev_win, tracked_win = tracked_win, win
+		end,
+	})
 	vim.api.nvim_create_autocmd("WinLeave", {
 		callback = function()
 			local win = vim.api.nvim_get_current_win()
-			if vim.api.nvim_win_get_config(win).relative ~= "" then return end -- floats
-			prev_win = win
-			if vim.bo.buftype ~= "terminal" then last_file_win = win end
+			if not is_float(win) and vim.bo.buftype ~= "terminal" then last_file_win = win end
 		end,
 	})
 
