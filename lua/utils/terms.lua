@@ -695,10 +695,22 @@ function M.setup()
 		toggle_term(n)
 	end, { nargs = "+", complete = complete_term_names, desc = "Toggle terminal by name or number" })
 
-	vim.api.nvim_create_user_command("Term10Focus", function()
-		ensure_term(10)
+	-- `:TermFocus [n|name]` shows the terminal (default Term10) and puts the
+	-- cursor in it in insert mode. Unlike the toggle it never closes anything.
+	-- Bound to <C-S-Space> in keymaps.lua, where a count picks the terminal.
+	vim.api.nvim_create_user_command("TermFocus", function(opts)
+		local n = 10
+		if opts.args ~= "" then
+			n = resolve_term(opts.args)
+			if not n then
+				vim.notify("TermFocus: no terminal 1-10 or named " .. opts.args, vim.log.levels.ERROR)
+				return
+			end
+		end
+		ensure_term(n)
 		vim.cmd("startinsert")
-	end, {})
+	end, { nargs = "*", complete = complete_term_names, desc = "Focus Term<n|name> in insert mode (default Term10)" })
+	vim.api.nvim_create_user_command("Term10Focus", "TermFocus 10", {})
 
 	vim.api.nvim_create_user_command("TermRun", function(opts)
 		local n = settings.send_term or 1

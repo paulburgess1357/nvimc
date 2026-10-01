@@ -21,7 +21,7 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | `:Term<n> <name>` | Show Term<n> (opening it if needed) and label it `<name>` in its winbar; never closes it |
 | `:Term<n> -` | Same, but clears the label |
 | `:Term <name>` | Toggle the terminal labelled `<name>` (a number works too); tab-completes names |
-| `:Term10Focus` | Show Term10 and enter insert mode |
+| `:TermFocus [n\|name]` | Show the terminal (default Term10) and enter insert mode; never closes it |
 | `:[range]TermRun [n\|name]` | Paste the line/range into Term<n> or the terminal labelled `<name>` (default `settings.send_term`) and press Enter, then move the cursor below it |
 
 ## Terminals
