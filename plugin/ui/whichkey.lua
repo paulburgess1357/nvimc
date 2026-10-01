@@ -110,7 +110,7 @@ Snacks.toggle({
 	name = "Zoom",
 	wk_desc = static_desc,
 	get = function()
-		return Snacks.zen.win ~= nil and Snacks.zen.win:valid()
+		return (Snacks.zen.win ~= nil and Snacks.zen.win:valid()) or false
 	end,
 	set = function(state)
 		if state then
