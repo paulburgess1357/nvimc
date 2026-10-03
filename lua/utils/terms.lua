@@ -27,16 +27,18 @@ local PARTNER = { [9] = 7, [7] = 9, [10] = 8, [8] = 10 }
 -- Width of each right column (of the screen), indexed by how many are open.
 local COL_WIDTH = { 0.28, 0.22 }
 
+-- 'scrollback' for the right-side terminals; set from settings.agent_scrollback.
+local right_scrollback = 50000
+
 local term_bufs = {} -- slot -> terminal buffer
 local term_names = {} -- slot -> optional label, set with `:Term<n> <name>`
 -- slot -> window opened for it that does not show its buffer yet. A fresh
 -- split still displays the buffer it was split from, so while a slot is being
 -- opened its window is tracked here rather than looked up by buffer.
 local pending = {}
--- For the <C-S-Space> bounce: the window the cursor was in before the current
--- one, and the last non-terminal window it left. Floats (pickers, the zoom
--- window) never count, so `tracked_win` is the current non-floating window.
-local prev_win, last_file_win, tracked_win
+-- For <C-Space> (M.prev_window): the window the cursor was in before the
+-- current one. `tracked_win` is the current non-floating window.
+local prev_win, tracked_win
 
 local function is_right(n)
 	return n > BOTTOM_MAX
@@ -392,6 +394,9 @@ end
 -----------------------------------------------------------
 local function setup_term_buf(n, buf)
 	vim.bo[buf].buflisted = false
+	-- Agents print far more than a shell, and a narrow column wraps each line
+	-- into several rows, so the right side gets a much deeper history.
+	if is_right(n) then vim.bo[buf].scrollback = right_scrollback end
 	vim.wo.winbar = term_winbar(n)
 	-- The buffer gets a fresh window every time Term<n> is reopened.
 	vim.api.nvim_create_autocmd("BufWinEnter", {
@@ -464,7 +469,7 @@ local function ensure_term(n, cwd)
 		pending[n] = nil
 		error(err, 0)
 	end
-	if origin ~= vim.api.nvim_get_current_win() then prev_win = origin end
+	if origin ~= vim.api.nvim_get_current_win() and not is_float(origin) then prev_win = origin end
 	if live then
 		vim.api.nvim_set_current_buf(buf)
 		pending[n] = nil
@@ -662,38 +667,19 @@ local function send_lines_to_term(lines, n)
 end
 
 -----------------------------------------------------------
--- Bounce between the code and the terminals (<C-S-Space>, keymaps.lua)
+-- Previous window (<C-Space>, keymaps.lua)
 -----------------------------------------------------------
-
--- Back to the window the cursor was in before this one, in insert mode if
--- that is a terminal. If that window is gone: the last file window the
--- cursor left, then any file window, then anything that is not a terminal.
-function M.back()
-	local cur = vim.api.nvim_get_current_win()
-	local function buftype(w)
-		return vim.bo[vim.api.nvim_win_get_buf(w)].buftype
-	end
-	local function usable(w)
-		return w and w ~= cur and vim.api.nvim_win_is_valid(w)
-	end
-	local win = usable(prev_win) and prev_win or nil
-	if not win and usable(last_file_win) and buftype(last_file_win) ~= "terminal" then win = last_file_win end
-	if not win then
-		local other
-		for _, w in ipairs(left_wins()) do
-			if w ~= cur and buftype(w) == "" then
-				win = w
-				break
-			elseif w ~= cur and buftype(w) ~= "terminal" then
-				other = other or w
-			end
-		end
-		win = win or other
-	end
-	if not win then return end
+-- Like <C-w>p -- press again to flip back -- but it also works while typing
+-- in a terminal, lands in insert mode when the window it goes to is a
+-- terminal, and tracks the window itself: floats (pickers, the zoom window)
+-- never count as "previous", and neither do the windows a terminal hops
+-- through while it is being opened. Does nothing if that window is gone.
+function M.prev_window()
+	local win = prev_win
+	if not (win and win ~= vim.api.nvim_get_current_win() and vim.api.nvim_win_is_valid(win)) then return end
 	-- Not both: a :stopinsert issued from terminal mode only takes effect
 	-- after the mapping returns, and would cancel the :startinsert.
-	if buftype(win) == "terminal" then
+	if vim.bo[vim.api.nvim_win_get_buf(win)].buftype == "terminal" then
 		vim.api.nvim_set_current_win(win)
 		vim.cmd("startinsert")
 	else
@@ -702,29 +688,12 @@ function M.back()
 	end
 end
 
---   no count, in a file      -> Term10 in insert mode (opened if needed)
---   no count, in a terminal  -> back to the previous window (M.back)
---   count n                  -> Term<n> in insert mode, from anywhere
---                               (already in Term<n>: back instead)
-function M.bounce(count)
-	if count == 0 then
-		if vim.bo.buftype == "terminal" then return M.back() end
-		count = 10
-	end
-	if count > 10 then
-		vim.notify("No Term" .. count .. " (terminals are 1-10)", vim.log.levels.ERROR)
-		return
-	end
-	if slot_win(count) == vim.api.nvim_get_current_win() then return M.back() end
-	ensure_term(count)
-	vim.cmd("startinsert")
-end
-
 -----------------------------------------------------------
 -- Setup: commands and autocmds
 -----------------------------------------------------------
 function M.setup()
 	local settings = require("config.plugins").settings or {}
+	right_scrollback = settings.agent_scrollback or right_scrollback
 
 	tracked_win = vim.api.nvim_get_current_win()
 	vim.api.nvim_create_autocmd("WinEnter", {
@@ -732,12 +701,6 @@ function M.setup()
 			local win = vim.api.nvim_get_current_win()
 			if is_float(win) or win == tracked_win then return end
 			prev_win, tracked_win = tracked_win, win
-		end,
-	})
-	vim.api.nvim_create_autocmd("WinLeave", {
-		callback = function()
-			local win = vim.api.nvim_get_current_win()
-			if not is_float(win) and vim.bo.buftype ~= "terminal" then last_file_win = win end
 		end,
 	})
 
