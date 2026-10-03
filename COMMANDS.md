@@ -39,7 +39,6 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 - **Term1-6**: bottom row under the files, equal widths.
 - **Term7-10**: two full-height columns on the right. Term10 sits over Term8 at the far right, Term9 over Term7 to its left. A lone terminal takes its whole column.
 - The two columns are always the same width: 28% of the screen with one open, 22% each with both.
-- History: Term7-10 keep 50000 rows each (`settings.agent_scrollback`); Term1-6 keep 2000 (`scrollback` in options.lua).
 - Shells keep running while hidden. Sessions restore which terminals were visible, their sizes, names and directories.
 - Lowercase works too: `:term9` is rewritten to `:Term9` (it would otherwise be Vim's `:terminal 9`).
 - Code lives in `lua/utils/terms.lua`.

@@ -54,8 +54,7 @@ vim.opt.sidescrolloff = 8
 -- Terminal history rows, per terminal buffer (default 10000). Lower keeps
 -- memory down and makes width changes cheap: every terminal resize rewraps
 -- the whole scrollback, and the Term system (utils.terms) resizes windows
--- whenever a right-side column opens or closes. The right-side terminals
--- (Term7-10) override this with settings.agent_scrollback in plugins.lua.
+-- whenever a right-side column opens or closes.
 vim.opt.scrollback = 2000
 
 -- Undo and backup

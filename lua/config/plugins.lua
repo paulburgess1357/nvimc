@@ -14,9 +14,6 @@ return {
 		aerial_max_lines = 50000, -- Disable aerial for files with more lines
 		cppcheck = false, -- Enable cppcheck for C/C++ linting (requires nvim-lint)
 		send_term = 1, -- Term<n> (1-10) that <F9> / :TermRun pastes into
-		-- History rows kept by EACH right-side terminal (Term7-10), where agents
-		-- run. The bottom row (Term1-6) uses 'scrollback' from options.lua.
-		agent_scrollback = 50000,
 	},
 
 	-- Coding
@@ -54,5 +51,5 @@ return {
 	dap = { enabled = true }, -- Debug adapter protocol support
 
 	-- Personal (auto-disabled on push via .git/hooks/pre-push)
-	leetneo = { enabled = false }, -- LeetCode integration
+	leetneo = { enabled = true }, -- LeetCode integration
 }

@@ -27,9 +27,6 @@ local PARTNER = { [9] = 7, [7] = 9, [10] = 8, [8] = 10 }
 -- Width of each right column (of the screen), indexed by how many are open.
 local COL_WIDTH = { 0.28, 0.22 }
 
--- 'scrollback' for the right-side terminals; set from settings.agent_scrollback.
-local right_scrollback = 50000
-
 local term_bufs = {} -- slot -> terminal buffer
 local term_names = {} -- slot -> optional label, set with `:Term<n> <name>`
 -- slot -> window opened for it that does not show its buffer yet. A fresh
@@ -394,9 +391,6 @@ end
 -----------------------------------------------------------
 local function setup_term_buf(n, buf)
 	vim.bo[buf].buflisted = false
-	-- Agents print far more than a shell, and a narrow column wraps each line
-	-- into several rows, so the right side gets a much deeper history.
-	if is_right(n) then vim.bo[buf].scrollback = right_scrollback end
 	vim.wo.winbar = term_winbar(n)
 	-- The buffer gets a fresh window every time Term<n> is reopened.
 	vim.api.nvim_create_autocmd("BufWinEnter", {
@@ -693,7 +687,6 @@ end
 -----------------------------------------------------------
 function M.setup()
 	local settings = require("config.plugins").settings or {}
-	right_scrollback = settings.agent_scrollback or right_scrollback
 
 	tracked_win = vim.api.nvim_get_current_win()
 	vim.api.nvim_create_autocmd("WinEnter", {
