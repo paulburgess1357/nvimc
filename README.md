@@ -9,25 +9,47 @@ Neovim configuration for Neovim 0.12+ using the built-in `vim.pack` plugin manag
 - Nerd Font (for icons)
 - gdb (optional, for debugging)
 
+### Installing dependencies (Ubuntu/Debian/WSL)
+
+```bash
+sudo apt update && sudo apt install -y build-essential unzip fzf ripgrep fd-find python3-venv wl-clipboard shellcheck gdb cmake golang-go rustup && sudo npm install -g tree-sitter-cli && mkdir -p ~/.local/bin && ln -sf "$(which fdfind)" ~/.local/bin/fd && rustup default stable
+```
+
+Requires node/npm. Drop `golang-go`, `rustup` and the trailing `rustup default stable` if you don't write Go or Rust.
+
+Mason installs the LSP servers, `shfmt` and `hadolint` on first startup. Formatters and debug adapters are installed manually from inside Neovim:
+
+```
+:MasonInstall stylua ruff prettier clang-format cpptools debugpy delve js-debug-adapter bash-debug-adapter
+```
+
+### Installing a Nerd Font
+
+Pick any font from [nerdfonts.com](https://www.nerdfonts.com/font-downloads) and download its zip. The zip contains several variants; the plain `NerdFont` files (Regular, Bold, Italic, BoldItalic) are enough. Skip `NerdFontPropo` (proportional).
+
+**WSL / Windows** (the terminal renders with Windows fonts, so nothing is installed inside WSL):
+
+1. Unzip, select the `.ttf` files, right-click → **Install**.
+2. In Windows Terminal: Settings → Profiles → **Defaults** → Appearance → Font face, pick the font (e.g. "JetBrainsMono Nerd Font") and save. Use Defaults rather than the WSL profile: a distro opened from the Start menu shortcut doesn't use that profile.
+3. If the font isn't listed, close all Terminal windows and reopen.
+
+**Native Linux:**
+
+```bash
+mkdir -p ~/.local/share/fonts && unzip <font>.zip '*.ttf' -d ~/.local/share/fonts && fc-cache -f
+```
+
+Then select the font in your terminal emulator's settings.
+
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/nvim-custom ~/.config/nvim-custom
+git clone https://github.com/paulburgess1357/nvimc ~/.config/nvim-custom
 ./install/setup-alias.sh && source ~/.bashrc
 nvimc
 ```
 
 Plugins install automatically on first startup via `vim.pack`.
-
-### Migrating from lazy.nvim
-
-If this machine previously used lazy.nvim, run the cleanup script before starting Neovim:
-
-```bash
-./install/migrate-from-lazy.sh
-```
-
-This removes stale lazy.nvim data and treesitter symlinks. Parsers and queries reinstall automatically on next startup.
 
 ## Structure
 
@@ -42,7 +64,7 @@ plugin/coding/              Plugin configs: treesitter, lsp, blink, conform, lin
 plugin/editor/              Plugin configs: fzf, gitsigns, mini.files, etc.
 plugin/ui/                  Plugin configs: lualine, noice, snacks, whichkey, etc.
 plugin/debug/               Plugin configs: dap, dap-ui
-install/                    Install and migration scripts
+install/                    Install scripts
 ```
 
 ## Plugins
@@ -63,6 +85,7 @@ install/                    Install and migration scripts
 - **mini.files** - File explorer
 - **fzf-lua** - Fuzzy finder
 - **gitsigns** - Git integration
+- **diffview** - Side-by-side diff viewer
 - **spider** - CamelCase motions
 - **illuminate** - Highlight references
 - **todo-comments** - TODO highlighting
@@ -78,6 +101,7 @@ install/                    Install and migration scripts
 - **noice** - Modern cmdline/messages/notifications
 - **rainbow-delimiters** - Colored brackets
 - **aerial** - Code outline sidebar
+- **Stardust** - Twinkling stars, meteors, etc.
 
 ### Debug
 
