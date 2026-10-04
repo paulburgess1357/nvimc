@@ -51,6 +51,23 @@ nvimc
 
 Plugins install automatically on first startup via `vim.pack`.
 
+### Windows Terminal keys (WSL)
+
+Windows Terminal grabs some keys for itself (`ctrl+shift+space` opens its dropdown, `f11` toggles fullscreen) and sends `ctrl+shift+<letter>` and `ctrl+/` as the same bytes as the unshifted keys, so several mappings in this config never reach Neovim. Add these to the `"actions"` array in its `settings.json` (Settings → Open JSON file) to send them as distinct escape sequences:
+
+```json
+{ "command": { "action": "sendInput", "input": "\u001b[32;6u" }, "keys": "ctrl+shift+space" },
+{ "command": { "action": "sendInput", "input": "\u001b[104;6u" }, "keys": "ctrl+shift+h" },
+{ "command": { "action": "sendInput", "input": "\u001b[106;6u" }, "keys": "ctrl+shift+j" },
+{ "command": { "action": "sendInput", "input": "\u001b[107;6u" }, "keys": "ctrl+shift+k" },
+{ "command": { "action": "sendInput", "input": "\u001b[108;6u" }, "keys": "ctrl+shift+l" },
+{ "command": { "action": "sendInput", "input": "\u001b[47;5u" }, "keys": "ctrl+/" },
+{ "command": { "action": "sendInput", "input": "\u001b[57374;2u" }, "keys": "shift+f11" },
+{ "command": "unbound", "keys": "f11" },
+```
+
+Fullscreen stays on `alt+enter`. If `ctrl+v` is bound to paste in the terminal, use `ctrl+q` for visual block mode. Terminals with the kitty keyboard protocol (kitty, WezTerm, Ghostty) need none of this.
+
 ## Structure
 
 ```
