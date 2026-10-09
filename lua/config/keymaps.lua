@@ -20,11 +20,13 @@ keymap.set("c", "/", function()
 	return "/"
 end, { expr = true, desc = "Substitute (literal)" })
 
--- Window navigation
-keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
-keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
-keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
-keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
+-- Window navigation. Arriving in a terminal starts insert mode (utils.terms
+-- also maps these inside its terminals, so they work while typing there).
+for dir, name in pairs({ h = "left", j = "bottom", k = "top", l = "right" }) do
+	keymap.set("n", "<C-" .. dir .. ">", function()
+		require("utils.terms").win_move(dir)
+	end, { desc = "Move to " .. name .. " window" })
+end
 
 -- Window resizing (intuitive - Alt+hjkl)
 local resize = require("utils.resize")

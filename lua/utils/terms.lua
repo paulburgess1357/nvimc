@@ -406,6 +406,17 @@ local function setup_term_buf(n, buf)
 	for _, key in ipairs({ "<S-h>", "<S-l>", "<leader>-", "<leader>|" }) do
 		vim.keymap.set("n", key, "<nop>", { buffer = buf })
 	end
+	-- Ctrl+h/j/k/l move windows even while typing (M.win_move). Buffer-local
+	-- on purpose: fzf-lua pickers are terminals too and need Ctrl+j/k for
+	-- themselves. With no window in that direction the key goes through to
+	-- the shell as usual.
+	for _, dir in ipairs({ "h", "j", "k", "l" }) do
+		local key = "<C-" .. dir .. ">"
+		vim.keymap.set("t", key, function()
+			if vim.fn.winnr(dir) == vim.fn.winnr() then return key end
+			return "<C-\\><C-n><cmd>lua require('utils.terms').win_move('" .. dir .. "')<CR>"
+		end, { buffer = buf, expr = true, desc = "Move to window " .. dir })
+	end
 	-- The right-side terminals host streaming output (agents, chat): a
 	-- terminal window only follows output while its cursor is on the last
 	-- line. When leaving the window, snap to the end only if the view is
@@ -658,6 +669,16 @@ local function send_lines_to_term(lines, n)
 	end
 	-- A freshly spawned shell needs a moment before it reads its input.
 	if created then vim.defer_fn(send, 200) else send() end
+end
+
+-----------------------------------------------------------
+-- Window moves for Ctrl+h/j/k/l (keymaps.lua, and the terminal-mode maps
+-- in setup_term_buf): `wincmd`, but arriving in a terminal starts insert
+-- mode, the same as <C-Space>. Arriving in a file is normal mode.
+-----------------------------------------------------------
+function M.win_move(dir)
+	vim.cmd("wincmd " .. dir)
+	if vim.bo.buftype == "terminal" then vim.cmd("startinsert") end
 end
 
 -----------------------------------------------------------

@@ -90,19 +90,10 @@ Snacks.toggle({
 	end,
 }):map("<leader><leader>b")
 
--- Search root: cwd (default) or the current file's directory. Session-only.
--- Applies to every directory-scoped fzf picker (see utils.search_root).
+-- Search root for every directory-scoped fzf picker (see utils.search_root):
+-- cycles working directory -> project root -> file directory. Session-only.
 local search_root = require("utils.search_root")
-Snacks.toggle({
-	name = "Search From File Dir",
-	wk_desc = static_desc,
-	get = function()
-		return search_root.file_dir
-	end,
-	set = function(state)
-		search_root.file_dir = state
-	end,
-}):map("<leader><leader>.")
+vim.keymap.set("n", "<leader><leader>.", search_root.cycle, { desc = "Cycle search root (cwd / project / file dir)" })
 
 -- Zoom: the current window's buffer in a full-size float (file or terminal).
 -- The layout underneath is untouched, so toggling off restores it exactly.

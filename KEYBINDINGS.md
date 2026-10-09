@@ -6,7 +6,7 @@ Leader key is `Space`.
 
 | Key | Action |
 | --- | ------ |
-| `<C-h/j/k/l>` | Window navigation |
+| `<C-h/j/k/l>` | Window navigation. Works while typing in a Term terminal too. Arriving in a terminal starts insert mode; arriving in a file is normal mode |
 | `<C-Space>` | Previous window; press again to flip back. Works while typing in a terminal, and lands in insert mode when it arrives in one |
 | `<A-h/j/k/l>` | Resize window (drags the divider on that side) |
 | `<C-S-j/k>` | Bisect jump — binary-search the visible window for a line |
@@ -147,7 +147,7 @@ Leader key is `Space`.
 | `w` | Toggle line wrap |
 | `t` | Toggle smart wrap copy (rejoin soft-wrapped lines yanked from terminals) |
 | `z` | Toggle zoom: current window (file or terminal) fills the screen; again restores the layout |
-| `.` | Toggle search root: cwd (default) or the current file's directory. Applies to all files/grep pickers; the picker title shows the active root |
+| `.` | Cycle the search root for all files/grep pickers: working directory (default) → project root (nearest `.git` or project marker above the current file) → file directory. Shows a notification; the picker title shows the active root |
 
 ## Other
 
