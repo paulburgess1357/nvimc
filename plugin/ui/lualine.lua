@@ -79,6 +79,10 @@ require("lualine").setup({
 	},
 })
 
+-- No tabline: the file winbars (utils.winbar) name each window, and
+-- <S-h>/<S-l> cycle buffers without it. lualine's setup just turned it on.
+vim.o.showtabline = 0
+
 -- Mode-colored accents: the current line number, the snacks indent scope
 -- guide and the active buffer tab take the same theme.a color as the mode
 -- pill at the bottom left (green in normal, blue in insert, ...), so they
