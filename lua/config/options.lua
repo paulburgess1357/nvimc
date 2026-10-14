@@ -32,6 +32,10 @@ vim.opt.signcolumn = "yes"
 vim.opt.cursorline = true
 vim.opt.showmode = false -- Hide native mode indicator (lualine shows it)
 vim.opt.cmdheight = 0 -- Hide command line (noice handles it in a popup)
+-- No tabline: file windows are named by their winbar (utils.winbar) and
+-- <S-h>/<S-l> show the buffer tabs in a popup (utils.buftabs). lualine has no
+-- tabline section, so it never turns this back on.
+vim.opt.showtabline = 0
 
 -- Backspace
 vim.opt.backspace = "indent,eol,start"

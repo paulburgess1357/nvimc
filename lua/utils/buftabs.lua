@@ -1,19 +1,19 @@
 local M = {}
 
--- Reorderable buffer tabs without a tabline plugin. Neovim has no notion of
--- buffer order beyond buffer numbers, and lualine's `buffers` component draws
--- in bufnr order. This module keeps its own ordered list of listed buffers;
--- plugin/ui/lualine.lua points the `buffers` component at it, and the
--- <S-h>/<S-l> cycle maps follow it too, so cycling always matches what the
--- tabline shows. The order lives in memory; utils.session saves/restores it.
+-- Reorderable buffer tabs without a tabline. Neovim has no notion of buffer
+-- order beyond buffer numbers, so this module keeps its own ordered list of
+-- listed buffers: the <S-h>/<S-l> cycle maps and <C-S-h>/<C-S-l> move maps
+-- follow it, and the peek popup below shows it. The order lives in memory;
+-- utils.session saves/restores it.
 
 -- Bufnrs in display order. Synced lazily by M.list().
 local order = {}
 
 -----------------------------------------------------------
--- Peek popup. There is no tabline (plugin/ui/lualine.lua), so cycling or
--- moving tabs pops a small float at the top left listing the tabs in order,
--- the current one in the mode color (LualineBufActive, set in lualine.lua).
+-- Peek popup. There is no tabline (showtabline=0 in options.lua), so cycling or
+-- moving tabs pops a small float at the top left of the current window
+-- listing the tabs in order, the current one in the mode color
+-- (LualineBufActive, set in lualine.lua).
 -- It closes on the next key that is not one of the tab keys: Neovim never
 -- sees key releases, so this is the closest thing to "while Shift is held".
 -- A float, unlike toggling the tabline, does not shift the layout.
@@ -72,7 +72,8 @@ function M.peek()
 		end
 	end
 	local config = {
-		relative = "editor",
+		relative = "win",
+		win = vim.api.nvim_get_current_win(),
 		anchor = "NW",
 		row = 0,
 		col = 0,
