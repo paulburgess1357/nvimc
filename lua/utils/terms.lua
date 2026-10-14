@@ -363,9 +363,16 @@ end
 -----------------------------------------------------------
 -- Winbar: "Term<n> (name) · title". With globalstatus a terminal window
 -- shows no name, so label it and show the live terminal title
--- (b:term_title: a running program, an agent's status).
+-- (b:term_title: a running program, an agent's status). The label is
+-- colored like the buffer tabline and file winbars (utils.winbar): mode
+-- color on the active window, WinBarNC grey otherwise.
 -----------------------------------------------------------
-local WINBAR_TAG = "%#Title#Term"
+function _G.term_winbar_hl()
+	local active = tonumber(vim.g.actual_curwin) == vim.api.nvim_get_current_win()
+	return active and "%#LualineBufActive#" or "%#WinBarNC#"
+end
+
+local WINBAR_TAG = "%{%v:lua.term_winbar_hl()%}Term"
 
 -- Winbar title segment. Only titles a program set are worth showing, so two
 -- defaults are dropped: an idle shell's "user@host: path" (the prompt already

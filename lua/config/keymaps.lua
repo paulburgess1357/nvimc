@@ -107,6 +107,9 @@ require("utils.session").setup()
 -- Keep split proportions when the screen is resized (utils.winscale)
 require("utils.winscale").setup()
 
+-- Filename winbar on file windows, matching the Term<n> titles (utils.winbar)
+require("utils.winbar").setup()
+
 -- Terminal: Term1-10 slots, :Term / :TermRun, session support (utils.terms)
 require("utils.terms").setup()
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
