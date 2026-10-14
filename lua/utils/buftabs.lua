@@ -12,7 +12,7 @@ local order = {}
 
 -----------------------------------------------------------
 -- Peek popup. There is no tabline (plugin/ui/lualine.lua), so cycling or
--- moving tabs pops a small float at the top right listing the tabs in order,
+-- moving tabs pops a small float at the top left listing the tabs in order,
 -- the current one in the mode color (LualineBufActive, set in lualine.lua).
 -- It closes on the next key that is not one of the tab keys: Neovim never
 -- sees key releases, so this is the closest thing to "while Shift is held".
@@ -73,9 +73,9 @@ function M.peek()
 	end
 	local config = {
 		relative = "editor",
-		anchor = "NE",
+		anchor = "NW",
 		row = 0,
-		col = vim.o.columns,
+		col = 0,
 		width = width,
 		height = #lines,
 		style = "minimal",
