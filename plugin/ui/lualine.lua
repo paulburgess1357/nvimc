@@ -65,6 +65,8 @@ require("lualine").setup({
 				show_filename_only = true,
 				show_modified_status = true,
 				mode = 0,
+				-- Active tab in the mode color (group set in mode_accents below)
+				buffers_color = { active = "LualineBufActive" },
 				symbols = {
 					modified = " ●",
 					alternate_file = "",
@@ -77,10 +79,10 @@ require("lualine").setup({
 	},
 })
 
--- Mode-colored accents: the current line number and the snacks indent scope
--- guide take the same theme.a color as the mode pill at the bottom left
--- (green in normal, blue in insert, ...), so the gutter, the scope line and
--- the statusline agree on what mode you are in. Uses lualine's own mode ->
+-- Mode-colored accents: the current line number, the snacks indent scope
+-- guide and the active buffer tab take the same theme.a color as the mode
+-- pill at the bottom left (green in normal, blue in insert, ...), so they
+-- all agree on what mode you are in. Uses lualine's own mode ->
 -- theme-section mapping; modes the theme doesn't define (terminal, command)
 -- fall back to normal, as lualine does.
 local function mode_accents()
@@ -89,6 +91,7 @@ local function mode_accents()
 	if not (a and a.bg) then return end
 	vim.api.nvim_set_hl(0, "CursorLineNr", { fg = a.bg, bold = true })
 	vim.api.nvim_set_hl(0, "SnacksIndentScope", { fg = a.bg })
+	vim.api.nvim_set_hl(0, "LualineBufActive", { fg = a.bg, bold = true })
 end
 vim.api.nvim_create_autocmd({ "ModeChanged", "ColorScheme" }, {
 	group = vim.api.nvim_create_augroup("mode_accents", { clear = true }),
