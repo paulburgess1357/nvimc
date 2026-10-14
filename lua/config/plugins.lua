@@ -44,7 +44,7 @@ return {
 	noice = { enabled = true }, -- Cmdline, messages, and popupmenu UI
 	rainbowdelimiters = { enabled = true }, -- Colored matching brackets
 	aerial = { enabled = true }, -- Code outline / symbol sidebar
-	stardust = { enabled = true }, -- Twinkling stars, meteors, etc
+	stardust = { enabled = false }, -- Twinkling stars, meteors, etc
 	marks = { enabled = true }, -- Visual marks in the gutter
 
 	-- Debug
