@@ -36,6 +36,10 @@ local pending = {}
 -- For <C-Space> (M.prev_window): the window the cursor was in before the
 -- current one. `tracked_win` is the current non-floating window.
 local prev_win, tracked_win
+-- Whether Ctrl+hjkl / Alt+hjkl act on Neovim windows while typing in a
+-- terminal. Off, every key reaches the program in the terminal instead
+-- (nested vim, TUIs). Toggle: <leader><leader>k (plugin/ui/whichkey.lua).
+M.window_keys = true
 
 local function is_right(n)
 	return n > BOTTOM_MAX
@@ -406,16 +410,22 @@ local function setup_term_buf(n, buf)
 	for _, key in ipairs({ "<S-h>", "<S-l>", "<leader>-", "<leader>|" }) do
 		vim.keymap.set("n", key, "<nop>", { buffer = buf })
 	end
-	-- Ctrl+h/j/k/l move windows even while typing (M.win_move). Buffer-local
-	-- on purpose: fzf-lua pickers are terminals too and need Ctrl+j/k for
-	-- themselves. With no window in that direction the key goes through to
-	-- the shell as usual.
-	for _, dir in ipairs({ "h", "j", "k", "l" }) do
+	-- Ctrl+h/j/k/l move windows and Alt+h/j/k/l resize them even while
+	-- typing (M.win_move, utils.resize). Buffer-local on purpose: fzf-lua
+	-- pickers are terminals too and need Ctrl+j/k for themselves. With no
+	-- window in that direction, or with M.window_keys off, the key goes
+	-- through to the shell as usual.
+	for dir, side in pairs({ h = "left", j = "down", k = "up", l = "right" }) do
 		local key = "<C-" .. dir .. ">"
 		vim.keymap.set("t", key, function()
-			if vim.fn.winnr(dir) == vim.fn.winnr() then return key end
+			if not M.window_keys or vim.fn.winnr(dir) == vim.fn.winnr() then return key end
 			return "<C-\\><C-n><cmd>lua require('utils.terms').win_move('" .. dir .. "')<CR>"
 		end, { buffer = buf, expr = true, desc = "Move to window " .. dir })
+		local akey = "<A-" .. dir .. ">"
+		vim.keymap.set("t", akey, function()
+			if not M.window_keys then return akey end
+			return "<cmd>lua require('utils.resize').resize_" .. side .. "()<CR>"
+		end, { buffer = buf, expr = true, desc = "Resize window " .. side })
 	end
 	-- The right-side terminals host streaming output (agents, chat): a
 	-- terminal window only follows output while its cursor is on the last

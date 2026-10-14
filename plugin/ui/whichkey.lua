@@ -90,6 +90,20 @@ Snacks.toggle({
 	end,
 }):map("<leader><leader>b")
 
+-- Ctrl/Alt+hjkl inside Term windows: on, they move/resize Neovim windows;
+-- off, they reach the program running in the terminal (nested vim, TUIs).
+local terms = require("utils.terms")
+Snacks.toggle({
+	name = "Terminal Window Keys",
+	wk_desc = static_desc,
+	get = function()
+		return terms.window_keys
+	end,
+	set = function(state)
+		terms.window_keys = state
+	end,
+}):map("<leader><leader>k")
+
 -- Search root for every directory-scoped fzf picker (see utils.search_root):
 -- cycles working directory -> project root -> file directory. Session-only.
 local search_root = require("utils.search_root")

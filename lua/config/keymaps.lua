@@ -104,6 +104,9 @@ keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Comment" })
 -- Per-directory sessions: auto-save on quit, restore from the dashboard (`s`)
 require("utils.session").setup()
 
+-- Keep split proportions when the screen is resized (utils.winscale)
+require("utils.winscale").setup()
+
 -- Terminal: Term1-10 slots, :Term / :TermRun, session support (utils.terms)
 require("utils.terms").setup()
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
