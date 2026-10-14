@@ -77,18 +77,21 @@ require("lualine").setup({
 	},
 })
 
--- Current line number in the mode's color: CursorLineNr follows the same
--- theme.a accent as the mode pill at the bottom left (green in normal, blue
--- in insert, ...), so the gutter and the statusline agree on what mode you
--- are in. Uses lualine's own mode -> theme-section mapping; modes the theme
--- doesn't define (terminal, command) fall back to normal, as lualine does.
-local function mode_line_nr()
+-- Mode-colored accents: the current line number and the snacks indent scope
+-- guide take the same theme.a color as the mode pill at the bottom left
+-- (green in normal, blue in insert, ...), so the gutter, the scope line and
+-- the statusline agree on what mode you are in. Uses lualine's own mode ->
+-- theme-section mapping; modes the theme doesn't define (terminal, command)
+-- fall back to normal, as lualine does.
+local function mode_accents()
 	local section = require("lualine.highlight").get_mode_suffix():sub(2)
 	local a = (custom_theme[section] or custom_theme.normal or {}).a
-	if a and a.bg then vim.api.nvim_set_hl(0, "CursorLineNr", { fg = a.bg, bold = true }) end
+	if not (a and a.bg) then return end
+	vim.api.nvim_set_hl(0, "CursorLineNr", { fg = a.bg, bold = true })
+	vim.api.nvim_set_hl(0, "SnacksIndentScope", { fg = a.bg })
 end
 vim.api.nvim_create_autocmd({ "ModeChanged", "ColorScheme" }, {
-	group = vim.api.nvim_create_augroup("mode_line_nr", { clear = true }),
-	callback = mode_line_nr,
+	group = vim.api.nvim_create_augroup("mode_accents", { clear = true }),
+	callback = mode_accents,
 })
-mode_line_nr()
+mode_accents()
