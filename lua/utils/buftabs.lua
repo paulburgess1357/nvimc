@@ -122,6 +122,10 @@ function M.peek()
 	local items = entries()
 	if #items == 0 then return end
 	local lines, hls, width = peek_lines(items)
+	-- Titled like mini.files (FloatTitle, left, padded); never narrower than
+	-- the title, which is wider than a short list of Term<n> entries.
+	local title = in_terminal() and " Terminals " or " Buffers "
+	width = math.max(width, vim.fn.strdisplaywidth(title))
 	if not (peek_buf and vim.api.nvim_buf_is_valid(peek_buf)) then
 		peek_buf = vim.api.nvim_create_buf(false, true)
 		vim.bo[peek_buf].bufhidden = "wipe"
@@ -144,6 +148,8 @@ function M.peek()
 		width = width,
 		height = #lines,
 		style = "minimal",
+		title = title,
+		title_pos = "left",
 		border = (require("config.plugins").settings or {}).border or "single",
 		focusable = false,
 		zindex = 60,
