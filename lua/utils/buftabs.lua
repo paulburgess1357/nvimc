@@ -11,9 +11,8 @@ local order = {}
 
 -----------------------------------------------------------
 -- Peek popup. There is no tabline (showtabline=0 in options.lua), so cycling
--- tabs pops a small float at the top left of the current window
--- listing the tabs in order, the current one in the mode color
--- (LualineBufActive, set in lualine.lua).
+-- tabs pops a small float at the top left of the current window listing
+-- the tabs in order, the current one on a highlighted line like mini.files.
 -- It closes on the next key that is not one of the tab keys: Neovim never
 -- sees key releases, so this is the closest thing to "while Shift is held".
 -- A float, unlike toggling the tabline, does not shift the layout.
@@ -95,7 +94,7 @@ local function term_entries()
 	local cur = vim.api.nvim_get_current_buf()
 	local out = {}
 	for i, slot in ipairs(require("utils.terms").slots()) do
-		out[i] = { name = slot.label, icon = "", icon_hl = "WinBarNC", current = slot.buf == cur }
+		out[i] = { name = slot.label, icon = "", current = slot.buf == cur }
 	end
 	return out
 end
@@ -111,10 +110,9 @@ local function peek_lines(items)
 		local prefix = " " .. (item.icon or "") .. " "
 		local line = prefix .. item.name .. (item.modified and " ●" or "") .. " "
 		lines[i] = line
-		hls[i] = {
-			{ 1, #prefix - 1, item.icon_hl },
-			{ #prefix, #prefix + #item.name, item.current and "LualineBufActive" or "WinBarNC" },
-		}
+		-- Names in plain text; the current entry is marked by the cursor line
+		-- (MiniFilesCursorLine, the same look as mini.files), set in M.peek.
+		hls[i] = { { 1, #prefix - 1, item.icon_hl } }
 		width = math.max(width, vim.fn.strdisplaywidth(line))
 	end
 	return lines, hls, width
@@ -150,12 +148,19 @@ function M.peek()
 		focusable = false,
 		zindex = 60,
 	}
+	local current = 1
+	for i, item in ipairs(items) do
+		if item.current then current = i end
+	end
 	if peek_win and vim.api.nvim_win_is_valid(peek_win) then
 		vim.api.nvim_win_set_config(peek_win, config)
+		vim.api.nvim_win_set_cursor(peek_win, { current, 0 })
 		return
 	end
 	peek_win = vim.api.nvim_open_win(peek_buf, false, config)
-	vim.wo[peek_win].winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder"
+	vim.wo[peek_win].winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:MiniFilesCursorLine"
+	vim.wo[peek_win].cursorline = true
+	vim.api.nvim_win_set_cursor(peek_win, { current, 0 })
 	vim.on_key(function(key, typed)
 		if peek_keys[typed ~= "" and typed or key] then return end
 		peek_close()
