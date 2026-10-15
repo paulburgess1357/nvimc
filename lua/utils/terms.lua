@@ -414,7 +414,7 @@ local function setup_term_buf(n, buf)
 		if w then pcall(vim.api.nvim_win_close, w, false) end
 	end, { buffer = buf })
 	vim.keymap.set("n", "<Esc>", "<cmd>wincmd t<CR>", { buffer = buf })
-	for _, key in ipairs({ "<S-h>", "<S-l>", "<leader>-", "<leader>|" }) do
+	for _, key in ipairs({ "<S-j>", "<S-k>", "<leader>-", "<leader>|" }) do
 		vim.keymap.set("n", key, "<nop>", { buffer = buf })
 	end
 	-- Ctrl+h/j/k/l move windows and Alt+h/j/k/l resize them even while

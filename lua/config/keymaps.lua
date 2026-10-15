@@ -40,25 +40,18 @@ keymap.set("n", "<leader>-", "<cmd>split<CR>", { desc = "Split horizontally" })
 keymap.set("n", "<leader>|", "<cmd>vsplit<CR>", { desc = "Split vertically" })
 keymap.set("n", "<leader>wd", "<cmd>close<CR>", { desc = "Delete window" })
 
--- Buffer navigation: cycles in tabline order (utils.buftabs), which differs
+-- Buffer navigation: <S-k>/<S-j> cycle in tab order (utils.buftabs; k =
+-- previous, matching the peek popup's top-to-bottom order), which differs
 -- from :bnext/:bprevious buffer-number order once a tab has been moved.
+-- This takes J (join: use gJ or :join) and K (LSP hover moved to gh in
+-- plugin/coding/lsp.lua).
 local buftabs = require("utils.buftabs")
-keymap.set("n", "<S-h>", function()
+keymap.set("n", "<S-k>", function()
 	buftabs.cycle(-1)
 end, { desc = "Previous buffer" })
-keymap.set("n", "<S-l>", function()
+keymap.set("n", "<S-j>", function()
 	buftabs.cycle(1)
 end, { desc = "Next buffer" })
-
--- Hold Ctrl+Shift and tap h/l to drag the current buffer tab left/right.
--- Needs a terminal that reports Ctrl+Shift+letter (kitty does; its default
--- ctrl+shift+h / ctrl+shift+l bindings must be set to no_op in kitty.conf).
-keymap.set("n", "<C-S-h>", function()
-	buftabs.move(-1)
-end, { desc = "Move buffer tab left" })
-keymap.set("n", "<C-S-l>", function()
-	buftabs.move(1)
-end, { desc = "Move buffer tab right" })
 
 -- Buffer management
 keymap.set("n", "<leader>bd", function()
@@ -67,16 +60,6 @@ end, { desc = "Delete buffer" })
 keymap.set("n", "<leader>bD", function()
 	Snacks.bufdelete({ force = true })
 end, { desc = "Delete buffer (force)" })
-
--- Bisect jump: hold Ctrl+Shift and tap j/k to binary-search the visible window
--- for the line your eyes are on. Each press halves the range (~6 to converge).
-local bisect = require("utils.bisect")
-keymap.set("n", "<C-S-k>", function()
-	bisect.step("up")
-end, { desc = "Bisect jump up" })
-keymap.set("n", "<C-S-j>", function()
-	bisect.step("down")
-end, { desc = "Bisect jump down" })
 
 -- Move lines up/down
 keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })

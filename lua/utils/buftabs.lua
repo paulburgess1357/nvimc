@@ -1,17 +1,16 @@
 local M = {}
 
--- Reorderable buffer tabs without a tabline. Neovim has no notion of buffer
--- order beyond buffer numbers, so this module keeps its own ordered list of
--- listed buffers: the <S-h>/<S-l> cycle maps and <C-S-h>/<C-S-l> move maps
--- follow it, and the peek popup below shows it. The order lives in memory;
--- utils.session saves/restores it.
+-- Buffer tabs without a tabline. This module keeps an ordered list of listed
+-- buffers (open order, kept stable as buffers come and go): the <S-k>/<S-j>
+-- cycle maps follow it, and the peek popup below shows it. The order lives
+-- in memory; utils.session saves/restores it.
 
 -- Bufnrs in display order. Synced lazily by M.list().
 local order = {}
 
 -----------------------------------------------------------
--- Peek popup. There is no tabline (showtabline=0 in options.lua), so cycling or
--- moving tabs pops a small float at the top left of the current window
+-- Peek popup. There is no tabline (showtabline=0 in options.lua), so cycling
+-- tabs pops a small float at the top left of the current window
 -- listing the tabs in order, the current one in the mode color
 -- (LualineBufActive, set in lualine.lua).
 -- It closes on the next key that is not one of the tab keys: Neovim never
@@ -20,7 +19,7 @@ local order = {}
 -----------------------------------------------------------
 local PEEK_NS = vim.api.nvim_create_namespace("buftabs_peek")
 local peek_keys = {}
-for _, k in ipairs({ "<S-h>", "<S-l>", "<C-S-h>", "<C-S-l>" }) do
+for _, k in ipairs({ "<S-j>", "<S-k>" }) do
 	peek_keys[vim.keycode(k)] = true
 end
 local peek_buf, peek_win
@@ -157,17 +156,6 @@ function M.cycle(dir)
 	if #bufs > 1 then
 		vim.api.nvim_set_current_buf(bufs[(i - 1 + dir) % #bufs + 1])
 	end
-	M.peek()
-end
-
--- Move the current tab one slot right (dir = 1) / left (dir = -1). Stops at
--- the ends rather than wrapping.
-function M.move(dir)
-	local bufs = M.list()
-	local i = current_index(bufs)
-	local j = i and i + dir
-	if not i or j < 1 or j > #bufs then return end
-	bufs[i], bufs[j] = bufs[j], bufs[i]
 	M.peek()
 end
 
