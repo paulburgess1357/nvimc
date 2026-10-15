@@ -3,7 +3,8 @@ local M = {}
 -- Buffer tabs without a tabline. This module keeps an ordered list of listed
 -- buffers (open order, kept stable as buffers come and go): the <S-k>/<S-j>
 -- cycle maps follow it, and the peek popup below shows it. The order lives
--- in memory; utils.session saves/restores it.
+-- in memory; utils.session saves/restores it. In a terminal window the same
+-- keys walk the Term slots instead (utils.terms), from normal mode.
 
 -- Bufnrs in display order. Synced lazily by M.list().
 local order = {}
@@ -28,6 +29,10 @@ local function peek_close()
 	vim.on_key(nil, PEEK_NS)
 	if peek_win and vim.api.nvim_win_is_valid(peek_win) then vim.api.nvim_win_close(peek_win, true) end
 	peek_win = nil
+end
+
+local function in_terminal()
+	return vim.bo.buftype == "terminal"
 end
 
 -- Always show "parent/tail" in the popup, not only on collisions.
@@ -67,23 +72,48 @@ local function peek_names(bufs)
 	return names
 end
 
--- Lines and per-line highlight spans for the popup.
-local function peek_lines(bufs)
+-- Popup entries for the window kind: files (utils.buftabs order) in a file
+-- window, Term slots (utils.terms) in a terminal window. Each entry is
+-- { name, icon, icon_hl, modified, current }.
+local function file_entries()
 	local cur = vim.api.nvim_get_current_buf()
+	local bufs = M.list()
 	local ok, devicons = pcall(require, "nvim-web-devicons")
-	local lines, hls, width = {}, {}, 1
 	local names = peek_names(bufs)
+	local out = {}
 	for i, buf in ipairs(bufs) do
-		local path = vim.api.nvim_buf_get_name(buf)
-		local name = names[i]
 		local icon, icon_hl = "", nil
-		if ok then icon, icon_hl = devicons.get_icon(name, vim.fn.fnamemodify(path, ":e"), { default = true }) end
-		local prefix = " " .. (icon or "") .. " "
-		local line = prefix .. name .. (vim.bo[buf].modified and " ●" or "") .. " "
+		if ok then
+			icon, icon_hl = devicons.get_icon(names[i], vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":e"), { default = true })
+		end
+		out[i] = { name = names[i], icon = icon, icon_hl = icon_hl, modified = vim.bo[buf].modified, current = buf == cur }
+	end
+	return out
+end
+
+local function term_entries()
+	local cur = vim.api.nvim_get_current_buf()
+	local out = {}
+	for i, slot in ipairs(require("utils.terms").slots()) do
+		out[i] = { name = slot.label, icon = "", icon_hl = "WinBarNC", current = slot.buf == cur }
+	end
+	return out
+end
+
+local function entries()
+	return in_terminal() and term_entries() or file_entries()
+end
+
+-- Lines and per-line highlight spans for the popup.
+local function peek_lines(items)
+	local lines, hls, width = {}, {}, 1
+	for i, item in ipairs(items) do
+		local prefix = " " .. (item.icon or "") .. " "
+		local line = prefix .. item.name .. (item.modified and " ●" or "") .. " "
 		lines[i] = line
 		hls[i] = {
-			{ 1, #prefix - 1, icon_hl },
-			{ #prefix, #prefix + #name, buf == cur and "LualineBufActive" or "WinBarNC" },
+			{ 1, #prefix - 1, item.icon_hl },
+			{ #prefix, #prefix + #item.name, item.current and "LualineBufActive" or "WinBarNC" },
 		}
 		width = math.max(width, vim.fn.strdisplaywidth(line))
 	end
@@ -91,9 +121,9 @@ local function peek_lines(bufs)
 end
 
 function M.peek()
-	local bufs = M.list()
-	if #bufs == 0 then return end
-	local lines, hls, width = peek_lines(bufs)
+	local items = entries()
+	if #items == 0 then return end
+	local lines, hls, width = peek_lines(items)
 	if not (peek_buf and vim.api.nvim_buf_is_valid(peek_buf)) then
 		peek_buf = vim.api.nvim_create_buf(false, true)
 		vim.bo[peek_buf].bufhidden = "wipe"
@@ -129,6 +159,17 @@ function M.peek()
 	vim.on_key(function(key, typed)
 		if peek_keys[typed ~= "" and typed or key] then return end
 		peek_close()
+		-- Landed in a terminal: go back to typing. The closing key is
+		-- swallowed so it does not run as a normal-mode command first.
+		-- startinsert is deferred: issued from inside on_key it only takes
+		-- effect after the NEXT normal command, which would drop the cursor
+		-- into the shell right after the next <S-j>/<S-k> opened the popup.
+		if in_terminal() then
+			vim.schedule(function()
+				if in_terminal() then vim.cmd("startinsert") end
+			end)
+			return ""
+		end
 	end, PEEK_NS)
 end
 
@@ -187,6 +228,21 @@ end
 function M.cycle(dir)
 	if not (peek_win and vim.api.nvim_win_is_valid(peek_win)) then
 		M.peek()
+		return
+	end
+	if in_terminal() then
+		-- Terminal window: walk the Term slots, focusing the chosen one in
+		-- normal mode (its window is opened if hidden). The popup follows.
+		local terms = require("utils.terms")
+		local slots = terms.slots()
+		local cur = vim.api.nvim_get_current_buf()
+		for i, slot in ipairs(slots) do
+			if slot.buf == cur then
+				if #slots > 1 then terms.focus(slots[(i - 1 + dir) % #slots + 1].n) end
+				M.peek()
+				return
+			end
+		end
 		return
 	end
 	local bufs = M.list()

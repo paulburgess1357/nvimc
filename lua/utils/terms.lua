@@ -414,7 +414,7 @@ local function setup_term_buf(n, buf)
 		if w then pcall(vim.api.nvim_win_close, w, false) end
 	end, { buffer = buf })
 	vim.keymap.set("n", "<Esc>", "<cmd>wincmd t<CR>", { buffer = buf })
-	for _, key in ipairs({ "<S-j>", "<S-k>", "<leader>-", "<leader>|" }) do
+	for _, key in ipairs({ "<leader>-", "<leader>|" }) do
 		vim.keymap.set("n", key, "<nop>", { buffer = buf })
 	end
 	-- Ctrl+h/j/k/l move windows and Alt+h/j/k/l resize them even while
@@ -686,6 +686,41 @@ local function send_lines_to_term(lines, n)
 	end
 	-- A freshly spawned shell needs a moment before it reads its input.
 	if created then vim.defer_fn(send, 200) else send() end
+end
+
+-----------------------------------------------------------
+-- Slot list for the buffer peek popup (utils.buftabs): in a terminal window
+-- <S-j>/<S-k> walk the terminals instead of the files.
+-----------------------------------------------------------
+-- Live slots in ascending order: { n, buf, label, visible }. The label is
+-- "Term<n> (name) · title", with the same title filter as the winbar.
+function M.slots()
+	local out = {}
+	for n = 1, 10 do
+		local buf = term_bufs[n]
+		if buf and vim.api.nvim_buf_is_valid(buf) then
+			local label = "Term" .. n .. (term_names[n] and (" (" .. term_names[n] .. ")") or "")
+			local title = vim.b[buf].term_title or ""
+			if title ~= "" and not title:match("^term://") and not title:match("^[^@%s]+@[^:%s]+:") then
+				label = label .. " · " .. title
+			end
+			out[#out + 1] = { n = n, buf = buf, label = label, visible = find_buf_win(buf) ~= nil }
+		end
+	end
+	return out
+end
+
+-- Slot number of a terminal buffer, nil if it is not a Term<n>.
+function M.slot_of(buf)
+	for n, b in pairs(term_bufs) do
+		if b == buf then return n end
+	end
+end
+
+-- Put the cursor in Term<n>, opening it in its slot if hidden. Normal mode;
+-- the caller decides when to start insert.
+function M.focus(n)
+	ensure_term(n)
 end
 
 -----------------------------------------------------------
