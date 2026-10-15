@@ -20,13 +20,22 @@ if theme == "onedark" then
 		-- row visible via a bold, accented line number instead of a bg slab.
 		CursorLineNr = { fg = "$orange", fmt = "bold" },
 
+		-- One look for every float: grey border (onedark's FloatBorder), cyan
+		-- bold title (mini.files' focused title), and a $bg2 slab on the
+		-- selected row (mini.files' cursor line). Applied to fzf-lua, blink,
+		-- noice/which-key (FloatTitle, PmenuSel) and snacks below.
+		FloatTitle = { fg = "$cyan", fmt = "bold" },
+		PmenuSel = { fg = "none", bg = "$bg2" },
+		BlinkCmpMenuSelection = { bg = "$bg2" },
+		SnacksPickerTitle = { fg = "$cyan", fmt = "bold" },
+
 		-- fzf-lua (onedark has no native support)
 		FzfLuaNormal = { bg = transparent and "none" or "$bg_d" },
-		FzfLuaBorder = { fg = "$cyan", bg = transparent and "none" or "$bg_d" },
-		FzfLuaTitle = { fg = "$red", fmt = "bold" },
+		FzfLuaBorder = { fg = "$grey", bg = transparent and "none" or "$bg_d" },
+		FzfLuaTitle = { fg = "$cyan", fmt = "bold" },
 		FzfLuaPreviewNormal = { bg = transparent and "none" or "$bg_d" },
-		FzfLuaPreviewBorder = { fg = "$cyan", bg = transparent and "none" or "$bg_d" },
-		FzfLuaPreviewTitle = { fg = "$red", fmt = "bold" },
+		FzfLuaPreviewBorder = { fg = "$grey", bg = transparent and "none" or "$bg_d" },
+		FzfLuaPreviewTitle = { fg = "$cyan", fmt = "bold" },
 		FzfLuaCursorLine = { bg = "$bg2" },
 		FzfLuaFzfMatch = { fg = "$orange", fmt = "bold" },
 		FzfLuaHeaderText = { fg = "$purple" },
