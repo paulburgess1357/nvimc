@@ -104,6 +104,20 @@ Snacks.toggle({
 	end,
 }):map("<leader><leader>k")
 
+-- Buffer peek popup (utils.buftabs): always show parent/file instead of
+-- only when two files share a name.
+local buftabs = require("utils.buftabs")
+Snacks.toggle({
+	name = "Buffer Parent Dir",
+	wk_desc = static_desc,
+	get = function()
+		return buftabs.show_parent
+	end,
+	set = function(state)
+		buftabs.show_parent = state
+	end,
+}):map("<leader><leader>p")
+
 -- Search root for every directory-scoped fzf picker (see utils.search_root):
 -- cycles working directory -> project root -> file directory. Session-only.
 local search_root = require("utils.search_root")

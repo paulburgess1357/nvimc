@@ -30,15 +30,52 @@ local function peek_close()
 	peek_win = nil
 end
 
+-- Always show "parent/tail" in the popup, not only on collisions.
+-- Toggle: <leader><leader>p (plugin/ui/whichkey.lua).
+M.show_parent = false
+
+-- Display names: the file's tail (or "parent/tail" with M.show_parent), with
+-- more parents added when several buffers share a name, until they differ.
+local function peek_names(bufs)
+	local paths, parts, names = {}, {}, {}
+	for i, buf in ipairs(bufs) do
+		paths[i] = vim.api.nvim_buf_get_name(buf)
+		parts[i] = vim.split(paths[i], "/", { trimempty = true })
+		names[i] = parts[i][#parts[i]] or "[No Name]"
+	end
+	local function widen(i, depth)
+		if #parts[i] > depth then
+			names[i] = table.concat(parts[i], "/", #parts[i] - depth)
+			return true
+		end
+	end
+	local depth = 0
+	if M.show_parent then
+		depth = 1
+		for i in ipairs(bufs) do widen(i, depth) end
+	end
+	for _ = 1, 10 do
+		depth = depth + 1
+		local count = {}
+		for _, n in ipairs(names) do count[n] = (count[n] or 0) + 1 end
+		local changed = false
+		for i, n in ipairs(names) do
+			if count[n] > 1 and widen(i, depth) then changed = true end
+		end
+		if not changed then break end
+	end
+	return names
+end
+
 -- Lines and per-line highlight spans for the popup.
 local function peek_lines(bufs)
 	local cur = vim.api.nvim_get_current_buf()
 	local ok, devicons = pcall(require, "nvim-web-devicons")
 	local lines, hls, width = {}, {}, 1
+	local names = peek_names(bufs)
 	for i, buf in ipairs(bufs) do
 		local path = vim.api.nvim_buf_get_name(buf)
-		local name = vim.fn.fnamemodify(path, ":t")
-		if name == "" then name = "[No Name]" end
+		local name = names[i]
 		local icon, icon_hl = "", nil
 		if ok then icon, icon_hl = devicons.get_icon(name, vim.fn.fnamemodify(path, ":e"), { default = true }) end
 		local prefix = " " .. (icon or "") .. " "
@@ -144,8 +181,14 @@ local function current_index(bufs)
 	end
 end
 
--- Switch to the next (dir = 1) / previous (dir = -1) tab, wrapping at the ends.
+-- Switch to the next (dir = 1) / previous (dir = -1) tab, wrapping at the
+-- ends. The first press only opens the peek popup, so you can see the tabs
+-- before moving; presses while it is open switch.
 function M.cycle(dir)
+	if not (peek_win and vim.api.nvim_win_is_valid(peek_win)) then
+		M.peek()
+		return
+	end
 	local bufs = M.list()
 	local i = current_index(bufs)
 	if not i then
