@@ -27,20 +27,20 @@ require("blink.cmp").setup({
 	},
 	completion = {
 		menu = {
-			border = "rounded",
+			border = "single",
 		},
 		documentation = {
 			auto_show = true,
 			auto_show_delay_ms = 200,
 			window = {
-				border = "rounded",
+				border = "single",
 			},
 		},
 	},
 	signature = {
 		enabled = true,
 		window = {
-			border = "rounded",
+			border = "single",
 		},
 	},
 	fuzzy = {

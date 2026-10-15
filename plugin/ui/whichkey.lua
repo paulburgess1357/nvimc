@@ -6,7 +6,7 @@ wk.setup({
 	preset = "helix",
 	delay = 200,
 	win = {
-		border = "rounded",
+		border = "single",
 		padding = { 1, 2 },
 	},
 	spec = {

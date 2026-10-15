@@ -47,6 +47,15 @@ require("noice").setup({
 		inc_rename = true,
 		lsp_doc_border = true,
 	},
+	-- Square borders everywhere (noice and its lsp_doc_border preset default
+	-- to rounded); matches mini.files and the other floats.
+	views = {
+		cmdline_popup = { border = { style = "single" } },
+		cmdline_input = { border = { style = "single" } },
+		popup = { border = { style = "single" } },
+		confirm = { border = { style = "single" } },
+		hover = { border = { style = "single" } },
+	},
 })
 
 vim.keymap.set("n", "<leader>n", function()

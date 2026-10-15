@@ -31,9 +31,10 @@ fzf.setup({
 	winopts = {
 		height = 0.85,
 		width = 0.80,
+		border = "single",
 		preview = {
 			default = "builtin",
-			border = "border",
+			border = "single",
 			wrap = "nowrap",
 			hidden = "nohidden",
 			vertical = "down:45%",

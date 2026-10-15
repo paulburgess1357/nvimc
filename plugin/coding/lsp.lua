@@ -85,7 +85,7 @@ vim.diagnostic.config({
 	underline = true,
 	update_in_insert = false,
 	virtual_text = false,
-	float = { source = true, border = "rounded", focusable = false },
+	float = { source = true, border = "single", focusable = false },
 	severity_sort = true,
 })
 
@@ -124,7 +124,7 @@ vim.keymap.set("n", "gl", function()
 	local bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
 	local fg = vim.api.nvim_get_hl(0, { name = severity_hl[highest] }).fg
 	vim.api.nvim_set_hl(0, "FloatBorder", { fg = fg, bg = bg })
-	vim.diagnostic.open_float({ scope = "line", border = "rounded" })
+	vim.diagnostic.open_float({ scope = "line", border = "single" })
 end, { desc = "Line diagnostics" })
 
 vim.api.nvim_create_autocmd("LspAttach", {

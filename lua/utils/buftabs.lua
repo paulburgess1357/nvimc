@@ -146,7 +146,7 @@ function M.peek()
 		width = width,
 		height = #lines,
 		style = "minimal",
-		border = "rounded",
+		border = "single",
 		focusable = false,
 		zindex = 60,
 	}
