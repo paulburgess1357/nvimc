@@ -1,4 +1,6 @@
-local cfg = require("config.plugins").whichkey or {}
+local plugins = require("config.plugins")
+local cfg = plugins.whichkey or {}
+local border = (plugins.settings or {}).border or "single"
 if cfg.enabled == false then return end
 
 local wk = require("which-key")
@@ -6,7 +8,7 @@ wk.setup({
 	preset = "helix",
 	delay = 200,
 	win = {
-		border = "single",
+		border = border,
 		padding = { 1, 2 },
 	},
 	spec = {

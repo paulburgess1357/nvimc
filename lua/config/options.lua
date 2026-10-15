@@ -32,7 +32,9 @@ vim.opt.signcolumn = "yes"
 vim.opt.cursorline = true
 vim.opt.showmode = false -- Hide native mode indicator (lualine shows it)
 vim.opt.cmdheight = 0 -- Hide command line (noice handles it in a popup)
-vim.opt.winborder = "single" -- Square borders on every float (plugins that set their own are set to single too)
+-- Float border for everything (settings.border in plugins.lua). Plugins that
+-- set their own border read the same setting.
+vim.opt.winborder = (require("config.plugins").settings or {}).border or "single"
 -- No tabline: file windows are named by their winbar (utils.winbar) and
 -- <S-h>/<S-l> show the buffer tabs in a popup (utils.buftabs). lualine has no
 -- tabline section, so it never turns this back on.

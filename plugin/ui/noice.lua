@@ -1,4 +1,6 @@
-local cfg = require("config.plugins").noice or {}
+local plugins = require("config.plugins")
+local cfg = plugins.noice or {}
+local border = (plugins.settings or {}).border or "single"
 if cfg.enabled == false then return end
 
 require("notify").setup({
@@ -47,14 +49,14 @@ require("noice").setup({
 		inc_rename = true,
 		lsp_doc_border = true,
 	},
-	-- Square borders everywhere (noice and its lsp_doc_border preset default
-	-- to rounded); matches mini.files and the other floats.
+	-- settings.border on every bordered view (noice and its lsp_doc_border
+	-- preset default to rounded regardless of 'winborder').
 	views = {
-		cmdline_popup = { border = { style = "single" } },
-		cmdline_input = { border = { style = "single" } },
-		popup = { border = { style = "single" } },
-		confirm = { border = { style = "single" } },
-		hover = { border = { style = "single" } },
+		cmdline_popup = { border = { style = border } },
+		cmdline_input = { border = { style = border } },
+		popup = { border = { style = border } },
+		confirm = { border = { style = border } },
+		hover = { border = { style = border } },
 	},
 })
 

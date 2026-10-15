@@ -146,7 +146,7 @@ function M.peek()
 		width = width,
 		height = #lines,
 		style = "minimal",
-		border = "single",
+		border = (require("config.plugins").settings or {}).border or "single",
 		focusable = false,
 		zindex = 60,
 	}

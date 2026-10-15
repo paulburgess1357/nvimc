@@ -1,4 +1,6 @@
-local cfg = require("config.plugins").fzf or {}
+local plugins = require("config.plugins")
+local cfg = plugins.fzf or {}
+local border = (plugins.settings or {}).border or "single"
 if cfg.enabled == false then return end
 
 local fzf = require("fzf-lua")
@@ -31,10 +33,10 @@ fzf.setup({
 	winopts = {
 		height = 0.85,
 		width = 0.80,
-		border = "single",
+		border = border,
 		preview = {
 			default = "builtin",
-			border = "single",
+			border = border,
 			wrap = "nowrap",
 			hidden = "nohidden",
 			vertical = "down:45%",

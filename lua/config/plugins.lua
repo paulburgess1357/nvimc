@@ -14,6 +14,10 @@ return {
 		aerial_max_lines = 50000, -- Disable aerial for files with more lines
 		cppcheck = false, -- Enable cppcheck for C/C++ linting (requires nvim-lint)
 		send_term = 1, -- Term<n> (1-10) that <F9> / :TermRun pastes into
+		-- Border for every float (pickers, completion, hover, which-key, noice,
+		-- buffer popup, 'winborder'). Valid: "single" (square), "rounded",
+		-- "double", "bold", "solid", "shadow", "none"
+		border = "single",
 	},
 
 	-- Coding

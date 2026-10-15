@@ -1,4 +1,5 @@
 local plugins = require("config.plugins")
+local border = (plugins.settings or {}).border or "single"
 local lsp_cfg = plugins.lsp or {}
 local mason_cfg = plugins.mason or {}
 if lsp_cfg.enabled == false then return end
@@ -85,7 +86,7 @@ vim.diagnostic.config({
 	underline = true,
 	update_in_insert = false,
 	virtual_text = false,
-	float = { source = true, border = "single", focusable = false },
+	float = { source = true, border = border, focusable = false },
 	severity_sort = true,
 })
 
@@ -124,7 +125,7 @@ vim.keymap.set("n", "gl", function()
 	local bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
 	local fg = vim.api.nvim_get_hl(0, { name = severity_hl[highest] }).fg
 	vim.api.nvim_set_hl(0, "FloatBorder", { fg = fg, bg = bg })
-	vim.diagnostic.open_float({ scope = "line", border = "single" })
+	vim.diagnostic.open_float({ scope = "line", border = border })
 end, { desc = "Line diagnostics" })
 
 vim.api.nvim_create_autocmd("LspAttach", {
