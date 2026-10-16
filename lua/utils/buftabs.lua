@@ -21,12 +21,79 @@ local order = {}
 -- unlike toggling the tabline, does not shift the layout.
 -----------------------------------------------------------
 local PEEK_NS = vim.api.nvim_create_namespace("buftabs_peek")
-local peek_buf, peek_win
+local peek_buf, peek_win, preview_win
 local peek_items, peek_sel -- entries shown, index of the highlighted one
 
 local function peek_close()
-	if peek_win and vim.api.nvim_win_is_valid(peek_win) then vim.api.nvim_win_close(peek_win, true) end
-	peek_win, peek_items, peek_sel = nil, nil, nil
+	for _, w in ipairs({ preview_win, peek_win }) do
+		if w and vim.api.nvim_win_is_valid(w) then vim.api.nvim_win_close(w, true) end
+	end
+	peek_win, preview_win, peek_items, peek_sel = nil, nil, nil, nil
+end
+
+local function border()
+	return (require("config.plugins").settings or {}).border or "single"
+end
+
+-- Preview float to the right of the list, showing the highlighted entry's
+-- real buffer (syntax and all; a terminal shows its live output). Always on
+-- and sized like mini.files' preview: its windows.width_preview wide, as
+-- tall as the window allows. `list_width` is the list float's inner width.
+local function peek_preview(list_width)
+	local item = peek_items[peek_sel]
+	local buf = item and item.buf
+	if not (buf and vim.api.nvim_buf_is_valid(buf)) then
+		if preview_win and vim.api.nvim_win_is_valid(preview_win) then vim.api.nvim_win_close(preview_win, true) end
+		preview_win = nil
+		return
+	end
+	local win = vim.api.nvim_get_current_win()
+	local col = list_width + 3 -- list border (2) + gap (1)
+	local ok, mf = pcall(require, "mini.files")
+	local want = ok and mf.config.windows.width_preview or 100
+	local width = math.min(want, vim.api.nvim_win_get_width(win) - col - 2)
+	local height = vim.api.nvim_win_get_height(win) - 2 -- minus borders
+	if width < 10 or height < 3 then return end
+	local config = {
+		relative = "win",
+		win = win,
+		anchor = "NW",
+		row = 0,
+		col = col,
+		width = width,
+		height = height,
+		style = "minimal",
+		title = " " .. item.name .. " ",
+		title_pos = "left",
+		border = border(),
+		focusable = false,
+		zindex = 60,
+	}
+	if preview_win and vim.api.nvim_win_is_valid(preview_win) then
+		if vim.api.nvim_win_get_buf(preview_win) ~= buf then vim.api.nvim_win_set_buf(preview_win, buf) end
+		vim.api.nvim_win_set_config(preview_win, config)
+	else
+		preview_win = vim.api.nvim_open_win(buf, false, config)
+	end
+	vim.wo[preview_win].winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder"
+	vim.wo[preview_win].winbar = "" -- utils.terms puts its Term<n> winbar on any window showing the buffer
+	vim.wo[preview_win].cursorline = true
+	local last = vim.api.nvim_buf_line_count(buf)
+	if item.slot then
+		-- Terminal: history filling the preview, latest output at the bottom.
+		-- The buffer ends in blank padding rows, so find the last real line.
+		local line = last
+		while line > 1 and vim.api.nvim_buf_get_lines(buf, line - 1, line, false)[1]:match("^%s*$") do
+			line = line - 1
+		end
+		vim.api.nvim_win_set_cursor(preview_win, { line, 0 })
+		vim.api.nvim_win_call(preview_win, function() vim.cmd("normal! zb") end)
+	else
+		-- File: centered on its last cursor position.
+		local line = math.max(1, math.min(vim.api.nvim_buf_get_mark(buf, '"')[1], last))
+		vim.api.nvim_win_set_cursor(preview_win, { line, 0 })
+		vim.api.nvim_win_call(preview_win, function() vim.cmd("normal! zz") end)
+	end
 end
 
 local function in_terminal()
@@ -93,7 +160,7 @@ local function term_entries()
 	local cur = vim.api.nvim_get_current_buf()
 	local out = {}
 	for i, slot in ipairs(require("utils.terms").slots()) do
-		out[i] = { slot = slot.n, name = slot.label, icon = "", current = slot.buf == cur }
+		out[i] = { slot = slot.n, buf = slot.buf, name = slot.label, icon = "", current = slot.buf == cur }
 	end
 	return out
 end
@@ -120,6 +187,8 @@ end
 -- Draw (or redraw) the popup from peek_all, applying the filter. The
 -- highlight goes to the first match while filtering.
 local peek_all, peek_filter -- every entry; filter text (nil = not filtering)
+
+local peek_list_width
 
 local function peek_render()
 	local items = peek_all
@@ -158,7 +227,7 @@ local function peek_render()
 		style = "minimal",
 		title = title,
 		title_pos = "left",
-		border = (require("config.plugins").settings or {}).border or "single",
+		border = border(),
 		focusable = false,
 		zindex = 60,
 	}
@@ -170,6 +239,8 @@ local function peek_render()
 		vim.wo[peek_win].cursorline = true
 	end
 	vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
+	peek_list_width = width
+	peek_preview(width)
 end
 
 -- Open the popup and read keys until a choice or a cancel. Keys come from
@@ -202,6 +273,7 @@ function M.peek()
 			if #peek_items > 0 then
 				peek_sel = (peek_sel - 1 + move) % #peek_items + 1
 				vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
+				peek_preview(peek_list_width)
 			end
 		elseif name == "<CR>" or name == "<S-CR>" or name == "<NL>" then
 			chosen = peek_items[peek_sel]
