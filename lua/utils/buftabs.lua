@@ -23,14 +23,12 @@ local order = {}
 local PEEK_NS = vim.api.nvim_create_namespace("buftabs_peek")
 local peek_buf, peek_win, preview_win
 local peek_items, peek_sel -- entries shown, index of the highlighted one
-local peek_search -- { text, dir (1 forward, -1 backward), typing, from } or nil; see the search section
-local peek_list_width -- inner width of the list float
 
 local function peek_close()
 	for _, w in ipairs({ preview_win, peek_win }) do
 		if w and vim.api.nvim_win_is_valid(w) then vim.api.nvim_win_close(w, true) end
 	end
-	peek_win, preview_win, peek_items, peek_sel, peek_search, peek_list_width = nil, nil, nil, nil, nil, nil
+	peek_win, preview_win, peek_items, peek_sel = nil, nil, nil, nil
 end
 
 local function border()
@@ -71,18 +69,10 @@ local function peek_preview(list_width)
 		focusable = false,
 		zindex = 60,
 	}
-	-- Showing a buffer here is not entering it: skip the autocmds (checktime
-	-- on BufEnter, the winbar and Term<n> BufWinEnter hooks) that a visit runs.
 	if preview_win and vim.api.nvim_win_is_valid(preview_win) then
-		if vim.api.nvim_win_get_buf(preview_win) ~= buf then
-			local ei = vim.o.eventignore
-			vim.o.eventignore = "all"
-			pcall(vim.api.nvim_win_set_buf, preview_win, buf)
-			vim.o.eventignore = ei
-		end
+		if vim.api.nvim_win_get_buf(preview_win) ~= buf then vim.api.nvim_win_set_buf(preview_win, buf) end
 		vim.api.nvim_win_set_config(preview_win, config)
 	else
-		config.noautocmd = true
 		preview_win = vim.api.nvim_open_win(buf, false, config)
 	end
 	vim.wo[preview_win].winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder"
@@ -200,6 +190,9 @@ end
 -- match as you type, like 'incsearch'. <CR> keeps it there, <Esc> goes back
 -- to where you were, and n/N then step through the matches, which stay
 -- highlighted (Search, CurSearch on the highlighted entry) like 'hlsearch'.
+local peek_search -- { text, dir (1 forward, -1 backward), typing, from } or nil
+local peek_list_width
+
 -- Byte span of the pattern in the entry's name, or nil.
 local function match_at(item, pat)
 	if pat == "" then return nil end
