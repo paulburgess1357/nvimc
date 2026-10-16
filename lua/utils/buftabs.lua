@@ -15,22 +15,16 @@ local order = {}
 -- listing the tabs in order (the Term slots in a terminal window), the
 -- current one on a highlighted line like mini.files. It is modal: <S-j>/<S-k>
 -- move the highlight, <CR>/<S-CR>/l/L switch to the highlighted entry,
--- <Esc>/q cancel,
--- and every other key is swallowed. Nothing changes until <CR>, so browsing
--- terminals does not move focus or open hidden slots. A float, unlike
--- toggling the tabline, does not shift the layout.
+-- <Esc>/q cancel, / filters by substring (then only <CR>/<S-CR>/<Esc> act),
+-- and every other key is swallowed. Nothing changes until you choose, so
+-- browsing terminals does not move focus or open hidden slots. A float,
+-- unlike toggling the tabline, does not shift the layout.
 -----------------------------------------------------------
 local PEEK_NS = vim.api.nvim_create_namespace("buftabs_peek")
-local peek_keys = {}
-for _, k in ipairs({ "<S-j>", "<S-k>" }) do
-	peek_keys[vim.keycode(k)] = true
-end
-local KEY_CR, KEY_ESC = vim.keycode("<CR>"), vim.keycode("<Esc>")
 local peek_buf, peek_win
 local peek_items, peek_sel -- entries shown, index of the highlighted one
 
 local function peek_close()
-	vim.on_key(nil, PEEK_NS)
 	if peek_win and vim.api.nvim_win_is_valid(peek_win) then vim.api.nvim_win_close(peek_win, true) end
 	peek_win, peek_items, peek_sel = nil, nil, nil
 end
@@ -123,18 +117,27 @@ local function peek_lines(items)
 	return lines, hls, width
 end
 
-function M.peek()
-	local items = entries()
-	if #items == 0 then return end
+-- Draw (or redraw) the popup from peek_all, applying the filter. The
+-- highlight goes to the first match while filtering.
+local peek_all, peek_filter -- every entry; filter text (nil = not filtering)
+
+local function peek_render()
+	local items = peek_all
+	if peek_filter then
+		items = {}
+		local pat = peek_filter:lower()
+		for _, item in ipairs(peek_all) do
+			if item.name:lower():find(pat, 1, true) then items[#items + 1] = item end
+		end
+	end
+	peek_items = items
+	if peek_sel > #items then peek_sel = math.max(1, #items) end
 	local lines, hls, width = peek_lines(items)
+	if #lines == 0 then lines, width = { " (no match) " }, 12 end
 	-- Titled like mini.files (FloatTitle, left, padded); never narrower than
 	-- the title, which is wider than a short list of Term<n> entries.
-	local title = in_terminal() and " Terminals " or " Buffers "
+	local title = (in_terminal() and " Terminals" or " Buffers") .. (peek_filter and (" /" .. peek_filter) or "") .. " "
 	width = math.max(width, vim.fn.strdisplaywidth(title))
-	if not (peek_buf and vim.api.nvim_buf_is_valid(peek_buf)) then
-		peek_buf = vim.api.nvim_create_buf(false, true)
-		vim.bo[peek_buf].bufhidden = "wipe"
-	end
 	vim.api.nvim_buf_set_lines(peek_buf, 0, -1, false, lines)
 	vim.api.nvim_buf_clear_namespace(peek_buf, PEEK_NS, 0, -1)
 	for i, spans in ipairs(hls) do
@@ -159,31 +162,81 @@ function M.peek()
 		focusable = false,
 		zindex = 60,
 	}
-	peek_items, peek_sel = items, 1
+	if peek_win and vim.api.nvim_win_is_valid(peek_win) then
+		vim.api.nvim_win_set_config(peek_win, config)
+	else
+		peek_win = vim.api.nvim_open_win(peek_buf, false, config)
+		vim.wo[peek_win].winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:MiniFilesCursorLine"
+		vim.wo[peek_win].cursorline = true
+	end
+	vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
+end
+
+-- Open the popup and read keys until a choice or a cancel. Keys come from
+-- getcharstr(), which bypasses mappings: with on_key the / and n maps in
+-- keymaps.lua (literal search, nzzzv) fired underneath the popup.
+function M.peek()
+	local items = entries()
+	if #items == 0 then return end
+	if not (peek_buf and vim.api.nvim_buf_is_valid(peek_buf)) then
+		peek_buf = vim.api.nvim_create_buf(false, true)
+		vim.bo[peek_buf].bufhidden = "wipe"
+	end
+	peek_all, peek_filter, peek_sel = items, nil, 1
 	for i, item in ipairs(items) do
 		if item.current then peek_sel = i end
 	end
-	peek_win = vim.api.nvim_open_win(peek_buf, false, config)
-	vim.wo[peek_win].winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:MiniFilesCursorLine"
-	vim.wo[peek_win].cursorline = true
-	vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
-	vim.on_key(function(key, typed)
-		local k = typed ~= "" and typed or key
-		if peek_keys[k] then return end -- <S-j>/<S-k>: the maps move the highlight
-		-- L and <S-CR>: still holding Shift from <S-j>/<S-k>. Shift+Enter only
-		-- arrives as its own key in terminals that report it (kitty does);
-		-- elsewhere it is a plain <CR>, which is handled anyway.
-		if k == KEY_CR or k == "l" or k == "L" or vim.fn.keytrans(k) == "<S-CR>" then
-			local chosen = peek_items[peek_sel]
-			peek_close()
-			vim.schedule(function() M.switch_to(chosen) end)
-		elseif k == KEY_ESC or k == "q" then
-			peek_close()
-			-- A terminal was in normal mode for the popup: back to typing.
-			if in_terminal() then vim.schedule(function() vim.cmd("startinsert") end) end
+	peek_render()
+
+	local chosen
+	while true do
+		vim.cmd.redraw()
+		local ok, k = pcall(vim.fn.getcharstr)
+		if not ok then break end -- <C-c>
+		local name = vim.fn.keytrans(k)
+		-- J/K and <S-CR>: Shift is still held from <S-j>/<S-k>. Shift+Enter is
+		-- its own key only in terminals that report it (kitty); elsewhere it
+		-- is a plain <CR>, which is handled anyway.
+		if k == "J" or k == "K" or name == "<S-J>" or name == "<S-K>" then
+			if #peek_items > 0 then
+				peek_sel = (peek_sel - 1 + (k == "J" and 1 or -1)) % #peek_items + 1
+				vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
+			end
+		elseif name == "<CR>" or name == "<S-CR>" or name == "<NL>" then
+			chosen = peek_items[peek_sel]
+			break
+		elseif name == "<Esc>" then
+			break
+		elseif peek_filter then
+			-- Filtering (after /): typed characters narrow the list by plain
+			-- substring, <BS> deletes; deleting past the start leaves filtering.
+			if name == "<BS>" then
+				peek_filter = peek_filter ~= "" and peek_filter:sub(1, -2) or nil
+				peek_sel = 1
+				peek_render()
+			elseif #k == 1 and k:match("[%g ]") then
+				peek_filter = peek_filter .. k
+				peek_sel = 1
+				peek_render()
+			end
+		elseif k == "/" then
+			peek_filter, peek_sel = "", 1
+			peek_render()
+		elseif k == "l" or k == "L" then -- L: still holding Shift
+			chosen = peek_items[peek_sel]
+			break
+		elseif k == "q" then
+			break
 		end
-		return "" -- modal: nothing else reaches the window underneath
-	end, PEEK_NS)
+		-- anything else: swallowed (modal)
+	end
+	peek_close()
+	if chosen then
+		M.switch_to(chosen)
+	elseif in_terminal() then
+		-- The terminal was in normal mode for the popup: back to typing.
+		vim.cmd("startinsert")
+	end
 end
 
 -- Go to a popup entry: a file switches the current window's buffer, a Term
@@ -240,15 +293,9 @@ function M.restore(names)
 	M.list()
 end
 
--- <S-j> (dir = 1) / <S-k> (dir = -1): open the popup, or move its highlight
--- (wrapping at the ends). Switching happens on <CR> (see M.peek).
-function M.cycle(dir)
-	if not (peek_win and vim.api.nvim_win_is_valid(peek_win)) then
-		M.peek()
-		return
-	end
-	peek_sel = (peek_sel - 1 + dir) % #peek_items + 1
-	vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
+-- <S-j> / <S-k> open the popup (M.peek reads all further keys itself).
+function M.cycle()
+	M.peek()
 end
 
 return M
