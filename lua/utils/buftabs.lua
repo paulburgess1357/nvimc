@@ -13,8 +13,8 @@ local order = {}
 -- Peek popup. There is no tabline (showtabline=0 in options.lua), so
 -- <S-j>/<S-k> pop a small float at the top left of the current window
 -- listing the tabs in order (the Term slots in a terminal window), the
--- current one on a highlighted line like mini.files. It is modal: <S-j>/<S-k>
--- move the highlight, <CR>/<S-CR>/l/L switch to the highlighted entry,
+-- current one on a highlighted line like mini.files. It is modal: j/k (or
+-- <S-j>/<S-k>) move the highlight, <CR>/<S-CR>/l/L switch to the highlighted entry,
 -- <Esc>/q cancel, / filters by substring (then only <CR>/<S-CR>/<Esc> act),
 -- and every other key is swallowed. Nothing changes until you choose, so
 -- browsing terminals does not move focus or open hidden slots. A float,
@@ -194,12 +194,13 @@ function M.peek()
 		local ok, k = pcall(vim.fn.getcharstr)
 		if not ok then break end -- <C-c>
 		local name = vim.fn.keytrans(k)
-		-- J/K and <S-CR>: Shift is still held from <S-j>/<S-k>. Shift+Enter is
-		-- its own key only in terminals that report it (kitty); elsewhere it
-		-- is a plain <CR>, which is handled anyway.
-		if k == "J" or k == "K" or name == "<S-J>" or name == "<S-K>" then
+		-- j/k move; J/K too since Shift is still held from <S-j>/<S-k> (while
+		-- filtering j/k are text). <S-CR> is its own key only in terminals
+		-- that report it (kitty); elsewhere it is a plain <CR>, handled anyway.
+		local move = ({ J = 1, K = -1 })[k] or (not peek_filter and ({ j = 1, k = -1 })[k])
+		if move then
 			if #peek_items > 0 then
-				peek_sel = (peek_sel - 1 + (k == "J" and 1 or -1)) % #peek_items + 1
+				peek_sel = (peek_sel - 1 + move) % #peek_items + 1
 				vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
 			end
 		elseif name == "<CR>" or name == "<S-CR>" or name == "<NL>" then
