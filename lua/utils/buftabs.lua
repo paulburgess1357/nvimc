@@ -10,24 +10,29 @@ local M = {}
 local order = {}
 
 -----------------------------------------------------------
--- Peek popup. There is no tabline (showtabline=0 in options.lua), so cycling
--- tabs pops a small float at the top left of the current window listing
--- the tabs in order, the current one on a highlighted line like mini.files.
--- It closes on the next key that is not one of the tab keys: Neovim never
--- sees key releases, so this is the closest thing to "while Shift is held".
--- A float, unlike toggling the tabline, does not shift the layout.
+-- Peek popup. There is no tabline (showtabline=0 in options.lua), so
+-- <S-j>/<S-k> pop a small float at the top left of the current window
+-- listing the tabs in order (the Term slots in a terminal window), the
+-- current one on a highlighted line like mini.files. It is modal: <S-j>/<S-k>
+-- move the highlight, <CR>/<S-CR>/l/L switch to the highlighted entry,
+-- <Esc>/q cancel,
+-- and every other key is swallowed. Nothing changes until <CR>, so browsing
+-- terminals does not move focus or open hidden slots. A float, unlike
+-- toggling the tabline, does not shift the layout.
 -----------------------------------------------------------
 local PEEK_NS = vim.api.nvim_create_namespace("buftabs_peek")
 local peek_keys = {}
 for _, k in ipairs({ "<S-j>", "<S-k>" }) do
 	peek_keys[vim.keycode(k)] = true
 end
+local KEY_CR, KEY_ESC = vim.keycode("<CR>"), vim.keycode("<Esc>")
 local peek_buf, peek_win
+local peek_items, peek_sel -- entries shown, index of the highlighted one
 
 local function peek_close()
 	vim.on_key(nil, PEEK_NS)
 	if peek_win and vim.api.nvim_win_is_valid(peek_win) then vim.api.nvim_win_close(peek_win, true) end
-	peek_win = nil
+	peek_win, peek_items, peek_sel = nil, nil, nil
 end
 
 local function in_terminal()
@@ -85,7 +90,7 @@ local function file_entries()
 		if ok then
 			icon, icon_hl = devicons.get_icon(names[i], vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":e"), { default = true })
 		end
-		out[i] = { name = names[i], icon = icon, icon_hl = icon_hl, modified = vim.bo[buf].modified, current = buf == cur }
+		out[i] = { buf = buf, name = names[i], icon = icon, icon_hl = icon_hl, modified = vim.bo[buf].modified, current = buf == cur }
 	end
 	return out
 end
@@ -94,7 +99,7 @@ local function term_entries()
 	local cur = vim.api.nvim_get_current_buf()
 	local out = {}
 	for i, slot in ipairs(require("utils.terms").slots()) do
-		out[i] = { name = slot.label, icon = "", current = slot.buf == cur }
+		out[i] = { slot = slot.n, name = slot.label, icon = "", current = slot.buf == cur }
 	end
 	return out
 end
@@ -154,34 +159,43 @@ function M.peek()
 		focusable = false,
 		zindex = 60,
 	}
-	local current = 1
+	peek_items, peek_sel = items, 1
 	for i, item in ipairs(items) do
-		if item.current then current = i end
-	end
-	if peek_win and vim.api.nvim_win_is_valid(peek_win) then
-		vim.api.nvim_win_set_config(peek_win, config)
-		vim.api.nvim_win_set_cursor(peek_win, { current, 0 })
-		return
+		if item.current then peek_sel = i end
 	end
 	peek_win = vim.api.nvim_open_win(peek_buf, false, config)
 	vim.wo[peek_win].winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:MiniFilesCursorLine"
 	vim.wo[peek_win].cursorline = true
-	vim.api.nvim_win_set_cursor(peek_win, { current, 0 })
+	vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
 	vim.on_key(function(key, typed)
-		if peek_keys[typed ~= "" and typed or key] then return end
-		peek_close()
-		-- Landed in a terminal: go back to typing. The closing key is
-		-- swallowed so it does not run as a normal-mode command first.
-		-- startinsert is deferred: issued from inside on_key it only takes
-		-- effect after the NEXT normal command, which would drop the cursor
-		-- into the shell right after the next <S-j>/<S-k> opened the popup.
-		if in_terminal() then
-			vim.schedule(function()
-				if in_terminal() then vim.cmd("startinsert") end
-			end)
-			return ""
+		local k = typed ~= "" and typed or key
+		if peek_keys[k] then return end -- <S-j>/<S-k>: the maps move the highlight
+		-- L and <S-CR>: still holding Shift from <S-j>/<S-k>. Shift+Enter only
+		-- arrives as its own key in terminals that report it (kitty does);
+		-- elsewhere it is a plain <CR>, which is handled anyway.
+		if k == KEY_CR or k == "l" or k == "L" or vim.fn.keytrans(k) == "<S-CR>" then
+			local chosen = peek_items[peek_sel]
+			peek_close()
+			vim.schedule(function() M.switch_to(chosen) end)
+		elseif k == KEY_ESC or k == "q" then
+			peek_close()
+			-- A terminal was in normal mode for the popup: back to typing.
+			if in_terminal() then vim.schedule(function() vim.cmd("startinsert") end) end
 		end
+		return "" -- modal: nothing else reaches the window underneath
 	end, PEEK_NS)
+end
+
+-- Go to a popup entry: a file switches the current window's buffer, a Term
+-- slot focuses its window (opened if hidden) and starts typing there.
+function M.switch_to(item)
+	if not item then return end
+	if item.slot then
+		require("utils.terms").focus(item.slot)
+		vim.cmd("startinsert")
+	elseif item.buf and vim.api.nvim_buf_is_valid(item.buf) then
+		vim.api.nvim_set_current_buf(item.buf)
+	end
 end
 
 local function is_tab(buf)
@@ -226,47 +240,15 @@ function M.restore(names)
 	M.list()
 end
 
-local function current_index(bufs)
-	local cur = vim.api.nvim_get_current_buf()
-	for i, buf in ipairs(bufs) do
-		if buf == cur then return i end
-	end
-end
-
--- Switch to the next (dir = 1) / previous (dir = -1) tab, wrapping at the
--- ends. The first press only opens the peek popup, so you can see the tabs
--- before moving; presses while it is open switch.
+-- <S-j> (dir = 1) / <S-k> (dir = -1): open the popup, or move its highlight
+-- (wrapping at the ends). Switching happens on <CR> (see M.peek).
 function M.cycle(dir)
 	if not (peek_win and vim.api.nvim_win_is_valid(peek_win)) then
 		M.peek()
 		return
 	end
-	if in_terminal() then
-		-- Terminal window: walk the Term slots, focusing the chosen one in
-		-- normal mode (its window is opened if hidden). The popup follows.
-		local terms = require("utils.terms")
-		local slots = terms.slots()
-		local cur = vim.api.nvim_get_current_buf()
-		for i, slot in ipairs(slots) do
-			if slot.buf == cur then
-				if #slots > 1 then terms.focus(slots[(i - 1 + dir) % #slots + 1].n) end
-				M.peek()
-				return
-			end
-		end
-		return
-	end
-	local bufs = M.list()
-	local i = current_index(bufs)
-	if not i then
-		-- Current buffer is not a tab (unlisted, e.g. help): plain cycling
-		vim.cmd(dir > 0 and "bnext" or "bprevious")
-		return
-	end
-	if #bufs > 1 then
-		vim.api.nvim_set_current_buf(bufs[(i - 1 + dir) % #bufs + 1])
-	end
-	M.peek()
+	peek_sel = (peek_sel - 1 + dir) % #peek_items + 1
+	vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
 end
 
 return M
