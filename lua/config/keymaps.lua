@@ -40,18 +40,13 @@ keymap.set("n", "<leader>-", "<cmd>split<CR>", { desc = "Split horizontally" })
 keymap.set("n", "<leader>|", "<cmd>vsplit<CR>", { desc = "Split vertically" })
 keymap.set("n", "<leader>wd", "<cmd>close<CR>", { desc = "Delete window" })
 
--- Buffer navigation: <S-k>/<S-j> cycle in tab order (utils.buftabs; k =
--- previous, matching the peek popup's top-to-bottom order), which differs
--- from :bnext/:bprevious buffer-number order once a tab has been moved.
+-- Buffer navigation: <S-k>/<S-j> open the buffer peek popup (utils.buftabs),
+-- which lists buffers in tab order and reads its own keys from there.
 -- This takes J (join: use gJ or :join) and K (LSP hover moved to gh in
 -- plugin/coding/lsp.lua).
 local buftabs = require("utils.buftabs")
-keymap.set("n", "<S-k>", function()
-	buftabs.cycle(-1)
-end, { desc = "Previous buffer" })
-keymap.set("n", "<S-j>", function()
-	buftabs.cycle(1)
-end, { desc = "Next buffer" })
+keymap.set("n", "<S-k>", buftabs.peek, { desc = "Buffer peek popup" })
+keymap.set("n", "<S-j>", buftabs.peek, { desc = "Buffer peek popup" })
 
 -- Buffer management
 keymap.set("n", "<leader>bd", function()

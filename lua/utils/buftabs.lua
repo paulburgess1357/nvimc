@@ -1,8 +1,8 @@
 local M = {}
 
 -- Buffer tabs without a tabline. This module keeps an ordered list of listed
--- buffers (open order, kept stable as buffers come and go): the <S-k>/<S-j>
--- cycle maps follow it, and the peek popup below shows it. The order lives
+-- buffers (open order, kept stable as buffers come and go) and the <S-k>/<S-j>
+-- peek popup below shows it. The order lives
 -- in memory; utils.session saves/restores it. In a terminal window the same
 -- keys walk the Term slots instead (utils.terms), from normal mode.
 
@@ -14,8 +14,8 @@ local order = {}
 -- <S-j>/<S-k> pop a small float at the top left of the current window
 -- listing the tabs in order (the Term slots in a terminal window), the
 -- current one on a highlighted line like mini.files. It is modal: j/k (or
--- <S-j>/<S-k>) move the highlight, <CR>/<S-CR>/l/L switch to the highlighted entry,
--- <Esc>/q cancel, / filters by substring (then only <CR>/<S-CR>/<Esc> act),
+-- <S-j>/<S-k>) and gg/G move the highlight, <CR>/<S-CR>/l/L switch to the
+-- highlighted entry, <Esc>/q cancel, / and ? search like Vim (then n/N),
 -- and every other key is swallowed. Nothing changes until you choose, so
 -- browsing terminals does not move focus or open hidden slots. A float,
 -- unlike toggling the tabline, does not shift the layout.
@@ -179,33 +179,50 @@ local function peek_lines(items)
 		-- Names in plain text; the current entry is marked by the cursor line
 		-- (MiniFilesCursorLine, the same look as mini.files), set in M.peek.
 		hls[i] = { { 1, #prefix - 1, item.icon_hl } }
+		item.name_col = #prefix -- byte offset of the name, for search highlights
 		width = math.max(width, vim.fn.strdisplaywidth(line))
 	end
 	return lines, hls, width
 end
 
--- Draw (or redraw) the popup from peek_all, applying the filter. The
--- highlight goes to the first match while filtering.
-local peek_all, peek_filter -- every entry; filter text (nil = not filtering)
-
+-- Vim-style search over the entries. / and ? read a pattern (plain text,
+-- 'ignorecase' and 'smartcase' honored); the highlight follows the first
+-- match as you type, like 'incsearch'. <CR> keeps it there, <Esc> goes back
+-- to where you were, and n/N then step through the matches, which stay
+-- highlighted (Search, CurSearch on the highlighted entry) like 'hlsearch'.
+local peek_search -- { text, dir (1 forward, -1 backward), typing, from } or nil
 local peek_list_width
 
-local function peek_render()
-	local items = peek_all
-	if peek_filter then
-		items = {}
-		local pat = peek_filter:lower()
-		for _, item in ipairs(peek_all) do
-			if item.name:lower():find(pat, 1, true) then items[#items + 1] = item end
-		end
+-- Byte span of the pattern in the entry's name, or nil.
+local function match_at(item, pat)
+	if pat == "" then return nil end
+	local name = item.name
+	if vim.o.ignorecase and not (vim.o.smartcase and pat:match("%u")) then
+		name, pat = name:lower(), pat:lower()
 	end
-	peek_items = items
-	if peek_sel > #items then peek_sel = math.max(1, #items) end
-	local lines, hls, width = peek_lines(items)
-	if #lines == 0 then lines, width = { " (no match) " }, 12 end
+	return name:find(pat, 1, true)
+end
+
+-- Index of the next matching entry after `from` in direction `dir`,
+-- wrapping around; `from` itself is tried last. nil when nothing matches.
+local function next_match(from, dir)
+	local n = #peek_items
+	for step = 1, n do
+		local i = (from - 1 + step * dir) % n + 1
+		if match_at(peek_items[i], peek_search.text) then return i end
+	end
+end
+
+-- Draw (or redraw) the popup: entries, search highlights, title, preview.
+local function peek_render()
+	local lines, hls, width = peek_lines(peek_items)
 	-- Titled like mini.files (FloatTitle, left, padded); never narrower than
-	-- the title, which is wider than a short list of Term<n> entries.
-	local title = (in_terminal() and " Terminals" or " Buffers") .. (peek_filter and (" /" .. peek_filter) or "") .. " "
+	-- the title, which is wider than a short list of Term<n> entries. A
+	-- search shows its pattern, with a _ while it is still being typed.
+	local title = (in_terminal() and " Terminals" or " Buffers") .. " "
+	if peek_search then
+		title = title .. (peek_search.dir == 1 and "/" or "?") .. peek_search.text .. (peek_search.typing and "_" or "") .. " "
+	end
 	width = math.max(width, vim.fn.strdisplaywidth(title))
 	vim.api.nvim_buf_set_lines(peek_buf, 0, -1, false, lines)
 	vim.api.nvim_buf_clear_namespace(peek_buf, PEEK_NS, 0, -1)
@@ -213,6 +230,17 @@ local function peek_render()
 		for _, span in ipairs(spans) do
 			if span[3] then
 				vim.api.nvim_buf_set_extmark(peek_buf, PEEK_NS, i - 1, span[1], { end_col = span[2], hl_group = span[3] })
+			end
+		end
+	end
+	if peek_search then
+		for i, item in ipairs(peek_items) do
+			local s, e = match_at(item, peek_search.text)
+			if s then
+				vim.api.nvim_buf_set_extmark(peek_buf, PEEK_NS, i - 1, item.name_col + s - 1, {
+					end_col = item.name_col + e,
+					hl_group = i == peek_sel and "CurSearch" or "Search",
+				})
 			end
 		end
 	end
@@ -243,6 +271,18 @@ local function peek_render()
 	peek_preview(width)
 end
 
+-- Move the highlight (wrapping) and redraw.
+local function peek_select(i)
+	peek_sel = (i - 1) % #peek_items + 1
+	peek_render()
+end
+
+-- Re-run the search being typed from where it started ('incsearch'): the
+-- highlight goes to the first match, or back to the start when none.
+local function peek_incsearch()
+	peek_select(next_match(peek_search.from, peek_search.dir) or peek_search.from)
+end
+
 -- Open the popup and read keys until a choice or a cancel. Keys come from
 -- getcharstr(), which bypasses mappings: with on_key the / and n maps in
 -- keymaps.lua (literal search, nzzzv) fired underneath the popup.
@@ -253,7 +293,7 @@ function M.peek()
 		peek_buf = vim.api.nvim_create_buf(false, true)
 		vim.bo[peek_buf].bufhidden = "wipe"
 	end
-	peek_all, peek_filter, peek_sel = items, nil, 1
+	peek_items, peek_search, peek_sel = items, nil, 1
 	for i, item in ipairs(items) do
 		if item.current then peek_sel = i end
 	end
@@ -265,40 +305,50 @@ function M.peek()
 		local ok, k = pcall(vim.fn.getcharstr)
 		if not ok then break end -- <C-c>
 		local name = vim.fn.keytrans(k)
-		-- j/k move; J/K too since Shift is still held from <S-j>/<S-k> (while
-		-- filtering j/k are text). <S-CR> is its own key only in terminals
-		-- that report it (kitty); elsewhere it is a plain <CR>, handled anyway.
-		local move = ({ J = 1, K = -1 })[k] or (not peek_filter and ({ j = 1, k = -1 })[k])
-		if move then
-			if #peek_items > 0 then
-				peek_sel = (peek_sel - 1 + move) % #peek_items + 1
-				vim.api.nvim_win_set_cursor(peek_win, { peek_sel, 0 })
-				peek_preview(peek_list_width)
-			end
-		elseif name == "<CR>" or name == "<S-CR>" or name == "<NL>" then
-			chosen = peek_items[peek_sel]
-			break
-		elseif name == "<Esc>" then
-			break
-		elseif peek_filter then
-			-- Filtering (after /): typed characters narrow the list by plain
-			-- substring, <BS> deletes; deleting past the start leaves filtering.
-			if name == "<BS>" then
-				peek_filter = peek_filter ~= "" and peek_filter:sub(1, -2) or nil
-				peek_sel = 1
+		local enter = name == "<CR>" or name == "<S-CR>" or name == "<NL>"
+		if peek_search and peek_search.typing then
+			-- Typing a pattern: as in Vim's / prompt, <CR> keeps the match,
+			-- <Esc> abandons the search, <BS> past an empty pattern too.
+			if enter then
+				peek_search.typing = false
+				if peek_search.text == "" then peek_search = nil end
 				peek_render()
+			elseif name == "<Esc>" then
+				local from = peek_search.from
+				peek_search = nil
+				peek_select(from)
+			elseif name == "<BS>" or name == "<C-H>" or name == "<Del>" then -- as Vim's prompt takes them
+				if peek_search.text == "" then
+					local from = peek_search.from
+					peek_search = nil
+					peek_select(from)
+				else
+					peek_search.text = peek_search.text:sub(1, -2)
+					peek_incsearch()
+				end
 			elseif #k == 1 and k:match("[%g ]") then
-				peek_filter = peek_filter .. k
-				peek_sel = 1
-				peek_render()
+				peek_search.text = peek_search.text .. k
+				peek_incsearch()
 			end
-		elseif k == "/" then
-			peek_filter, peek_sel = "", 1
+		elseif k == "j" or k == "J" then -- J/K: Shift still held from <S-j>/<S-k>
+			peek_select(peek_sel + 1)
+		elseif k == "k" or k == "K" then
+			peek_select(peek_sel - 1)
+		elseif k == "g" then
+			local ok2, k2 = pcall(vim.fn.getcharstr)
+			if ok2 and k2 == "g" then peek_select(1) end
+		elseif k == "G" then
+			peek_select(#peek_items)
+		elseif k == "/" or k == "?" then
+			peek_search = { text = "", dir = k == "/" and 1 or -1, typing = true, from = peek_sel }
 			peek_render()
-		elseif k == "l" or k == "L" then -- L: still holding Shift
+		elseif (k == "n" or k == "N") and peek_search then
+			local i = next_match(peek_sel, k == "n" and peek_search.dir or -peek_search.dir)
+			if i then peek_select(i) end
+		elseif enter or k == "l" or k == "L" then -- L: still holding Shift
 			chosen = peek_items[peek_sel]
 			break
-		elseif k == "q" then
+		elseif name == "<Esc>" or k == "q" then
 			break
 		end
 		-- anything else: swallowed (modal)
@@ -321,6 +371,14 @@ function M.switch_to(item)
 		vim.cmd("startinsert")
 	elseif item.buf and vim.api.nvim_buf_is_valid(item.buf) then
 		vim.api.nvim_set_current_buf(item.buf)
+		-- Switching with the API fires no CursorMoved, so vim-illuminate
+		-- would leave the highlights from the last visit until the next
+		-- key. Drop them and refresh once for the cursor as it is now.
+		local ok, hl = pcall(require, "illuminate.highlight")
+		if ok then
+			hl.buf_clear_references(item.buf)
+			require("illuminate.engine").refresh_references(item.buf, vim.api.nvim_get_current_win())
+		end
 	end
 end
 
@@ -364,11 +422,6 @@ function M.restore(names)
 		order[#order + 1] = by_name[name]
 	end
 	M.list()
-end
-
--- <S-j> / <S-k> open the popup (M.peek reads all further keys itself).
-function M.cycle()
-	M.peek()
 end
 
 return M
