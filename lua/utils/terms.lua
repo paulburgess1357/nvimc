@@ -403,10 +403,19 @@ end
 local function setup_term_buf(n, buf)
 	vim.bo[buf].buflisted = false
 	vim.wo.winbar = term_winbar(n)
-	-- The buffer gets a fresh window every time Term<n> is reopened.
+	-- The buffer gets a fresh window every time Term<n> is reopened. Neovim
+	-- sets its terminal window options only once, on TermOpen; after the
+	-- buffer has been shown elsewhere (the buffer popup's preview float) a
+	-- new split can come up with line numbers etc., so reapply them here.
 	vim.api.nvim_create_autocmd("BufWinEnter", {
 		buffer = buf,
-		callback = function() vim.wo.winbar = term_winbar(n) end,
+		callback = function()
+			vim.wo.winbar = term_winbar(n)
+			local wo = vim.wo[0][0]
+			wo.number, wo.relativenumber = false, false
+			wo.signcolumn, wo.foldcolumn = "no", "0"
+			wo.wrap, wo.list = false, false
+		end,
 	})
 	vim.keymap.set("n", "q", function()
 		local w = find_buf_win(buf)
