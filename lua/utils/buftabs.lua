@@ -163,9 +163,13 @@ end
 
 local function term_entries()
 	local cur = vim.api.nvim_get_current_buf()
+	-- The terminal devicon, so Term entries line up with the file entries.
+	local icon, icon_hl = "", nil
+	local ok, devicons = pcall(require, "nvim-web-devicons")
+	if ok then icon, icon_hl = devicons.get_icon_by_filetype("terminal", { default = true }) end
 	local out = {}
 	for i, slot in ipairs(require("utils.terms").slots()) do
-		out[i] = { slot = slot.n, buf = slot.buf, name = slot.label, icon = "", current = slot.buf == cur }
+		out[i] = { slot = slot.n, buf = slot.buf, name = slot.label, icon = icon, icon_hl = icon_hl, current = slot.buf == cur }
 	end
 	return out
 end

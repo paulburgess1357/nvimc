@@ -100,14 +100,17 @@ cmd("Terms", function()
 	function Previewer:parse_entry(entry_str, ...)
 		local entry = Previewer.super.parse_entry(self, entry_str, ...)
 		local label = entry_str:match(utils.nbsp .. "(.*)$")
-		if label then entry.title = " " .. label .. " " end
+		if label then entry.title = " " .. utils.strip_ansi_coloring(label) .. " " end
 		return entry
 	end
 	local entries = {}
 	for _, slot in ipairs(slots) do
 		-- "[bufnr]" before the nbsp separator is how fzf-lua's previewer and
-		-- actions find the buffer (as in its own buffers picker).
-		entries[#entries + 1] = string.format("[%d]%s%s", slot.buf, utils.nbsp, slot.label)
+		-- actions find the buffer (as in its own buffers picker). Colored like
+		-- that picker too: Term<n> as the buffer number, the rest as the name.
+		local n, rest = slot.label:match("^(Term%d+)(.*)$")
+		local label = utils.ansi_from_hl("FzfLuaBufNr", n) .. utils.ansi_from_hl("FzfLuaBufName", rest)
+		entries[#entries + 1] = string.format("[%d]%s%s", slot.buf, utils.nbsp, label)
 	end
 	fzf.fzf_exec(entries, {
 		prompt = "Terms> ",
@@ -117,7 +120,7 @@ cmd("Terms", function()
 		fzf_opts = { ["--delimiter"] = utils.nbsp, ["--with-nth"] = "2.." },
 		actions = {
 			["default"] = function(selected)
-				local n = selected[1] and selected[1]:match("Term(%d+)")
+				local n = selected[1] and utils.strip_ansi_coloring(selected[1]):match("Term(%d+)")
 				if n then
 					terms.focus(tonumber(n))
 					vim.cmd("startinsert")
