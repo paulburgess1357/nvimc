@@ -97,6 +97,37 @@ cmd("Terms", function()
 		setmetatable(self, Previewer)
 		return self
 	end
+	-- fzf-lua previews a loaded buffer by copying its text into a scratch
+	-- buffer, which for a terminal drops all the colors. Show the terminal
+	-- buffer itself instead, and keep fzf-lua from treating it like one of
+	-- its scratch buffers: never delete it, never set a filetype on it, and
+	-- drop the `i` map it puts on every preview buffer.
+	function Previewer:_populate_loaded_buffer_preview(tmpbuf, entry)
+		if not entry.terminal then return Previewer.super._populate_loaded_buffer_preview(self, tmpbuf, entry) end
+		entry.do_not_cache = true
+		self:set_preview_buf(entry.bufnr, true)
+		pcall(vim.keymap.del, "n", "i", { buffer = entry.bufnr })
+		vim.wo[self.win.preview_winid][0].winbar = "" -- the buffer brings its Term<n> winbar along
+		if tmpbuf ~= entry.bufnr then self:safe_buf_delete(tmpbuf) end
+		-- Latest output at the bottom, as in the buffer popup's preview. Set
+		-- the view directly: `normal!` is not allowed while fzf's own
+		-- terminal window has the mode.
+		local win, last = self.win.preview_winid, vim.api.nvim_buf_line_count(entry.bufnr)
+		while last > 1 and vim.api.nvim_buf_get_lines(entry.bufnr, last - 1, last, false)[1]:match("^%s*$") do
+			last = last - 1
+		end
+		local topline = math.max(1, last - vim.api.nvim_win_get_height(win) + 1)
+		vim.api.nvim_win_call(win, function() vim.fn.winrestview({ lnum = last, col = 0, topline = topline }) end)
+		self:preview_buf_post(entry, true)
+	end
+	function Previewer:safe_buf_delete(bufnr, ...)
+		if bufnr and vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].buftype == "terminal" then return end
+		return Previewer.super.safe_buf_delete(self, bufnr, ...)
+	end
+	function Previewer:do_syntax(entry)
+		if self.preview_bufnr and vim.api.nvim_buf_is_valid(self.preview_bufnr) and vim.bo[self.preview_bufnr].buftype == "terminal" then return end
+		return Previewer.super.do_syntax(self, entry)
+	end
 	function Previewer:parse_entry(entry_str, ...)
 		local entry = Previewer.super.parse_entry(self, entry_str, ...)
 		local label = entry_str:match(utils.nbsp .. "(.*)$")
