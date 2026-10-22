@@ -8,6 +8,7 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | ------- | ------ |
 | `:Files` | Find files |
 | `:Buffers` | Buffer list |
+| `:Terms` | Open Term slots, with a preview of each terminal; picking one focuses it |
 | `:Rg` / `:Grep` | Live grep |
 | `:Symbols` | Document symbols |
 | `:SymbolsAll` | Workspace symbols (live, search root only) |

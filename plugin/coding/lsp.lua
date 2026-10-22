@@ -90,12 +90,9 @@ vim.diagnostic.config({
 	severity_sort = true,
 })
 
+-- Float colors come from the colorscheme (config/colorscheme.lua); only the
+-- virtual text groups are derived here.
 local function sync_highlights()
-	local normal_bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
-	if normal_bg then
-		vim.api.nvim_set_hl(0, "NormalFloat", { bg = normal_bg })
-		vim.api.nvim_set_hl(0, "FloatBorder", { bg = normal_bg })
-	end
 	for _, level in ipairs({ "Error", "Warn", "Info", "Hint" }) do
 		local fg = vim.api.nvim_get_hl(0, { name = "Diagnostic" .. level }).fg
 		vim.api.nvim_set_hl(0, "DiagnosticVirtualText" .. level, { fg = fg })
@@ -122,10 +119,10 @@ vim.keymap.set("n", "gl", function()
 			highest = d.severity
 		end
 	end
-	local bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
-	local fg = vim.api.nvim_get_hl(0, { name = severity_hl[highest] }).fg
-	vim.api.nvim_set_hl(0, "FloatBorder", { fg = fg, bg = bg })
-	vim.diagnostic.open_float({ scope = "line", border = border })
+	-- Border in the severity color, on this float only (not the global
+	-- FloatBorder group, which every other float shares).
+	local _, win = vim.diagnostic.open_float({ scope = "line", border = border })
+	if win then vim.wo[win].winhighlight = "FloatBorder:" .. severity_hl[highest] end
 end, { desc = "Line diagnostics" })
 
 vim.api.nvim_create_autocmd("LspAttach", {

@@ -36,7 +36,7 @@ vim.opt.cmdheight = 0 -- Hide command line (noice handles it in a popup)
 -- set their own border read the same setting.
 vim.opt.winborder = (require("config.plugins").settings or {}).border or "single"
 -- No tabline: file windows are named by their winbar (utils.winbar) and
--- <S-h>/<S-l> show the buffer tabs in a popup (utils.buftabs). lualine has no
+-- <S-j>/<S-k> show the buffer tabs in a popup (utils.buftabs). lualine has no
 -- tabline section, so it never turns this back on.
 vim.opt.showtabline = 0
 
