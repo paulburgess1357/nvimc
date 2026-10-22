@@ -297,63 +297,71 @@ function M.peek()
 	for i, item in ipairs(items) do
 		if item.current then peek_sel = i end
 	end
-	peek_render()
-
 	local chosen
-	while true do
-		vim.cmd.redraw()
-		local ok, k = pcall(vim.fn.getcharstr)
-		if not ok then break end -- <C-c>
-		local name = vim.fn.keytrans(k)
-		local enter = name == "<CR>" or name == "<S-CR>" or name == "<NL>"
-		if peek_search and peek_search.typing then
-			-- Typing a pattern: as in Vim's / prompt, <CR> keeps the match,
-			-- <Esc> abandons the search, <BS> past an empty pattern too.
-			if enter then
-				peek_search.typing = false
-				if peek_search.text == "" then peek_search = nil end
-				peek_render()
-			elseif name == "<Esc>" then
-				local from = peek_search.from
-				peek_search = nil
-				peek_select(from)
-			elseif name == "<BS>" or name == "<C-H>" or name == "<Del>" then -- as Vim's prompt takes them
-				if peek_search.text == "" then
+	-- Whatever goes wrong while the popup is up (a window vanishing under
+	-- it, a preview that fails to open), the floats must come down: they
+	-- are not focusable, so nothing else could ever close them.
+	local ok, err = pcall(function()
+		peek_render()
+		while true do
+			vim.cmd.redraw()
+			local ok, k = pcall(vim.fn.getcharstr)
+			if not ok then break end -- <C-c>
+			local name = vim.fn.keytrans(k)
+			local enter = name == "<CR>" or name == "<S-CR>" or name == "<NL>"
+			if peek_search and peek_search.typing then
+				-- Typing a pattern: as in Vim's / prompt, <CR> keeps the match,
+				-- <Esc> abandons the search, <BS> past an empty pattern too.
+				if enter then
+					peek_search.typing = false
+					if peek_search.text == "" then peek_search = nil end
+					peek_render()
+				elseif name == "<Esc>" then
 					local from = peek_search.from
 					peek_search = nil
 					peek_select(from)
-				else
-					peek_search.text = peek_search.text:sub(1, -2)
+				elseif name == "<BS>" or name == "<C-H>" or name == "<Del>" then -- as Vim's prompt takes them
+					if peek_search.text == "" then
+						local from = peek_search.from
+						peek_search = nil
+						peek_select(from)
+					else
+						peek_search.text = peek_search.text:sub(1, -2)
+						peek_incsearch()
+					end
+				elseif #k == 1 and k:match("[%g ]") then
+					peek_search.text = peek_search.text .. k
 					peek_incsearch()
 				end
-			elseif #k == 1 and k:match("[%g ]") then
-				peek_search.text = peek_search.text .. k
-				peek_incsearch()
+			elseif k == "j" or k == "J" then -- J/K: Shift still held from <S-j>/<S-k>
+				peek_select(peek_sel + 1)
+			elseif k == "k" or k == "K" then
+				peek_select(peek_sel - 1)
+			elseif k == "g" then
+				local ok2, k2 = pcall(vim.fn.getcharstr)
+				if ok2 and k2 == "g" then peek_select(1) end
+			elseif k == "G" then
+				peek_select(#peek_items)
+			elseif k == "/" or k == "?" then
+				peek_search = { text = "", dir = k == "/" and 1 or -1, typing = true, from = peek_sel }
+				peek_render()
+			elseif (k == "n" or k == "N") and peek_search then
+				local i = next_match(peek_sel, k == "n" and peek_search.dir or -peek_search.dir)
+				if i then peek_select(i) end
+			elseif enter or k == "l" or k == "L" then -- L: still holding Shift
+				chosen = peek_items[peek_sel]
+				break
+			elseif name == "<Esc>" or k == "q" then
+				break
 			end
-		elseif k == "j" or k == "J" then -- J/K: Shift still held from <S-j>/<S-k>
-			peek_select(peek_sel + 1)
-		elseif k == "k" or k == "K" then
-			peek_select(peek_sel - 1)
-		elseif k == "g" then
-			local ok2, k2 = pcall(vim.fn.getcharstr)
-			if ok2 and k2 == "g" then peek_select(1) end
-		elseif k == "G" then
-			peek_select(#peek_items)
-		elseif k == "/" or k == "?" then
-			peek_search = { text = "", dir = k == "/" and 1 or -1, typing = true, from = peek_sel }
-			peek_render()
-		elseif (k == "n" or k == "N") and peek_search then
-			local i = next_match(peek_sel, k == "n" and peek_search.dir or -peek_search.dir)
-			if i then peek_select(i) end
-		elseif enter or k == "l" or k == "L" then -- L: still holding Shift
-			chosen = peek_items[peek_sel]
-			break
-		elseif name == "<Esc>" or k == "q" then
-			break
+			-- anything else: swallowed (modal)
 		end
-		-- anything else: swallowed (modal)
-	end
+	end)
 	peek_close()
+	if not ok then
+		vim.notify("buftabs: " .. tostring(err), vim.log.levels.ERROR)
+		return
+	end
 	if chosen then
 		M.switch_to(chosen)
 	elseif in_terminal() then
