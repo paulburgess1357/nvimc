@@ -24,10 +24,15 @@ local PEEK_NS = vim.api.nvim_create_namespace("buftabs_peek")
 local peek_buf, peek_win, preview_win
 local peek_items, peek_sel -- entries shown, index of the highlighted one
 
+local function close_win(w)
+	if w and vim.api.nvim_win_is_valid(w) then vim.api.nvim_win_close(w, true) end
+end
+
 local function peek_close()
-	for _, w in ipairs({ preview_win, peek_win }) do
-		if w and vim.api.nvim_win_is_valid(w) then vim.api.nvim_win_close(w, true) end
-	end
+	-- Two calls, not a loop over { preview_win, peek_win }: with no preview
+	-- open (a narrow window) ipairs stops at the nil and the list stays up.
+	close_win(preview_win)
+	close_win(peek_win)
 	peek_win, preview_win, peek_items, peek_sel = nil, nil, nil, nil
 end
 
