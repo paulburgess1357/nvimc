@@ -81,6 +81,51 @@ cmd("SymbolsAll", function() fzf.lsp_live_workspace_symbols(root.opts("Workspace
 cmd("Marks", fzf.marks, { desc = "Marks" })
 cmd("Files", function() fzf.files(root.opts("Files")) end, { desc = "Find files" })
 cmd("Buffers", fzf.buffers, { desc = "Buffers" })
+-- :Terms is :Buffers for the Term slots (utils.terms): one line per open
+-- slot, "Term<n> (name) · title", with the builtin previewer showing the
+-- terminal's output. Picking one focuses it, opening its window if hidden.
+cmd("Terms", function()
+	local terms = require("utils.terms")
+	local slots = terms.slots()
+	if #slots == 0 then return vim.notify("No terminals open", vim.log.levels.INFO) end
+	local utils = require("fzf-lua.utils")
+	-- The builtin previewer titles a buffer "buf <n>: <bufname>", which for a
+	-- terminal is its term:// path. Title it with the entry's label instead.
+	local Previewer = require("fzf-lua.previewer.builtin").buffer_or_file:extend()
+	function Previewer:new(o, opts, fzf_win)
+		Previewer.super.new(self, o, opts, fzf_win)
+		setmetatable(self, Previewer)
+		return self
+	end
+	function Previewer:parse_entry(entry_str, ...)
+		local entry = Previewer.super.parse_entry(self, entry_str, ...)
+		local label = entry_str:match(utils.nbsp .. "(.*)$")
+		if label then entry.title = " " .. label .. " " end
+		return entry
+	end
+	local entries = {}
+	for _, slot in ipairs(slots) do
+		-- "[bufnr]" before the nbsp separator is how fzf-lua's previewer and
+		-- actions find the buffer (as in its own buffers picker).
+		entries[#entries + 1] = string.format("[%d]%s%s", slot.buf, utils.nbsp, slot.label)
+	end
+	fzf.fzf_exec(entries, {
+		prompt = "Terms> ",
+		winopts = { title = " Terms " },
+		previewer = Previewer,
+		-- Show the label only; the "[bufnr]" field stays in the entry for fzf-lua.
+		fzf_opts = { ["--delimiter"] = utils.nbsp, ["--with-nth"] = "2.." },
+		actions = {
+			["default"] = function(selected)
+				local n = selected[1] and selected[1]:match("Term(%d+)")
+				if n then
+					terms.focus(tonumber(n))
+					vim.cmd("startinsert")
+				end
+			end,
+		},
+	})
+end, { desc = "Terminals" })
 cmd("Rg", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
 cmd("Grep", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
 cmd("Help", fzf.help_tags, { desc = "Help tags" })
