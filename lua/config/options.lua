@@ -88,3 +88,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 		vim.hl.on_yank({ higroup = "Visual", timeout = 150 })
 	end,
 })
+
+-- Folds by syntax tree, with a code-highlighted fold line (utils.folds)
+require("utils.folds").setup()
