@@ -144,6 +144,7 @@ Leader key is `Space`.
 | `s` | Toggle diagnostic signs |
 | `v` | Toggle virtual text |
 | `b` | Toggle git blame (current line) |
+| `c` | Toggle sticky context (enclosing function/class pinned at the top; `settings.context_max_lines`) |
 | `w` | Toggle line wrap |
 | `t` | Toggle smart wrap copy (rejoin soft-wrapped lines yanked from terminals) |
 | `z` | Toggle zoom: current window (file or terminal) fills the screen; again restores the layout |

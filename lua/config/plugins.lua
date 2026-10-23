@@ -12,6 +12,7 @@ return {
 		illuminate_max_lines = 20000, -- nil = no limit
 		bigfile_max_mb = 1.5, -- Snacks bigfile threshold (MB)
 		aerial_max_lines = 50000, -- Disable aerial for files with more lines
+		context_max_lines = 3, -- Sticky context: how many enclosing scopes to pin at the top (0 = no limit)
 		cppcheck = false, -- Enable cppcheck for C/C++ linting (requires nvim-lint)
 		send_term = 1, -- Term<n> (1-10) that <F9> / :TermRun pastes into
 		-- Border for every float (pickers, completion, hover, which-key, noice,
@@ -48,6 +49,7 @@ return {
 	noice = { enabled = true }, -- Cmdline, messages, and popupmenu UI
 	rainbowdelimiters = { enabled = true }, -- Colored matching brackets
 	aerial = { enabled = true }, -- Code outline / symbol sidebar
+	tscontext = { enabled = true }, -- Pin the enclosing function/class at the top while scrolling
 	stardust = { enabled = false }, -- Twinkling stars, meteors, etc
 	marks = { enabled = true }, -- Visual marks in the gutter
 

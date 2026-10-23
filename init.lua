@@ -73,6 +73,7 @@ add("whichkey", gh("folke/which-key.nvim"))
 add("snacks", gh("folke/snacks.nvim"))
 add("noice", gh("MunifTanjim/nui.nvim"), gh("rcarriga/nvim-notify"), gh("folke/noice.nvim"))
 add("aerial", gh("stevearc/aerial.nvim"))
+add("tscontext", gh("nvim-treesitter/nvim-treesitter-context"))
 add("rainbowdelimiters", gh("HiPhish/rainbow-delimiters.nvim"))
 add("stardust", gh("paulburgess1357/Stardust"))
 

@@ -118,6 +118,7 @@ install/                    Install scripts
 - **noice** - Modern cmdline/messages/notifications
 - **rainbow-delimiters** - Colored brackets
 - **aerial** - Code outline sidebar
+- **treesitter-context** - Enclosing function/class pinned at the top while scrolling
 - **Stardust** - Twinkling stars, meteors, etc.
 
 ### Debug

@@ -81,6 +81,14 @@ Snacks.toggle({
 	set = smart_wrap_copy.set_enabled,
 }):map("<leader><leader>t")
 
+-- Sticky context (treesitter-context): enclosing scopes pinned at the top.
+Snacks.toggle({
+	name = "Context",
+	wk_desc = static_desc,
+	get = function() return require("treesitter-context").enabled() end,
+	set = function(state) require("treesitter-context")[state and "enable" or "disable"]() end,
+}):map("<leader><leader>c")
+
 Snacks.toggle({
 	name = "Git Blame",
 	wk_desc = static_desc,

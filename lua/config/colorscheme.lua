@@ -29,6 +29,11 @@ if theme == "onedark" then
 		BlinkCmpMenuSelection = { bg = "$bg2" },
 		SnacksPickerTitle = { fg = "$cyan", fmt = "bold" },
 
+		-- treesitter-context: no slab (transparent like everything else), a
+		-- grey rule under the pinned lines marks where the context ends.
+		TreesitterContextSeparator = { fg = "$grey" },
+		TreesitterContextLineNumber = { fg = "$grey" },
+
 		-- fzf-lua (onedark has no native support)
 		FzfLuaNormal = { bg = transparent and "none" or "$bg_d" },
 		FzfLuaBorder = { fg = "$grey", bg = transparent and "none" or "$bg_d" },
@@ -86,6 +91,8 @@ if theme == "onedark" then
 			"BlinkCmpDocBorder",
 			"BlinkCmpSignatureHelp",
 			"WhichKeyFloat",
+			"TreesitterContext",
+			"TreesitterContextLineNumber",
 		}) do
 			highlights[g] = { bg = "none" }
 		end
