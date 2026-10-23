@@ -14,11 +14,14 @@ function _G.file_winbar()
 	if ok then
 		icon, hl = devicons.get_icon(name, vim.fn.expand("%:e"), { default = true })
 	end
-	local parts = { " " }
-	if icon and icon ~= "" then parts[#parts + 1] = (hl and ("%#" .. hl .. "#") or "") .. icon .. "%* " end
 	-- Same colors as the tabline: mode color on the active window (group set
-	-- in plugin/ui/lualine.lua), inactive windows in the usual WinBarNC grey.
+	-- in plugin/ui/lualine.lua), inactive windows in the usual WinBarNC grey,
+	-- icon included, so an inactive window reads as inactive end to end.
 	local active = tonumber(vim.g.actual_curwin) == vim.api.nvim_get_current_win()
+	local parts = { " " }
+	if icon and icon ~= "" then
+		parts[#parts + 1] = (active and hl and ("%#" .. hl .. "#") or "%#WinBarNC#") .. icon .. "%* "
+	end
 	parts[#parts + 1] = (active and "%#LualineBufActive#" or "%#WinBarNC#") .. name:gsub("%%", "%%%%") .. "%*"
 	if vim.bo.modified then parts[#parts + 1] = " ●" end
 	return table.concat(parts)

@@ -130,9 +130,16 @@ cmd("Terms", function()
 	end
 	function Previewer:parse_entry(entry_str, ...)
 		local entry = Previewer.super.parse_entry(self, entry_str, ...)
-		local label = entry_str:match(utils.nbsp .. "(.*)$")
-		if label then entry.title = " " .. utils.strip_ansi_coloring(label) .. " " end
+		local fields = vim.split(entry_str, utils.nbsp, { plain = true })
+		entry.title = " " .. utils.strip_ansi_coloring(fields[#fields]) .. " " -- the label, after bufnr and icon
 		return entry
+	end
+	-- The terminal devicon, colored, as the buffer picker shows file icons.
+	local icon = ""
+	local ok, devicons = pcall(require, "nvim-web-devicons")
+	if ok then
+		local glyph, hl = devicons.get_icon_by_filetype("terminal", { default = true })
+		if glyph and glyph ~= "" then icon = utils.ansi_from_hl(hl, glyph) .. utils.nbsp end
 	end
 	local entries = {}
 	for _, slot in ipairs(slots) do
@@ -141,7 +148,7 @@ cmd("Terms", function()
 		-- that picker too: Term<n> as the buffer number, the rest as the name.
 		local n, rest = slot.label:match("^(Term%d+)(.*)$")
 		local label = utils.ansi_from_hl("FzfLuaBufNr", n) .. utils.ansi_from_hl("FzfLuaBufName", rest)
-		entries[#entries + 1] = string.format("[%d]%s%s", slot.buf, utils.nbsp, label)
+		entries[#entries + 1] = string.format("[%d]%s%s%s", slot.buf, utils.nbsp, icon, label)
 	end
 	fzf.fzf_exec(entries, {
 		prompt = "Terms> ",

@@ -372,7 +372,19 @@ function _G.term_winbar_hl()
 	return active and "%#LualineBufActive#" or "%#WinBarNC#"
 end
 
-local WINBAR_TAG = "%{%v:lua.term_winbar_hl()%}Term"
+-- The terminal devicon in front, like the file icon in utils.winbar (and the
+-- same entry icon in the buffer popup): its own color when the window is
+-- active, WinBarNC grey otherwise.
+function _G.term_winbar_icon()
+	local ok, devicons = pcall(require, "nvim-web-devicons")
+	if not ok then return "" end
+	local icon, hl = devicons.get_icon_by_filetype("terminal", { default = true })
+	if not icon or icon == "" then return "" end
+	local active = tonumber(vim.g.actual_curwin) == vim.api.nvim_get_current_win()
+	return (active and hl and ("%#" .. hl .. "#") or "%#WinBarNC#") .. icon .. "%* "
+end
+
+local WINBAR_TAG = "%{%v:lua.term_winbar_icon()%}%{%v:lua.term_winbar_hl()%}Term"
 
 -- Winbar title segment. Only titles a program set are worth showing, so two
 -- defaults are dropped: an idle shell's "user@host: path" (the prompt already
