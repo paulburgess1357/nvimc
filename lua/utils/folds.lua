@@ -34,7 +34,10 @@ function _G.fold_text()
 	end
 	local tab = string.rep(" ", vim.bo.tabstop)
 	for _, p in ipairs(pieces) do p[1] = p[1]:gsub("\t", tab) end
-	pieces[#pieces + 1] = { " · " .. (vim.v.foldend - lnum + 1) .. " lines", "Comment" }
+	-- The marker and count stand out (FoldedCount, orange in colorscheme.lua)
+	-- since the fold line otherwise looks like any other line of code.
+	local count_hl = vim.fn.hlexists("FoldedCount") == 1 and "FoldedCount" or "Comment"
+	pieces[#pieces + 1] = { "  ▸ " .. (vim.v.foldend - lnum + 1) .. " lines", count_hl }
 	return pieces
 end
 

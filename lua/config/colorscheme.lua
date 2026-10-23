@@ -29,6 +29,9 @@ if theme == "onedark" then
 		BlinkCmpMenuSelection = { bg = "$bg2" },
 		SnacksPickerTitle = { fg = "$cyan", fmt = "bold" },
 
+		-- Closed folds (utils.folds): the "▸ N lines" marker after the fold line.
+		FoldedCount = { fg = "$orange", fmt = "bold" },
+
 		-- treesitter-context: no slab (transparent like everything else), a
 		-- grey rule under the pinned lines marks where the context ends.
 		TreesitterContextSeparator = { fg = "$grey" },
