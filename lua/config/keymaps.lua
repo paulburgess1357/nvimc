@@ -62,6 +62,9 @@ keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
 -- Better indenting
 keymap.set("v", "<", "<gv")
 keymap.set("v", ">", ">gv")
+-- Paste over a selection without the replaced text taking over the register,
+-- so the same yank can be pasted again. (Vim's P in visual mode does this.)
+keymap.set("x", "p", "P", { desc = "Paste, keep register" })
 
 -- Keep cursor centered when scrolling
 keymap.set("n", "<C-d>", "<C-d>zz")
