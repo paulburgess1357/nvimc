@@ -52,6 +52,9 @@ vim.opt.splitbelow = true
 -- Don't re-equalize every window whenever one opens or closes: hand-resized
 -- splits keep their size when a terminal, aerial, etc. comes and goes.
 -- <C-w>= equalizes on demand.
+-- When a window's height changes (a Term opening or closing underneath),
+-- keep the text where it is on screen instead of the cursor row.
+vim.opt.splitkeep = "screen"
 vim.opt.equalalways = false
 
 -- Scrolling
