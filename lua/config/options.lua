@@ -57,6 +57,9 @@ vim.opt.equalalways = false
 -- Scrolling
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
+-- <C-o>/<C-i> restore the scroll position along with the cursor, so jumping
+-- back shows the window as it was.
+vim.opt.jumpoptions = "view"
 
 -- Terminal history rows, per terminal buffer (default 10000). Lower keeps
 -- memory down and makes width changes cheap: every terminal resize rewraps
