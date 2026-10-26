@@ -1,7 +1,7 @@
 {
   "plugins": {
     "SchemaStore.nvim": {
-      "rev": "be687d17e4a9443e918c48c3c915b1f2ffd0f718",
+      "rev": "067b472f6dbc04520982acc9ab14f27c68195c70",
       "src": "https://github.com/b0o/SchemaStore.nvim"
     },
     "Stardust": {
@@ -30,11 +30,11 @@
       "src": "https://github.com/rafamadriz/friendly-snippets"
     },
     "fzf-lua": {
-      "rev": "13bb178a299f7493dd64427a58e61904c4b58ecb",
+      "rev": "5b88d6f0af7fcb41d4a8bb340bf70d7e3824ee9d",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
-      "rev": "8d79f2410c76e62b92e51c28c82e28c1c5a3daeb",
+      "rev": "d4854fa9a94b5c8b37dd209fb4a19e98e764186f",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "inc-rename.nvim": {
@@ -50,7 +50,7 @@
       "src": "https://github.com/chentoast/marks.nvim"
     },
     "mason-lspconfig.nvim": {
-      "rev": "49b16d699f9ca83184330c6eb886737a27f23bdd",
+      "rev": "a338f44149f5673882c32629697d67b0c0547aec",
       "src": "https://github.com/mason-org/mason-lspconfig.nvim"
     },
     "mason.nvim": {
@@ -97,16 +97,12 @@
       "rev": "edcc181a875301dd21840189aa2f2f9ad69fc172",
       "src": "https://github.com/nvim-neotest/nvim-nio"
     },
-    "nvim-notify": {
-      "rev": "8701bece920b38ea289b457f902e2ad184131a5d",
-      "src": "https://github.com/rcarriga/nvim-notify"
-    },
     "nvim-spider": {
       "rev": "38f74f733734566bec3b23a9dcf968a5a5559cd6",
       "src": "https://github.com/chrisgrieser/nvim-spider"
     },
     "nvim-treesitter": {
-      "rev": "f603a2f4da48728f80257fb5fbb90145fd1dc173",
+      "rev": "a2f694478be07f89c2d03cc17858a8745a400c4b",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter",
       "version": "'main'"
     },

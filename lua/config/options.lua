@@ -36,7 +36,7 @@ vim.opt.cmdheight = 0 -- Hide command line (noice handles it in a popup)
 -- set their own border read the same setting.
 vim.opt.winborder = (require("config.plugins").settings or {}).border or "single"
 -- No tabline: file windows are named by their winbar (utils.winbar) and
--- <S-j>/<S-k> show the buffer tabs in a popup (utils.buftabs). lualine has no
+-- <S-j> shows the buffer tabs in a popup (utils.buftabs). lualine has no
 -- tabline section, so it never turns this back on.
 vim.opt.showtabline = 0
 
@@ -91,3 +91,8 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 -- Folds by syntax tree, with a code-highlighted fold line (utils.folds)
 require("utils.folds").setup()
+
+-- Terminal window title (kitty's title bar / tab): the working directory,
+-- with ~ for home. The active file is already named by its winbar.
+vim.opt.title = true
+vim.opt.titlestring = "%{fnamemodify(getcwd(), ':~')}"

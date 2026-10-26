@@ -101,7 +101,22 @@ require("snacks").setup({
 		scope = { enabled = true, char = "│", underline = false },
 		animate = { enabled = true, duration = { step = 20, total = 300 } },
 	},
-	notifier = { enabled = false },
+	-- Notifications, top right, as small floats in the usual border with the
+	-- level's icon and title; the border takes the level's diagnostic color.
+	notifier = {
+		enabled = true,
+		timeout = 3000,
+		top_down = true,
+		-- snacks' "compact" style with the title on the left like the other floats.
+		style = function(buf, notif, ctx)
+			local title = vim.trim(notif.icon .. " " .. (notif.title or ""))
+			if title ~= "" then
+				ctx.opts.title = { { " " .. title .. " ", ctx.hl.title } }
+				ctx.opts.title_pos = "left"
+			end
+			vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(notif.msg, "\n"))
+		end,
+	},
 	scroll = { enabled = false },
 	toggle = { enabled = true, which_key = true, notify = true },
 })

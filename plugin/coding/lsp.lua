@@ -139,7 +139,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		map("gR", fzf.lsp_finder, "Finder (all locations)")
 		map("gI", fzf.lsp_implementations, "Implementation")
 		map("gy", fzf.lsp_typedefs, "Type definition")
-		map("gh", vim.lsp.buf.hover, "Hover") -- K cycles buffer tabs (keymaps.lua)
+		map("K", vim.lsp.buf.hover, "Hover")
 		map("gK", vim.lsp.buf.signature_help, "Signature help")
 		map("<leader>ca", fzf.lsp_code_actions, "Code action")
 		map("<leader>cd", fzf.diagnostics_document, "Document diagnostics")

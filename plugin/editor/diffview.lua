@@ -66,23 +66,20 @@ require("diffview").setup({
 		view_closed = cleanup_buffers,
 	},
 	-- `q` closes the diff from anywhere inside it (view or either panel).
-	-- `<S-j>`/`<S-k>` are disabled so the global buffer-switch maps can't swap a
-	-- normal buffer into a diffview window.
+	-- `<S-j>` is disabled so the buffer popup can't swap a normal buffer into
+	-- a diffview window.
 	keymaps = {
 		view = {
 			{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" } },
 			{ "n", "<S-j>", "<Nop>", { desc = "Disabled in diffview" } },
-			{ "n", "<S-k>", "<Nop>", { desc = "Disabled in diffview" } },
 		},
 		file_panel = {
 			{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" } },
 			{ "n", "<S-j>", "<Nop>", { desc = "Disabled in diffview" } },
-			{ "n", "<S-k>", "<Nop>", { desc = "Disabled in diffview" } },
 		},
 		file_history_panel = {
 			{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" } },
 			{ "n", "<S-j>", "<Nop>", { desc = "Disabled in diffview" } },
-			{ "n", "<S-k>", "<Nop>", { desc = "Disabled in diffview" } },
 		},
 	},
 })

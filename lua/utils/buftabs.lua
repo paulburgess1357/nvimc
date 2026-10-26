@@ -1,7 +1,7 @@
 local M = {}
 
 -- Buffer tabs without a tabline. This module keeps an ordered list of listed
--- buffers (open order, kept stable as buffers come and go) and the <S-k>/<S-j>
+-- buffers (open order, kept stable as buffers come and go) and the <S-j>
 -- peek popup below shows it. The order lives
 -- in memory; utils.session saves/restores it. In a terminal window the same
 -- keys walk the Term slots instead (utils.terms), from normal mode.
@@ -11,7 +11,7 @@ local order = {}
 
 -----------------------------------------------------------
 -- Peek popup. There is no tabline (showtabline=0 in options.lua), so
--- <S-j>/<S-k> pop a small float at the top left of the current window
+-- <S-j> pops a small float at the top left of the current window
 -- listing the tabs in order (the Term slots in a terminal window), the
 -- current one on a highlighted line like mini.files. It is modal: j/k (or
 -- <S-j>/<S-k>) and gg/G move the highlight, <CR>/<S-CR>/l/L switch to the
@@ -342,7 +342,7 @@ function M.peek()
 					peek_search.text = peek_search.text .. k
 					peek_incsearch()
 				end
-			elseif k == "j" or k == "J" then -- J/K: Shift still held from <S-j>/<S-k>
+			elseif k == "j" or k == "J" then -- J/K: Shift still held from <S-j>
 				peek_select(peek_sel + 1)
 			elseif k == "k" or k == "K" then
 				peek_select(peek_sel - 1)

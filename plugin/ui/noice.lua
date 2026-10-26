@@ -3,17 +3,9 @@ local cfg = plugins.noice or {}
 local border = (plugins.settings or {}).border or "single"
 if cfg.enabled == false then return end
 
-require("notify").setup({
-	stages = "fade",
-	timeout = 3000,
-	top_down = true,
-	render = "compact",
-	-- Under a transparent theme `NotifyBackground` has no bg, so notify can't
-	-- compute its fade blend. This hex is only the blend reference for the fade
-	-- (not a visible bg); black matches the dark backdrop.
-	background_colour = "#000000",
-})
-
+-- Notifications are drawn by snacks.notifier (plugin/ui/snacks.lua), which
+-- noice picks as its notify backend when enabled: same border and title
+-- style as every other float. <leader>n still lists the history.
 require("noice").setup({
 	cmdline = {
 		enabled = true,
