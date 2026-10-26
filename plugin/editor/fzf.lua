@@ -55,6 +55,7 @@ fzf.setup({
 	lsp = {
 		async_or_timeout = 5000,
 		includeDeclaration = false,
+		symbols = { symbol_icons = require("utils.icons").kinds }, -- shared with blink and aerial
 	},
 	actions = {
 		files = {

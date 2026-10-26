@@ -82,10 +82,20 @@ vim.lsp.config.tailwindcss = {
 -----------------------------------------------------------
 -- Diagnostics & Highlights
 -----------------------------------------------------------
+local diag_icons = require("utils.icons").diagnostics
 vim.diagnostic.config({
 	underline = true,
 	update_in_insert = false,
 	virtual_text = false,
+	-- Gutter signs: the same glyphs as the notifications and statusline.
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = diag_icons.error,
+			[vim.diagnostic.severity.WARN] = diag_icons.warn,
+			[vim.diagnostic.severity.INFO] = diag_icons.info,
+			[vim.diagnostic.severity.HINT] = diag_icons.hint,
+		},
+	},
 	float = { source = true, border = border, focusable = false },
 	severity_sort = true,
 })

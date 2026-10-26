@@ -5,6 +5,7 @@ if cfg.enabled == false then return end
 
 require("aerial").setup({
 	backends = { "lsp", "treesitter", "markdown", "man" },
+	icons = require("utils.icons").kinds, -- shared with blink and fzf-lua
 	layout = {
 		min_width = 30,
 		default_direction = "left",

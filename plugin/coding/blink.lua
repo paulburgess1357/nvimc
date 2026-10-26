@@ -23,6 +23,7 @@ require("blink.cmp").setup({
 	},
 	appearance = {
 		nerd_font_variant = "mono",
+		kind_icons = require("utils.icons").kinds, -- shared with aerial and fzf-lua
 	},
 	sources = {
 		default = { "lsp", "path", "snippets", "buffer" },
