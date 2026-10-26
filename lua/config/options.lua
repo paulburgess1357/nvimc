@@ -82,6 +82,19 @@ vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
 	command = "silent! checktime",
 })
 
+-- Reopen a file at the cursor position it was last closed with (the '"
+-- mark, kept in shada), unless that is a commit message or similar where
+-- starting at the top is the point.
+vim.api.nvim_create_autocmd("BufReadPost", {
+	callback = function(ev)
+		if vim.tbl_contains({ "gitcommit", "gitrebase" }, vim.bo[ev.buf].filetype) then return end
+		local line = vim.api.nvim_buf_get_mark(ev.buf, '"')[1]
+		if line > 0 and line <= vim.api.nvim_buf_line_count(ev.buf) then
+			pcall(vim.api.nvim_win_set_cursor, 0, { line, 0 })
+		end
+	end,
+})
+
 -- Highlight on yank
 vim.api.nvim_create_autocmd("TextYankPost", {
 	callback = function()
