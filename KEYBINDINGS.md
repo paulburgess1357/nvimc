@@ -180,7 +180,7 @@ Leader key is `Space`.
 | `<` / `>` (visual) | Indent and keep selection |
 | `/` / `?` | Search is literal (`\V` prefix); `/\v` for regex. `:s` patterns are literal too |
 | `Esc` | Clear search highlights |
-| `q` (in quickfix) | Close quickfix/location list |
+| `q` (in quickfix, help, man, checkhealth) | Close that window |
 | `s` (on dashboard) | Restore this directory's session (auto-saved on quit); also `:SessionRestore` / `:SessionSave` / `:SessionDelete` |
 
 ## FZF Picker (inside a picker)

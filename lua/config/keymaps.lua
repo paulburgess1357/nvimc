@@ -119,13 +119,15 @@ keymap.set("x", "<F9>", function()
 	vim.cmd("'<,'>TermRun " .. (n > 0 and n or ""))
 end, { desc = "Run selection in terminal" })
 
--- Close quickfix/location list with q. Without this, q starts recording a
--- macro (stock Vim), and while a recording is active which-key stops
+-- q closes read-only windows: quickfix/location list, help, man pages,
+-- checkhealth, LSP info and the like. Without this, q starts recording a
+-- macro there (stock Vim), and while a recording is active which-key stops
 -- opening its menus.
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = "qf",
+	pattern = { "qf", "help", "man", "checkhealth", "lspinfo", "query", "startuptime" },
 	callback = function(ev)
-		vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = ev.buf, silent = true, desc = "Close quickfix" })
+		vim.bo[ev.buf].buflisted = false
+		vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = ev.buf, silent = true, desc = "Close window" })
 	end,
 })
 
