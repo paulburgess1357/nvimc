@@ -59,7 +59,8 @@ end
 -- active directory is always visible. `extra` is merged on top.
 function M.opts(label, extra)
 	local dir = M.dir()
-	local opts = { cwd = dir, winopts = { title = " " .. label .. " · " .. vim.fn.fnamemodify(dir, ":~") .. " " } }
+	local sep = require("utils.ui").sep -- "Root · ~/path", joined like every other label
+	local opts = { cwd = dir, winopts = { title = " " .. label .. " " .. sep .. " " .. vim.fn.fnamemodify(dir, ":~") .. " " } }
 	return extra and vim.tbl_deep_extend("force", opts, extra) or opts
 end
 

@@ -97,10 +97,13 @@ require("snacks").setup({
 		},
 		sections = make_header_sections(),
 	},
+	-- Guides drawn with the shared bar (utils.ui.bar: the statusline
+	-- separators, the gitsigns column); the scope guide takes the mode color
+	-- (SnacksIndentScope, config/colorscheme.lua).
 	indent = {
 		enabled = true,
-		indent = { char = "│", only_scope = false, only_current = false },
-		scope = { enabled = true, char = "│", underline = false },
+		indent = { char = ui.bar, only_scope = false, only_current = false },
+		scope = { enabled = true, char = ui.bar, underline = false },
 		animate = { enabled = true, duration = { step = 20, total = 300 } },
 	},
 	-- Notifications, top right, as small floats in the usual border with the
