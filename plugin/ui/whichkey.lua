@@ -59,8 +59,11 @@ Snacks.toggle({
 			virtual_text = state and {
 				spacing = 4,
 				source = "if_many",
-				-- The level's icon, the same glyph as the sign in the gutter.
-				prefix = function(diag)
+				-- One icon per line, not one per diagnostic: the level's glyph (the
+				-- same as the sign in the gutter) in front of the first message,
+				-- which is the most severe one since severity_sort is on.
+				prefix = function(diag, i)
+					if i ~= 1 then return "" end
 					local icons = ui.diagnostics
 					return ({ icons.error, icons.warn, icons.info, icons.hint })[diag.severity] or ""
 				end,
