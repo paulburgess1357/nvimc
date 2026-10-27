@@ -1,6 +1,7 @@
 local plugins = require("config.plugins")
 local cfg = plugins.noice or {}
-local border = require("utils.ui").border
+local ui = require("utils.ui")
+local border = ui.border
 if cfg.enabled == false then return end
 
 -- Notifications are drawn by snacks.notifier (plugin/ui/snacks.lua), which
@@ -53,25 +54,25 @@ require("noice").setup({
 		inc_rename = true,
 		lsp_doc_border = true,
 	},
-	-- settings.border on every bordered view (noice and its lsp_doc_border
-	-- preset default to rounded regardless of 'winborder').
+	-- The shared frame on every bordered view: settings.border (noice and its
+	-- lsp_doc_border preset default to rounded regardless of 'winborder'),
+	-- the title on the left (noice centers the cmdline popup's " Cmdline " /
+	-- " Search " and the confirm dialog's " Confirm ") and the one padding
+	-- (hover defaults to two columns, the cmdline completion popup to none).
 	views = {
-		-- The cmdline popup's " Cmdline " / " Search " title on the left, as on
-		-- every other float (noice centers it).
-		cmdline_popup = { border = { style = border, text = { top_align = require("utils.ui").title_pos } } },
-		cmdline_input = { border = { style = border } },
-		popup = { border = { style = border } },
-		confirm = { border = { style = border } },
-		hover = { border = { style = border } },
-		-- The cmdline completion popup (:e <Tab>) has no border by default.
-		popupmenu = { border = { style = border, padding = { 0, 1 } } },
+		cmdline_popup = { border = { style = border, padding = ui.padding, text = { top_align = ui.title_pos } } },
+		cmdline_input = { border = { style = border, padding = ui.padding } },
+		popup = { border = { style = border, padding = ui.padding } },
+		confirm = { border = { style = border, padding = ui.padding, text = { top_align = ui.title_pos } } },
+		hover = { border = { style = border, padding = ui.padding } },
+		popupmenu = { border = { style = border, padding = ui.padding } },
 	},
 })
 
 vim.keymap.set("n", "<leader>n", function()
 	require("noice").cmd("fzf")
-end, { desc = "Notification History" })
+end, { desc = "Notification history" })
 
 vim.keymap.set("n", "<leader>un", function()
 	require("noice").cmd("dismiss")
-end, { desc = "Dismiss All Notifications" })
+end, { desc = "Dismiss all notifications" })

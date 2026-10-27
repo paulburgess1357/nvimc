@@ -7,18 +7,23 @@
 --   side windows   " <icon> <name>"           aerial, quickfix, help, the
 --                                             diffview and dap-ui panels
 --                                             (utils.ui.windows, by filetype)
+--   terminals      " <devicon> Term<n> (name) · title"
+--                                             set by utils.terms, drawn by
+--                                             M.render here, so the three
+--                                             cannot drift apart
 --
--- Terminals keep their own winbar (utils.terms); pickers, the dashboard,
--- floats, etc. get none.
+-- Pickers, the dashboard, floats, etc. get none.
 
 local M = {}
 
 local ui = require("utils.ui")
 
--- " <icon> <name>" with the active window in the mode color (LualineBufActive,
--- set in config/colorscheme.lua) and its icon in `icon_hl`; an inactive
--- window in WinBarNC grey end to end, icon included.
-local function render(icon, icon_hl, name, modified)
+-- " <icon> <name>[ ●][<detail>]" with the active window in the mode color
+-- (LualineBufActive, set in config/colorscheme.lua) and its icon in
+-- `icon_hl`; an inactive window in WinBarNC grey end to end, icon included.
+-- `detail` (the terminal's " · title") follows in the plain WinBar color and
+-- is what gets truncated when the window is narrow.
+function M.render(icon, icon_hl, name, modified, detail)
 	local active = tonumber(vim.g.actual_curwin) == vim.api.nvim_get_current_win()
 	local parts = { " " }
 	if icon and icon ~= "" then
@@ -26,8 +31,10 @@ local function render(icon, icon_hl, name, modified)
 	end
 	parts[#parts + 1] = (active and "%#LualineBufActive#" or "%#WinBarNC#") .. name:gsub("%%", "%%%%") .. "%*"
 	if modified then parts[#parts + 1] = " ●" end
+	if detail and detail ~= "" then parts[#parts + 1] = "%<" .. detail:gsub("%%", "%%%%") end
 	return table.concat(parts)
 end
+local render = M.render
 
 function _G.file_winbar()
 	local name = vim.fn.expand("%:t")

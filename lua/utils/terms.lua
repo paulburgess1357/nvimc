@@ -361,45 +361,43 @@ local function on_win_closed(ev)
 end
 
 -----------------------------------------------------------
--- Winbar: "Term<n> (name) · title". With globalstatus a terminal window
--- shows no name, so label it and show the live terminal title
--- (b:term_title: a running program, an agent's status). The label is
--- colored like the buffer tabline and file winbars (utils.winbar): mode
--- color on the active window, WinBarNC grey otherwise.
+-- Winbar: " <devicon> Term<n> (name) · title". With globalstatus a terminal
+-- window shows no name, so label it and show the live terminal title
+-- (b:term_title: a running program, an agent's status). Drawn by
+-- utils.winbar's render, the same one as the file and side-window winbars,
+-- so the icon, the mode color on the active window and the WinBarNC grey
+-- on the others are one definition.
 -----------------------------------------------------------
-function _G.term_winbar_hl()
-	local active = tonumber(vim.g.actual_curwin) == vim.api.nvim_get_current_win()
-	return active and "%#LualineBufActive#" or "%#WinBarNC#"
+
+-- "Term<n> (name)" for slot n.
+local function term_label(n)
+	return "Term" .. n .. (term_names[n] and (" (" .. term_names[n] .. ")") or "")
 end
 
--- The terminal devicon in front, like the file icon in utils.winbar (and the
--- same entry icon in the buffer popup): its own color when the window is
--- active, WinBarNC grey otherwise.
-function _G.term_winbar_icon()
-	local ok, devicons = pcall(require, "nvim-web-devicons")
-	if not ok then return "" end
-	local icon, hl = devicons.get_icon_by_filetype("terminal", { default = true })
-	if not icon or icon == "" then return "" end
-	local active = tonumber(vim.g.actual_curwin) == vim.api.nvim_get_current_win()
-	return (active and hl and ("%#" .. hl .. "#") or "%#WinBarNC#") .. icon .. "%* "
-end
-
-local WINBAR_TAG = "%{%v:lua.term_winbar_icon()%}%{%v:lua.term_winbar_hl()%}Term"
-
--- Winbar title segment. Only titles a program set are worth showing, so two
--- defaults are dropped: an idle shell's "user@host: path" (the prompt already
--- shows it) and Neovim's own "term://dir//pid:shell" seed, which is the title
--- until the shell prints its first prompt.
-function _G.term_winbar_title()
-	local title = vim.b.term_title or ""
-	if title == "" or title:match("^term://") or title:match("^[^@%s]+@[^:%s]+:") then return "" end
+-- The title segment for a terminal buffer, or nil. Only titles a program set
+-- are worth showing, so two defaults are dropped: an idle shell's
+-- "user@host: path" (the prompt already shows it) and Neovim's own
+-- "term://dir//pid:shell" seed, which is the title until the shell prints
+-- its first prompt.
+local function term_title(buf)
+	local title = vim.b[buf].term_title or ""
+	if title == "" or title:match("^term://") or title:match("^[^@%s]+@[^:%s]+:") then return nil end
 	return " " .. require("utils.ui").sep .. " " .. title
 end
 
+function _G.term_winbar(n)
+	local icon, hl = "", nil
+	local ok, devicons = pcall(require, "nvim-web-devicons")
+	if ok then icon, hl = devicons.get_icon_by_filetype("terminal", { default = true }) end
+	return require("utils.winbar").render(icon, hl, term_label(n), false, term_title(0))
+end
+
+-- How a terminal window's 'winbar' starts; on_win_closed & co. recognise
+-- ours by it.
+local WINBAR_TAG = "%{%v:lua.term_winbar("
+
 local function term_winbar(n)
-	local name = term_names[n]
-	local label = name and (" (" .. name:gsub("%%", "%%%%") .. ")") or ""
-	return " " .. WINBAR_TAG .. n .. label .. "%*%<%{v:lua.term_winbar_title()}"
+	return WINBAR_TAG .. n .. ")%}"
 end
 
 -- Label Term<n> and refresh its winbar if it is on screen.
@@ -724,12 +722,7 @@ function M.slots()
 	for n = 1, 10 do
 		local buf = term_bufs[n]
 		if buf and vim.api.nvim_buf_is_valid(buf) then
-			local label = "Term" .. n .. (term_names[n] and (" (" .. term_names[n] .. ")") or "")
-			local title = vim.b[buf].term_title or ""
-			if title ~= "" and not title:match("^term://") and not title:match("^[^@%s]+@[^:%s]+:") then
-				label = label .. " " .. require("utils.ui").sep .. " " .. title
-			end
-			out[#out + 1] = { n = n, buf = buf, label = label, visible = find_buf_win(buf) ~= nil }
+			out[#out + 1] = { n = n, buf = buf, label = term_label(n) .. (term_title(buf) or ""), visible = find_buf_win(buf) ~= nil }
 		end
 	end
 	return out

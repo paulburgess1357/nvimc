@@ -16,6 +16,12 @@ M.border = (require("config.plugins").settings or {}).border or "single"
 -- popup and the notifier all put it on the left; fzf-lua defaults to center.
 M.title_pos = "left"
 
+-- Blank space inside a float's border, { rows, columns }: one column, no
+-- blank rows, in which-key, every noice view and the blink menu (which takes
+-- the column count alone). snacks.notifier's default is the same one column;
+-- fzf-lua draws no padding of its own.
+M.padding = { 0, 1 }
+
 -- Separator between the parts of a label: "Term1 (build) · make", the git
 -- blame line, "Quickfix · Grep foo".
 M.sep = "·"
@@ -83,12 +89,18 @@ M.diagnostics = {
 }
 
 -- Side windows that get a " <icon> <name>" winbar like file windows and
--- terminals (utils.winbar), keyed by filetype. `name` is a string or a
+-- terminals (utils.winbar), keyed by filetype. (:LspInfo is a checkhealth
+-- window, so it is covered; mason and the dap REPL are not here on purpose:
+-- one is a float, the other keeps dap-ui's step controls as its winbar.) `name` is a string or a
 -- function (the quickfix window names its list). `hl` colors the icon on
 -- the active window, as the devicon color does for a file.
 M.windows = {
 	aerial = { icon = "\u{F0645}", hl = "Function", name = "Outline" }, -- md-file_tree
 	help = { icon = "\u{F02D6}", hl = "String", name = function() return "Help " .. M.sep .. " " .. vim.fn.expand("%:t") end }, -- md-help
+	man = { icon = "\u{F05DA}", hl = "String", name = function() return "Man " .. M.sep .. " " .. vim.fn.expand("%:t") end }, -- md-book_open_page_variant
+	checkhealth = { icon = "\u{F04D9}", hl = "DiagnosticOk", name = "Health" }, -- md-stethoscope (the dashboard's Health check)
+	["gitsigns-blame"] = { icon = "\u{F0718}", hl = "Function", name = "Blame" }, -- md-source_commit
+	noice = { icon = "\u{F009C}", hl = "DiagnosticInfo", name = "Notifications" }, -- md-bell_outline (:Noice history)
 	qf = {
 		icon = "\u{F0756}", -- md-format_list_checks
 		hl = "DiagnosticInfo",

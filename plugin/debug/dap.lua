@@ -184,25 +184,25 @@ require("persistent-breakpoints").setup({
 local pb = require("persistent-breakpoints.api")
 
 -- Breakpoints
-vim.keymap.set("n", "<leader>db", pb.toggle_breakpoint, { desc = "Toggle Breakpoint" })
-vim.keymap.set("n", "<leader>dB", function() dap.set_breakpoint(vim.fn.input("Condition: ")) end, { desc = "Conditional Breakpoint" })
+vim.keymap.set("n", "<leader>db", pb.toggle_breakpoint, { desc = "Toggle breakpoint" })
+vim.keymap.set("n", "<leader>dB", function() dap.set_breakpoint(vim.fn.input("Condition: ")) end, { desc = "Conditional breakpoint" })
 -- Execution
-vim.keymap.set("n", "<leader>dc", "<cmd>DapContinue<cr>", { desc = "Continue / Start" })
-vim.keymap.set("n", "<leader>dC", function() dap.run_to_cursor() end, { desc = "Run to Cursor" })
-vim.keymap.set("n", "<leader>dl", function() dap.run_last() end, { desc = "Run Last" })
+vim.keymap.set("n", "<leader>dc", "<cmd>DapContinue<cr>", { desc = "Continue / start" })
+vim.keymap.set("n", "<leader>dC", function() dap.run_to_cursor() end, { desc = "Run to cursor" })
+vim.keymap.set("n", "<leader>dl", function() dap.run_last() end, { desc = "Run last" })
 vim.keymap.set("n", "<leader>dp", function() dap.pause() end, { desc = "Pause" })
 vim.keymap.set("n", "<leader>dt", function() dap.terminate() end, { desc = "Terminate" })
 -- Stepping
-vim.keymap.set("n", "<leader>di", "<cmd>DapStepInto<cr>", { desc = "Step Into" })
-vim.keymap.set("n", "<leader>do", "<cmd>DapStepOver<cr>", { desc = "Step Over" })
-vim.keymap.set("n", "<leader>dO", function() dap.step_out() end, { desc = "Step Out" })
+vim.keymap.set("n", "<leader>di", "<cmd>DapStepInto<cr>", { desc = "Step into" })
+vim.keymap.set("n", "<leader>do", "<cmd>DapStepOver<cr>", { desc = "Step over" })
+vim.keymap.set("n", "<leader>dO", function() dap.step_out() end, { desc = "Step out" })
 -- Navigation
-vim.keymap.set("n", "<leader>dj", function() dap.down() end, { desc = "Down Stack" })
-vim.keymap.set("n", "<leader>dk", function() dap.up() end, { desc = "Up Stack" })
+vim.keymap.set("n", "<leader>dj", function() dap.down() end, { desc = "Down stack" })
+vim.keymap.set("n", "<leader>dk", function() dap.up() end, { desc = "Up stack" })
 -- Tools
 vim.keymap.set("n", "<leader>dr", function() dap.repl.toggle() end, { desc = "Toggle REPL" })
 vim.keymap.set("n", "<leader>ds", function() dap.session() end, { desc = "Session" })
-vim.keymap.set("n", "<leader>dL", function() dap.set_breakpoint(nil, nil, vim.fn.input("Log message: ")) end, { desc = "Log Point" })
+vim.keymap.set("n", "<leader>dL", function() dap.set_breakpoint(nil, nil, vim.fn.input("Log message: ")) end, { desc = "Log point" })
 vim.keymap.set("n", "<leader>dE", function()
 	vim.ui.select({ "all", "uncaught", "none" }, { prompt = "Exception breakpoints:" }, function(choice)
 		if choice then
@@ -211,14 +211,14 @@ vim.keymap.set("n", "<leader>dE", function()
 			vim.notify("Exception breakpoints: " .. choice, vim.log.levels.INFO)
 		end
 	end)
-end, { desc = "Exception Breakpoints" })
-vim.keymap.set("n", "<leader>da", function() dapui.elements.watches.add(vim.fn.expand("<cword>")) end, { desc = "Add Watch" })
+end, { desc = "Exception breakpoints" })
+vim.keymap.set("n", "<leader>da", function() dapui.elements.watches.add(vim.fn.expand("<cword>")) end, { desc = "Add watch" })
 -- DAP UI
 vim.keymap.set("n", "<leader>du", function() dapui.toggle({}) end, { desc = "DAP UI" })
 vim.keymap.set({ "n", "v" }, "<leader>de", function() dapui.eval() end, { desc = "Eval" })
 -- F-key bindings
 vim.keymap.set("n", "<F5>", "<cmd>DapContinue<cr>", { desc = "Continue" })
-vim.keymap.set("n", "<F8>", pb.toggle_breakpoint, { desc = "Toggle Breakpoint" })
-vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<cr>", { desc = "Step Over" })
-vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<cr>", { desc = "Step Into" })
-vim.keymap.set("n", "<S-F11>", function() dap.step_out() end, { desc = "Step Out" })
+vim.keymap.set("n", "<F8>", pb.toggle_breakpoint, { desc = "Toggle breakpoint" })
+vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<cr>", { desc = "Step over" })
+vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<cr>", { desc = "Step into" })
+vim.keymap.set("n", "<S-F11>", function() dap.step_out() end, { desc = "Step out" })

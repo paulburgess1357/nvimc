@@ -83,15 +83,15 @@ require("snacks").setup({
 				{
 					icon = "\u{F09DB} ", -- md-chevron_right_box_outline
 					key = "s",
-					desc = "Restore Session",
+					desc = "Restore session",
 					action = ":lua require('utils.session').restore()",
 					enabled = function() return require("utils.session").exists() end,
 				},
-				{ icon = "\u{F02DA} ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" }, -- md-history
+				{ icon = "\u{F02DA} ", key = "r", desc = "Recent files", action = ":lua Snacks.dashboard.pick('oldfiles')" }, -- md-history
 				{ icon = "\u{F0493} ", key = "c", desc = "Config", action = ":e " .. vim.fn.stdpath("config") .. "/lua/config/plugins.lua" }, -- md-cog
-				{ icon = "\u{F06B0} ", key = "u", desc = "Update Plugins", action = ":lua vim.pack.update()" }, -- md-update
-				{ icon = "\u{F03D6} ", key = "p", desc = "Browse Plugins", action = ":lua vim.pack.update(nil, { offline = true })" }, -- md-package_variant
-				{ icon = "\u{F04D9} ", key = "h", desc = "Health Check", action = ":checkhealth" }, -- md-stethoscope
+				{ icon = "\u{F06B0} ", key = "u", desc = "Update plugins", action = ":lua vim.pack.update()" }, -- md-update
+				{ icon = "\u{F03D6} ", key = "p", desc = "Browse plugins", action = ":lua vim.pack.update(nil, { offline = true })" }, -- md-package_variant
+				{ icon = "\u{F04D9} ", key = "h", desc = "Health check", action = ":checkhealth" }, -- md-stethoscope
 				{ icon = "\u{F0A48} ", key = "q", desc = "Quit", action = ":qa" }, -- md-exit_run
 			},
 		},

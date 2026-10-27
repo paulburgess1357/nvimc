@@ -10,7 +10,7 @@ wk.setup({
 	delay = 200,
 	win = {
 		border = border,
-		padding = { 1, 2 },
+		padding = ui.padding, -- one column, like every float
 		title_pos = ui.title_pos, -- group name on the left, like every float's title
 	},
 	-- Group icons: Material, like every other pictogram (see utils.ui).
@@ -34,11 +34,11 @@ local static_desc = { enabled = "", disabled = "" }
 local wrap_toggle = Snacks.toggle.option("wrap", { name = "Wrap", wk_desc = static_desc })
 wrap_toggle:map("<leader>uw")
 wrap_toggle:map("<leader><leader>w")
-Snacks.toggle.option("relativenumber", { name = "Relative Number", wk_desc = static_desc }):map("<leader>ul")
+Snacks.toggle.option("relativenumber", { name = "Relative number", wk_desc = static_desc }):map("<leader>ul")
 Snacks.toggle.option("spell", { name = "Spell", wk_desc = static_desc }):map("<leader>us")
 
 Snacks.toggle({
-	name = "Diagnostic Signs",
+	name = "Diagnostic signs",
 	wk_desc = static_desc,
 	get = function()
 		return vim.diagnostic.config().signs ~= false
@@ -49,7 +49,7 @@ Snacks.toggle({
 }):map("<leader><leader>s")
 
 Snacks.toggle({
-	name = "Virtual Text",
+	name = "Virtual text",
 	wk_desc = static_desc,
 	get = function()
 		return vim.diagnostic.config().virtual_text ~= false
@@ -73,7 +73,7 @@ Snacks.toggle({
 }):map("<leader><leader>v")
 
 Snacks.toggle({
-	name = "Format on Save",
+	name = "Format on save",
 	wk_desc = static_desc,
 	get = function()
 		return not vim.g.disable_autoformat
@@ -85,7 +85,7 @@ Snacks.toggle({
 
 local smart_wrap_copy = require("utils.smart_wrap_copy")
 Snacks.toggle({
-	name = "Smart Wrap Copy",
+	name = "Smart wrap copy",
 	wk_desc = static_desc,
 	get = smart_wrap_copy.is_enabled,
 	set = smart_wrap_copy.set_enabled,
@@ -100,7 +100,7 @@ Snacks.toggle({
 }):map("<leader><leader>c")
 
 Snacks.toggle({
-	name = "Git Blame",
+	name = "Git blame",
 	wk_desc = static_desc,
 	get = function()
 		return require("gitsigns.config").config.current_line_blame
@@ -114,7 +114,7 @@ Snacks.toggle({
 -- off, they reach the program running in the terminal (nested vim, TUIs).
 local terms = require("utils.terms")
 Snacks.toggle({
-	name = "Terminal Window Keys",
+	name = "Terminal window keys",
 	wk_desc = static_desc,
 	get = function()
 		return terms.window_keys
@@ -128,7 +128,7 @@ Snacks.toggle({
 -- only when two files share a name.
 local buftabs = require("utils.buftabs")
 Snacks.toggle({
-	name = "Buffer Parent Dir",
+	name = "Buffer parent dir",
 	wk_desc = static_desc,
 	get = function()
 		return buftabs.show_parent

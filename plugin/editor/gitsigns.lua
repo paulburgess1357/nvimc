@@ -1,12 +1,15 @@
 local cfg = require("config.plugins").gitsigns or {}
 if cfg.enabled == false then return end
 
-local sep = require("utils.ui").sep -- the same " · " as the Term winbars
+local ui = require("utils.ui")
+local sep = ui.sep -- the same " · " as the Term winbars
 
 require("gitsigns").setup({
+	-- Added / changed lines marked with the same bar as the indent guides and
+	-- the statusline separators (utils.ui.bar), untracked with its dashed form.
 	signs = {
-		add = { text = "┃" },
-		change = { text = "┃" },
+		add = { text = ui.bar },
+		change = { text = ui.bar },
 		delete = { text = "_" },
 		topdelete = { text = "‾" },
 		changedelete = { text = "~" },
@@ -14,7 +17,7 @@ require("gitsigns").setup({
 	},
 	signs_staged_enable = true,
 	attach_to_untracked = true,
-	preview_config = { border = require("utils.ui").border }, -- <leader>hp float, the shared border
+	preview_config = { border = ui.border }, -- <leader>hp float, the shared border
 	current_line_blame = false,
 	current_line_blame_opts = { delay = 10 },
 	current_line_blame_formatter = "   <abbrev_sha> " .. sep .. " <author>, <author_time:%R> " .. sep .. " <summary>",

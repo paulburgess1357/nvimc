@@ -22,8 +22,8 @@ require("illuminate").configure({
 
 vim.keymap.set("n", "]]", function()
 	require("illuminate").goto_next_reference(false)
-end, { desc = "Next Reference" })
+end, { desc = "Next reference" })
 
 vim.keymap.set("n", "[[", function()
 	require("illuminate").goto_prev_reference(false)
-end, { desc = "Prev Reference" })
+end, { desc = "Prev reference" })

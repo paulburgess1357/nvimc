@@ -1,6 +1,7 @@
 local plugins = require("config.plugins")
 local cfg = plugins.blink or {}
-local border = require("utils.ui").border
+local ui = require("utils.ui")
+local border = ui.border
 if cfg.enabled == false then return end
 
 require("blink.cmp").setup({
@@ -38,6 +39,7 @@ require("blink.cmp").setup({
 				-- Kind as the icon alone (the same glyph as aerial and the fzf
 				-- symbol pickers), not "icon Function".
 				columns = { { "label", "label_description", gap = 1 }, { "kind_icon" } },
+				padding = ui.padding[2], -- the one column every float has
 			},
 		},
 		documentation = {
