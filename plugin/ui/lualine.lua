@@ -39,7 +39,7 @@ require("lualine").setup({
 		lualine_a = { "mode" },
 		lualine_b = {
 			{ "branch", icon = "\u{F062C}" }, -- md-source_branch
-			"diff",
+			{ "diff", symbols = { added = "\u{F0415} ", modified = "\u{F03EB} ", removed = "\u{F0374} " } }, -- md-plus md-pencil md-minus
 			{
 				"diagnostics",
 				-- The same glyphs as the gutter signs and the notifier.

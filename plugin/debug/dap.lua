@@ -125,6 +125,7 @@ dap.configurations.bash = dap.configurations.sh
 -----------------------------------------------------------
 local dapui = require("dapui")
 dapui.setup({
+	floating = { border = require("utils.ui").border }, -- <leader>de eval float, the shared border
 	layouts = {
 		{
 			elements = {

@@ -14,6 +14,7 @@ require("gitsigns").setup({
 	},
 	signs_staged_enable = true,
 	attach_to_untracked = true,
+	preview_config = { border = require("utils.ui").border }, -- <leader>hp float, the shared border
 	current_line_blame = false,
 	current_line_blame_opts = { delay = 10 },
 	current_line_blame_formatter = "   <abbrev_sha> " .. sep .. " <author>, <author_time:%R> " .. sep .. " <summary>",

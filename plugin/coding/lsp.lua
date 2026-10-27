@@ -162,7 +162,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -- Mason
 -----------------------------------------------------------
 if mason_cfg.enabled ~= false then
-	require("mason").setup()
+	require("mason").setup({ ui = { border = border } })
 	require("mason-lspconfig").setup({
 		ensure_installed = {
 			"lua_ls", "clangd", "pyright", "rust_analyzer", "gopls",

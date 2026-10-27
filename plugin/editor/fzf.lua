@@ -157,8 +157,8 @@ cmd("Terms", function()
 		entries[#entries + 1] = string.format("[%d]%s%s%s", slot.buf, utils.nbsp, icon, label)
 	end
 	fzf.fzf_exec(entries, {
-		prompt = "Terms> ",
-		winopts = { title = " Terms " },
+		prompt = "Terminals> ",
+		winopts = { title = " Terminals " }, -- the peek popup's word; the command stays :Terms
 		previewer = Previewer,
 		-- Show the label only; the "[bufnr]" field stays in the entry for fzf-lua.
 		fzf_opts = { ["--delimiter"] = utils.nbsp, ["--with-nth"] = "2.." },

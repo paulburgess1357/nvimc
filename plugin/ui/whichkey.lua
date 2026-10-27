@@ -1,6 +1,7 @@
 local plugins = require("config.plugins")
 local cfg = plugins.whichkey or {}
-local border = require("utils.ui").border
+local ui = require("utils.ui")
+local border = ui.border
 if cfg.enabled == false then return end
 
 local wk = require("which-key")
@@ -10,6 +11,7 @@ wk.setup({
 	win = {
 		border = border,
 		padding = { 1, 2 },
+		title_pos = ui.title_pos, -- group name on the left, like every float's title
 	},
 	-- Group icons: Material, like every other pictogram (see utils.ui).
 	spec = {
@@ -57,7 +59,11 @@ Snacks.toggle({
 			virtual_text = state and {
 				spacing = 4,
 				source = "if_many",
-				prefix = "",
+				-- The level's icon, the same glyph as the sign in the gutter.
+				prefix = function(diag)
+					local icons = ui.diagnostics
+					return ({ icons.error, icons.warn, icons.info, icons.hint })[diag.severity] or ""
+				end,
 			} or false,
 		})
 	end,
