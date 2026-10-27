@@ -6,14 +6,14 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 
 | Command | Action |
 | ------- | ------ |
-| `:Files` | Find files |
+| `:Files` | Files |
 | `:Buffers` | Buffer list |
 | `:Terms` | Open Term slots, with a preview of each terminal; picking one focuses it |
 | `:Rg` / `:Grep` | Live grep |
 | `:Symbols` | Document symbols |
 | `:SymbolsAll` | Workspace symbols (live, search root only) |
 | `:Marks` | Marks |
-| `:Help` | Help tags |
+| `:Help` | Help |
 | `:Commands` | Commands |
 | `:Keymaps` | Keymaps |
 | `:Aerials` | Toggle outline sidebar |

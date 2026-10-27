@@ -32,6 +32,7 @@ require("blink.cmp").setup({
 	completion = {
 		menu = {
 			border = border,
+			scrollbar = false, -- no float draws one (nor the doc and signature windows below)
 			draw = {
 				-- Labels colored by treesitter, so a function or a variable looks
 				-- the same in the menu as in the buffer.
@@ -47,6 +48,7 @@ require("blink.cmp").setup({
 			auto_show_delay_ms = 200,
 			window = {
 				border = border,
+				scrollbar = false,
 			},
 		},
 	},
@@ -54,6 +56,7 @@ require("blink.cmp").setup({
 		enabled = true,
 		window = {
 			border = border,
+			scrollbar = false,
 		},
 	},
 	fuzzy = {

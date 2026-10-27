@@ -42,6 +42,7 @@ fzf.setup({
 			default = "builtin",
 			border = border,
 			title_pos = ui.title_pos,
+			scrollbar = false, -- no float draws one
 			wrap = "nowrap",
 			hidden = "nohidden",
 			vertical = "down:45%",
@@ -85,7 +86,7 @@ local cmd = vim.api.nvim_create_user_command
 cmd("Symbols", fzf.lsp_document_symbols, { desc = "Document symbols" })
 cmd("SymbolsAll", function() fzf.lsp_live_workspace_symbols(root.opts("Workspace Symbols", { cwd_only = true })) end, { desc = "Workspace symbols (live)" })
 cmd("Marks", fzf.marks, { desc = "Marks" })
-cmd("Files", function() fzf.files(root.opts("Files")) end, { desc = "Find files" })
+cmd("Files", function() fzf.files(root.opts("Files")) end, { desc = "Files" })
 cmd("Buffers", fzf.buffers, { desc = "Buffers" })
 -- :Terms is :Buffers for the Term slots (utils.terms): one line per open
 -- slot, "Term<n> (name) · title", with the builtin previewer showing the
@@ -175,7 +176,7 @@ cmd("Terms", function()
 end, { desc = "Terminals" })
 cmd("Rg", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
 cmd("Grep", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
-cmd("Help", fzf.help_tags, { desc = "Help tags" })
+cmd("Help", fzf.help_tags, { desc = "Help" })
 cmd("Commands", fzf.commands, { desc = "Commands" })
 cmd("Keymaps", fzf.keymaps, { desc = "Keymaps" })
 
@@ -188,7 +189,7 @@ vim.keymap.set("n", "<leader>sg", function() fzf.grep(root.opts("Grep", { search
 vim.keymap.set("n", "<leader>sw", function() fzf.grep_cword(root.opts("Grep word")) end, { desc = "Word under cursor" })
 vim.keymap.set("n", "<leader>sW", function() fzf.grep_cWORD(root.opts("Grep WORD")) end, { desc = "WORD under cursor" })
 vim.keymap.set("v", "<leader>sv", function() fzf.grep_visual(root.opts("Grep selection")) end, { desc = "Selection" })
-vim.keymap.set("n", "<leader>sb", "<cmd>FzfLua grep_curbuf<cr>", { desc = "Buffer" })
+vim.keymap.set("n", "<leader>sb", "<cmd>FzfLua grep_curbuf<cr>", { desc = "Grep buffer" })
 -- Git
 vim.keymap.set("n", "<leader>gf", "<cmd>FzfLua git_files<cr>", { desc = "Git files" })
 vim.keymap.set("n", "<leader>gc", "<cmd>FzfLua git_commits<cr>", { desc = "Commits" })

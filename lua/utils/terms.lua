@@ -421,10 +421,8 @@ local function setup_term_buf(n, buf)
 		buffer = buf,
 		callback = function()
 			vim.wo.winbar = term_winbar(n)
-			local wo = vim.wo[0][0]
-			wo.number, wo.relativenumber = false, false
-			wo.signcolumn, wo.foldcolumn = "no", "0"
-			wo.wrap, wo.list = false, false
+			require("utils.winbar").plain_gutter(0) -- the side windows' gutter
+			vim.wo[0][0].wrap = false
 		end,
 	})
 	vim.keymap.set("n", "q", function()

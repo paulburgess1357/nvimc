@@ -13,6 +13,9 @@
 --                                             cannot drift apart
 --
 -- Pickers, the dashboard, floats, etc. get none.
+--
+-- A side window and a terminal also get the same gutter: none (M.plain_gutter),
+-- where a file window keeps its line numbers and sign column.
 
 local M = {}
 
@@ -54,6 +57,16 @@ function _G.named_winbar()
 	return render(spec.icon, spec.hl, name, false)
 end
 
+-- The window options of a pane that lists or shows things rather than edits
+-- a file: no line numbers, sign column, fold column or listchars. Applied
+-- with the named winbar, and by utils.terms to its terminals.
+function M.plain_gutter(win)
+	local wo = vim.wo[win][0]
+	wo.number, wo.relativenumber = false, false
+	wo.signcolumn, wo.foldcolumn = "no", "0"
+	wo.list = false
+end
+
 local FILE_WINBAR = "%{%v:lua.file_winbar()%}"
 local NAMED_WINBAR = "%{%v:lua.named_winbar()%}"
 
@@ -76,6 +89,7 @@ local function apply(win)
 		vim.wo[win].winbar = FILE_WINBAR
 	elseif wants_named_winbar(win) then
 		vim.wo[win].winbar = NAMED_WINBAR
+		M.plain_gutter(win)
 	elseif vim.wo[win].winbar == FILE_WINBAR or vim.wo[win].winbar == NAMED_WINBAR then
 		vim.wo[win].winbar = ""
 	end
