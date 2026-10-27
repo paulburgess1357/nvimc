@@ -31,6 +31,14 @@ require("blink.cmp").setup({
 	completion = {
 		menu = {
 			border = border,
+			draw = {
+				-- Labels colored by treesitter, so a function or a variable looks
+				-- the same in the menu as in the buffer.
+				treesitter = { "lsp" },
+				-- Kind as the icon alone (the same glyph as aerial and the fzf
+				-- symbol pickers), not "icon Function".
+				columns = { { "label", "label_description", gap = 1 }, { "kind_icon" } },
+			},
 		},
 		documentation = {
 			auto_show = true,
