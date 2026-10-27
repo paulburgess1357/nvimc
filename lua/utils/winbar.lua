@@ -62,7 +62,9 @@ end
 -- Give `win` the winbar its buffer calls for, or take ours away when the
 -- buffer no longer does (a terminal or a picker landing in the window).
 local function apply(win)
-	if vim.api.nvim_win_get_config(win).relative ~= "" then return end
+	-- Floats get none, except the snacks zoom float (snacks_main), which
+	-- stands in for the window it covers and keeps its title.
+	if vim.api.nvim_win_get_config(win).relative ~= "" and not vim.w[win].snacks_main then return end
 	if wants_file_winbar(win) then
 		vim.wo[win].winbar = FILE_WINBAR
 	elseif wants_named_winbar(win) then

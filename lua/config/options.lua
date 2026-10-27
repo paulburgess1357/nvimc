@@ -39,6 +39,13 @@ vim.opt.winborder = require("utils.ui").border
 -- <S-j> shows the buffer tabs in a popup (utils.buftabs). lualine has no
 -- tabline section, so it never turns this back on.
 vim.opt.showtabline = 0
+-- Whitespace you would otherwise not see, in the indent guides' grey
+-- (Whitespace / NonText): trailing spaces as the usual dot, no-break spaces,
+-- and the chevrons used elsewhere (the aerial breadcrumb) when a long line
+-- runs off the edge of a nowrap window. Tabs render as blank so the indent
+-- guides (snacks) draw over them as they do over spaces.
+vim.opt.list = true
+vim.opt.listchars = { tab = "  ", trail = "·", nbsp = "␣", extends = "›", precedes = "‹" }
 
 -- Backspace
 vim.opt.backspace = "indent,eol,start"

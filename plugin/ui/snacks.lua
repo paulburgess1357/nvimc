@@ -129,5 +129,9 @@ require("snacks").setup({
 		end,
 	},
 	scroll = { enabled = false },
+	-- Zoom (<leader><leader>z): the buffer in a full-size float. The shared
+	-- border frames it, and it keeps its winbar (utils.winbar / utils.terms
+	-- allow it on this float), so it is titled like the window it came from.
+	zen = { zoom = { win = { border = ui.border } } },
 	toggle = { enabled = true, which_key = true, notify = true },
 })
