@@ -10,6 +10,15 @@ require("noice").setup({
 	cmdline = {
 		enabled = true,
 		view = "cmdline_popup",
+		-- Prompt icons: Material, like every other pictogram (see utils.ui).
+		format = {
+			cmdline = { icon = "\u{F07B7}" }, -- md-console_line
+			search_down = { icon = "\u{F0349} \u{F0140}" }, -- md-magnify md-chevron_down
+			search_up = { icon = "\u{F0349} \u{F0143}" }, -- md-magnify md-chevron_up
+			lua = { icon = "\u{F08B1}" }, -- md-language_lua
+			help = { icon = "\u{F02D6}" }, -- md-help
+			input = { icon = "\u{F03EB}" }, -- md-pencil
+		},
 	},
 	messages = {
 		enabled = true,
@@ -47,7 +56,9 @@ require("noice").setup({
 	-- settings.border on every bordered view (noice and its lsp_doc_border
 	-- preset default to rounded regardless of 'winborder').
 	views = {
-		cmdline_popup = { border = { style = border } },
+		-- The cmdline popup's " Cmdline " / " Search " title on the left, as on
+		-- every other float (noice centers it).
+		cmdline_popup = { border = { style = border, text = { top_align = require("utils.ui").title_pos } } },
 		cmdline_input = { border = { style = border } },
 		popup = { border = { style = border } },
 		confirm = { border = { style = border } },

@@ -1,0 +1,2 @@
+I want Term10, etc to put me in insert mode.
+

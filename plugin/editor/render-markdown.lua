@@ -24,8 +24,8 @@ require("render-markdown").setup({
 	},
 	checkbox = {
 		enabled = true,
-		unchecked = { icon = "󰄱 " },
-		checked = { icon = "󰱒 " },
+		unchecked = { icon = "\u{F0131} " }, -- md-checkbox_blank_outline
+		checked = { icon = "\u{F0C52} " }, -- md-checkbox_outline
 	},
 	quote = {
 		enabled = true,

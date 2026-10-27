@@ -11,16 +11,17 @@ wk.setup({
 		border = border,
 		padding = { 1, 2 },
 	},
+	-- Group icons: Material, like every other pictogram (see utils.ui).
 	spec = {
-		{ "<leader>b", group = "Buffer", icon = "" },
-		{ "<leader>c", group = "Code", icon = "" },
-		{ "<leader>d", group = "Debug", icon = "" },
-		{ "<leader>f", group = "Find", icon = "󰈞" },
-		{ "<leader>g", group = "Git", icon = "" },
-		{ "<leader>h", group = "Hunk", icon = "" },
-		{ "<leader>s", group = "Search", icon = "" },
-		{ "<leader>u", group = "UI", icon = "" },
-		{ "<leader><leader>", group = "Custom", icon = "" },
+		{ "<leader>b", group = "Buffer", icon = "\u{F0214}" }, -- md-file
+		{ "<leader>c", group = "Code", icon = "\u{F0174}" }, -- md-code_tags
+		{ "<leader>d", group = "Debug", icon = "\u{F00E4}" }, -- md-bug
+		{ "<leader>f", group = "Find", icon = "\u{F021E}" }, -- md-file_find
+		{ "<leader>g", group = "Git", icon = "\u{F02A2}" }, -- md-git
+		{ "<leader>h", group = "Hunk", icon = "\u{F062C}" }, -- md-source_branch
+		{ "<leader>s", group = "Search", icon = "\u{F13B8}" }, -- md-text_search
+		{ "<leader>u", group = "UI", icon = "\u{F0675}" }, -- md-application_cog
+		{ "<leader><leader>", group = "Custom", icon = "\u{F0633}" }, -- md-apple_keyboard_command
 	},
 })
 

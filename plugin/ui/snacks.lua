@@ -3,6 +3,8 @@ local cfg = plugins.snacks or {}
 local settings = plugins.settings or {}
 if cfg.enabled == false then return end
 
+local ui = require("utils.ui")
+
 -----------------------------------------------------------
 -- Dashboard gradient colors (adapts to colorscheme)
 -----------------------------------------------------------
@@ -79,18 +81,18 @@ require("snacks").setup({
 		preset = {
 			keys = {
 				{
-					icon = "󰦛 ",
+					icon = "\u{F09DB} ", -- md-chevron_right_box_outline
 					key = "s",
 					desc = "Restore Session",
 					action = ":lua require('utils.session').restore()",
 					enabled = function() return require("utils.session").exists() end,
 				},
-				{ icon = "󰋚 ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
-				{ icon = "󰒓 ", key = "c", desc = "Config", action = ":e " .. vim.fn.stdpath("config") .. "/lua/config/plugins.lua" },
-				{ icon = "󰚰 ", key = "u", desc = "Update Plugins", action = ":lua vim.pack.update()" },
-				{ icon = "󰏖 ", key = "p", desc = "Browse Plugins", action = ":lua vim.pack.update(nil, { offline = true })" },
-				{ icon = "󰓙 ", key = "h", desc = "Health Check", action = ":checkhealth" },
-				{ icon = "󰩈 ", key = "q", desc = "Quit", action = ":qa" },
+				{ icon = "\u{F02DA} ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" }, -- md-history
+				{ icon = "\u{F0493} ", key = "c", desc = "Config", action = ":e " .. vim.fn.stdpath("config") .. "/lua/config/plugins.lua" }, -- md-cog
+				{ icon = "\u{F06B0} ", key = "u", desc = "Update Plugins", action = ":lua vim.pack.update()" }, -- md-update
+				{ icon = "\u{F03D6} ", key = "p", desc = "Browse Plugins", action = ":lua vim.pack.update(nil, { offline = true })" }, -- md-package_variant
+				{ icon = "\u{F04D9} ", key = "h", desc = "Health Check", action = ":checkhealth" }, -- md-stethoscope
+				{ icon = "\u{F0A48} ", key = "q", desc = "Quit", action = ":qa" }, -- md-exit_run
 			},
 		},
 		sections = make_header_sections(),
@@ -106,6 +108,15 @@ require("snacks").setup({
 	notifier = {
 		enabled = true,
 		timeout = 3000,
+		-- The same level glyphs as the gutter and lualine (utils.ui), stated
+		-- rather than relying on snacks' defaults matching.
+		icons = {
+			error = ui.diagnostics.error .. " ",
+			warn = ui.diagnostics.warn .. " ",
+			info = ui.diagnostics.info .. " ",
+			debug = "\u{F00E4} ", -- md-bug
+			trace = "\u{F03EB} ", -- md-pencil
+		},
 		top_down = true,
 		-- snacks' "compact" style with the title on the left like the other floats.
 		style = function(buf, notif, ctx)

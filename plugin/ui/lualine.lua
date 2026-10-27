@@ -38,7 +38,7 @@ require("lualine").setup({
 	sections = {
 		lualine_a = { "mode" },
 		lualine_b = {
-			"branch",
+			{ "branch", icon = "\u{F062C}" }, -- md-source_branch
 			"diff",
 			{
 				"diagnostics",
