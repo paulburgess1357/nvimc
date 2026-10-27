@@ -13,6 +13,22 @@ wk.setup({
 		padding = ui.padding, -- one column, like every float
 		title_pos = ui.title_pos, -- group name on the left, like every float's title
 	},
+	icons = {
+		-- No icon per mapping: which-key's rules draw them from several Nerd
+		-- Font sets. Only the group icons stated in `spec` below show.
+		rules = false,
+		-- Between a key and its label, and in the cmdline's key trail: the
+		-- same chevron as the breadcrumb in the statusline.
+		separator = ui.crumb,
+		breadcrumb = ui.crumb,
+		-- which-key's glyphs for special keys are Material except the arrows.
+		keys = {
+			Up = "\u{F005D} ", -- md-arrow_up
+			Down = "\u{F0045} ", -- md-arrow_down
+			Left = "\u{F004D} ", -- md-arrow_left
+			Right = "\u{F0054} ", -- md-arrow_right
+		},
+	},
 	-- Group icons: Material, like every other pictogram (see utils.ui).
 	spec = {
 		{ "<leader>b", group = "Buffer", icon = "\u{F0214}" }, -- md-file

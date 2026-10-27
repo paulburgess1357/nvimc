@@ -51,6 +51,16 @@ end
 
 require("diffview").setup({
 	enhanced_diff_hl = true, -- richer add/change/delete highlighting in the diff
+	-- File panel pictograms: Material, like every other (see utils.ui).
+	icons = {
+		folder_closed = "\u{F024B}", -- md-folder
+		folder_open = "\u{F0770}", -- md-folder_open
+	},
+	signs = {
+		fold_closed = "\u{F0142}", -- md-chevron_right
+		fold_open = "\u{F0140}", -- md-chevron_down
+		done = "\u{F012C}", -- md-check
+	},
 	view = {
 		default = { winbar_info = false },
 	},
