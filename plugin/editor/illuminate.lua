@@ -26,4 +26,4 @@ end, { desc = "Next reference" })
 
 vim.keymap.set("n", "[[", function()
 	require("illuminate").goto_prev_reference(false)
-end, { desc = "Prev reference" })
+end, { desc = "Previous reference" })

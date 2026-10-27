@@ -827,7 +827,7 @@ function M.setup()
 	vim.api.nvim_create_user_command("Term", function(opts)
 		local n = resolve_term(opts.args)
 		if not n then
-			vim.notify("Term: no terminal named " .. opts.args, vim.log.levels.ERROR)
+			vim.notify("No terminal named " .. opts.args, vim.log.levels.ERROR, { title = "Terminals" })
 			return
 		end
 		toggle_term(n)
@@ -841,7 +841,7 @@ function M.setup()
 		if opts.args ~= "" then
 			n = resolve_term(opts.args)
 			if not n then
-				vim.notify("TermFocus: no terminal 1-10 or named " .. opts.args, vim.log.levels.ERROR)
+				vim.notify("No terminal 1-10 or named " .. opts.args, vim.log.levels.ERROR, { title = "Terminals" })
 				return
 			end
 		end
@@ -855,7 +855,7 @@ function M.setup()
 		if opts.args ~= "" then
 			n = resolve_term(opts.args)
 			if not n then
-				vim.notify("TermRun: no terminal 1-10 or named " .. opts.args, vim.log.levels.ERROR)
+				vim.notify("No terminal 1-10 or named " .. opts.args, vim.log.levels.ERROR, { title = "Terminals" })
 				return
 			end
 		end

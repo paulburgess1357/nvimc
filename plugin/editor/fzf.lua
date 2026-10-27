@@ -93,7 +93,7 @@ cmd("Buffers", fzf.buffers, { desc = "Buffers" })
 cmd("Terms", function()
 	local terms = require("utils.terms")
 	local slots = terms.slots()
-	if #slots == 0 then return vim.notify("No terminals open", vim.log.levels.INFO) end
+	if #slots == 0 then return vim.notify("No terminals open", vim.log.levels.INFO, { title = "Terminals" }) end
 	local utils = require("fzf-lua.utils")
 	-- The builtin previewer titles a buffer "buf <n>: <bufname>", which for a
 	-- terminal is its term:// path. Title it with the entry's label instead.
@@ -157,7 +157,7 @@ cmd("Terms", function()
 		entries[#entries + 1] = string.format("[%d]%s%s%s", slot.buf, utils.nbsp, icon, label)
 	end
 	fzf.fzf_exec(entries, {
-		prompt = "Terminals> ",
+		prompt = "> ", -- the title already says what it lists, like fzf-lua's own pickers
 		winopts = { title = " Terminals " }, -- the peek popup's word; the command stays :Terms
 		previewer = Previewer,
 		-- Show the label only; the "[bufnr]" field stays in the entry for fzf-lua.

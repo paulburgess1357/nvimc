@@ -92,7 +92,7 @@ end
 
 function M.restore()
 	if not M.exists() then
-		vim.notify("No session for " .. vim.fn.getcwd(), vim.log.levels.WARN)
+		vim.notify("No session for " .. vim.fn.getcwd(), vim.log.levels.WARN, { title = "Session" })
 		return
 	end
 	-- Start from a clean slate: the session script's `only` must run from a

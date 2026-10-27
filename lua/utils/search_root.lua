@@ -52,7 +52,7 @@ end
 -- for the current window.
 function M.cycle()
 	M.mode = M.mode % #M.modes + 1
-	vim.notify(("Search root: %s\n%s"):format(M.label(), vim.fn.fnamemodify(M.dir(), ":~")), vim.log.levels.INFO)
+	vim.notify(("%s\n%s"):format(M.label(), vim.fn.fnamemodify(M.dir(), ":~")), vim.log.levels.INFO, { title = "Search root" })
 end
 
 -- Picker opts for `label`: the root as cwd, and a title that names it so the

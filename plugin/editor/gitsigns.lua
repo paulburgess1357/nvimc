@@ -44,7 +44,7 @@ require("gitsigns").setup({
 			else
 				gs.nav_hunk("prev")
 			end
-		end, { desc = "Prev git hunk" })
+		end, { desc = "Previous git hunk" })
 
 		map("n", "<leader>hs", gs.stage_hunk, { desc = "Stage hunk" })
 		map("n", "<leader>hr", gs.reset_hunk, { desc = "Reset hunk" })

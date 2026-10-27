@@ -136,7 +136,7 @@ vim.api.nvim_create_user_command("LspIndexAll", function()
 	-- Get filetypes from current buffer's LSP clients
 	local clients = vim.lsp.get_clients({ bufnr = 0 })
 	if #clients == 0 then
-		vim.notify("No LSP client attached", vim.log.levels.WARN)
+		vim.notify("No LSP client attached", vim.log.levels.WARN, { title = "LSP" })
 		return
 	end
 
@@ -198,7 +198,7 @@ vim.api.nvim_create_user_command("LspIndexAll", function()
 			end)
 		else
 			vim.api.nvim_echo({ { "" } }, false, {}) -- Clear command line
-			vim.notify(string.format("[%s] Indexing complete: %d files loaded", lsp_name, count), vim.log.levels.INFO)
+			vim.notify(("Indexing complete, %d files loaded"):format(count), vim.log.levels.INFO, { title = lsp_name })
 		end
 	end
 

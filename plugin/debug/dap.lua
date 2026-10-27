@@ -208,7 +208,7 @@ vim.keymap.set("n", "<leader>dE", function()
 		if choice then
 			local filters = choice == "none" and {} or { choice }
 			dap.set_exception_breakpoints(filters)
-			vim.notify("Exception breakpoints: " .. choice, vim.log.levels.INFO)
+			vim.notify("Exception breakpoints: " .. choice, vim.log.levels.INFO, { title = "Debug" })
 		end
 	end)
 end, { desc = "Exception breakpoints" })

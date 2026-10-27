@@ -368,7 +368,7 @@ function M.peek()
 	end)
 	peek_close()
 	if not ok then
-		vim.notify("buftabs: " .. tostring(err), vim.log.levels.ERROR)
+		vim.notify(tostring(err), vim.log.levels.ERROR, { title = "Buffers" })
 		return
 	end
 	if chosen then

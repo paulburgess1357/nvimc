@@ -19,7 +19,7 @@ end
 
 M.intuitive_resize = function(direction, amount)
 	if vim.fn.winnr("$") == 1 then
-		vim.notify("Cannot resize - only one window open", vim.log.levels.INFO)
+		vim.notify("Only one window open", vim.log.levels.INFO, { title = "Resize" })
 		return
 	end
 
