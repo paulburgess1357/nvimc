@@ -37,7 +37,7 @@ local function peek_close()
 end
 
 local function border()
-	return (require("config.plugins").settings or {}).border or "single"
+	return require("utils.ui").border
 end
 
 -- Preview float to the right of the list, showing the highlighted entry's

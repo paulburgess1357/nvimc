@@ -1,5 +1,5 @@
 local plugins = require("config.plugins")
-local border = (plugins.settings or {}).border or "single"
+local border = require("utils.ui").border
 local lsp_cfg = plugins.lsp or {}
 local mason_cfg = plugins.mason or {}
 if lsp_cfg.enabled == false then return end
@@ -82,7 +82,7 @@ vim.lsp.config.tailwindcss = {
 -----------------------------------------------------------
 -- Diagnostics & Highlights
 -----------------------------------------------------------
-local diag_icons = require("utils.icons").diagnostics
+local diag_icons = require("utils.ui").diagnostics
 vim.diagnostic.config({
 	underline = true,
 	update_in_insert = false,

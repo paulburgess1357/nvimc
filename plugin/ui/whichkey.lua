@@ -1,6 +1,6 @@
 local plugins = require("config.plugins")
 local cfg = plugins.whichkey or {}
-local border = (plugins.settings or {}).border or "single"
+local border = require("utils.ui").border
 if cfg.enabled == false then return end
 
 local wk = require("which-key")
@@ -15,7 +15,7 @@ wk.setup({
 		{ "<leader>b", group = "Buffer", icon = "" },
 		{ "<leader>c", group = "Code", icon = "" },
 		{ "<leader>d", group = "Debug", icon = "" },
-		{ "<leader>f", group = "Find", icon = "" },
+		{ "<leader>f", group = "Find", icon = "󰈞" },
 		{ "<leader>g", group = "Git", icon = "" },
 		{ "<leader>h", group = "Hunk", icon = "" },
 		{ "<leader>s", group = "Search", icon = "" },

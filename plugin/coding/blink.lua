@@ -1,6 +1,6 @@
 local plugins = require("config.plugins")
 local cfg = plugins.blink or {}
-local border = (plugins.settings or {}).border or "single"
+local border = require("utils.ui").border
 if cfg.enabled == false then return end
 
 require("blink.cmp").setup({
@@ -23,7 +23,7 @@ require("blink.cmp").setup({
 	},
 	appearance = {
 		nerd_font_variant = "mono",
-		kind_icons = require("utils.icons").kinds, -- shared with aerial and fzf-lua
+		kind_icons = require("utils.ui").kinds, -- shared with aerial and fzf-lua
 	},
 	sources = {
 		default = { "lsp", "path", "snippets", "buffer" },

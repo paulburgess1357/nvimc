@@ -393,7 +393,7 @@ local WINBAR_TAG = "%{%v:lua.term_winbar_icon()%}%{%v:lua.term_winbar_hl()%}Term
 function _G.term_winbar_title()
 	local title = vim.b.term_title or ""
 	if title == "" or title:match("^term://") or title:match("^[^@%s]+@[^:%s]+:") then return "" end
-	return " · " .. title
+	return " " .. require("utils.ui").sep .. " " .. title
 end
 
 local function term_winbar(n)
@@ -723,7 +723,7 @@ function M.slots()
 			local label = "Term" .. n .. (term_names[n] and (" (" .. term_names[n] .. ")") or "")
 			local title = vim.b[buf].term_title or ""
 			if title ~= "" and not title:match("^term://") and not title:match("^[^@%s]+@[^:%s]+:") then
-				label = label .. " · " .. title
+				label = label .. " " .. require("utils.ui").sep .. " " .. title
 			end
 			out[#out + 1] = { n = n, buf = buf, label = label, visible = find_buf_win(buf) ~= nil }
 		end

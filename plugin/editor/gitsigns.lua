@@ -1,6 +1,8 @@
 local cfg = require("config.plugins").gitsigns or {}
 if cfg.enabled == false then return end
 
+local sep = require("utils.ui").sep -- the same " · " as the Term winbars
+
 require("gitsigns").setup({
 	signs = {
 		add = { text = "┃" },
@@ -14,7 +16,7 @@ require("gitsigns").setup({
 	attach_to_untracked = true,
 	current_line_blame = false,
 	current_line_blame_opts = { delay = 10 },
-	current_line_blame_formatter = "   <abbrev_sha> • <author>, <author_time:%R> • <summary>",
+	current_line_blame_formatter = "   <abbrev_sha> " .. sep .. " <author>, <author_time:%R> " .. sep .. " <summary>",
 	on_attach = function(bufnr)
 		local gs = require("gitsigns")
 

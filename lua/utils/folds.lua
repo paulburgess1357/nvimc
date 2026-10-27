@@ -1,8 +1,8 @@
 -- Folds by syntax tree. 'foldexpr' comes from treesitter, so zc on a
 -- function, class, if block or table folds exactly that scope; files open
 -- fully unfolded. A closed fold shows its first line as code (treesitter
--- highlights, not one flat Folded color) followed by a grey line count, with
--- no dash fill. Loaded from config/options.lua.
+-- highlights, not one flat Folded color) followed by an orange line count
+-- (FoldedCount, config/colorscheme.lua), with no dash fill. Loaded from config/options.lua.
 
 local M = {}
 

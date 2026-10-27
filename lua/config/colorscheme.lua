@@ -16,9 +16,14 @@ if theme == "onedark" then
 	-- (2) it has no fzf-lua groups at all. Patch both via the built-in
 	-- `highlights` override ($name = palette color, applied last).
 	local highlights = {
-		-- Transparent cursorline (slab removed in the loop below); keep the
-		-- row visible via a bold, accented line number instead of a bg slab.
-		CursorLineNr = { fg = "$orange", fmt = "bold" },
+		-- Transparent cursorline (slab removed in the loop below); the row is
+		-- marked by a bold line number in the mode color instead (CursorLineNr,
+		-- set by mode_accents at the bottom of this file).
+
+		-- Split separators in the same grey as the float borders (onedark
+		-- draws them in bg3, which all but vanishes on a transparent
+		-- background), so panes and floats are framed by one line color.
+		WinSeparator = { fg = "$grey" },
 
 		-- One look for every float: grey border (onedark's FloatBorder), cyan
 		-- bold title (mini.files' focused title), and a $bg2 slab on the
@@ -129,3 +134,32 @@ if theme == "onedark" then
 else
 	vim.notify(('colorscheme: theme "%s" is not configured in colorscheme.lua'):format(theme), vim.log.levels.WARN)
 end
+
+-----------------------------------------------------------
+-- Mode-colored accents. The current line number, the snacks indent scope
+-- guide and the current entry in winbars / the buffer peek popup
+-- (LualineBufActive, used by utils.winbar, utils.terms, utils.buftabs) take
+-- the same color as the mode pill at the bottom left of the statusline
+-- (green in normal, blue in insert, ...), so they all agree on what mode
+-- you are in. The color is lualine's theme.a for the mode, read from its
+-- `auto` theme (derived from this colorscheme), using lualine's own mode ->
+-- theme-section mapping; modes the theme doesn't define (terminal, command)
+-- fall back to normal, as lualine does. Works whether or not lualine is
+-- enabled, as long as it is installed.
+-----------------------------------------------------------
+local function mode_accents()
+	local ok, hl = pcall(require, "lualine.highlight")
+	if not ok then return end
+	local theme = require("lualine.themes.auto")
+	local section = hl.get_mode_suffix():sub(2)
+	local a = (theme[section] or theme.normal or {}).a
+	if not (a and a.bg) then return end
+	vim.api.nvim_set_hl(0, "CursorLineNr", { fg = a.bg, bold = true })
+	vim.api.nvim_set_hl(0, "SnacksIndentScope", { fg = a.bg })
+	vim.api.nvim_set_hl(0, "LualineBufActive", { fg = a.bg, bold = true })
+end
+vim.api.nvim_create_autocmd({ "ModeChanged", "ColorScheme" }, {
+	group = vim.api.nvim_create_augroup("mode_accents", { clear = true }),
+	callback = mode_accents,
+})
+mode_accents()

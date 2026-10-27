@@ -1,6 +1,7 @@
 local plugins = require("config.plugins")
 local cfg = plugins.fzf or {}
-local border = (plugins.settings or {}).border or "single"
+local ui = require("utils.ui")
+local border = ui.border
 if cfg.enabled == false then return end
 
 local fzf = require("fzf-lua")
@@ -34,9 +35,13 @@ fzf.setup({
 		height = 0.85,
 		width = 0.80,
 		border = border,
+		-- Titles on the left, as in mini.files, the buffer popup and the
+		-- notifier (fzf-lua centers them by default).
+		title_pos = ui.title_pos,
 		preview = {
 			default = "builtin",
 			border = border,
+			title_pos = ui.title_pos,
 			wrap = "nowrap",
 			hidden = "nohidden",
 			vertical = "down:45%",
@@ -55,7 +60,7 @@ fzf.setup({
 	lsp = {
 		async_or_timeout = 5000,
 		includeDeclaration = false,
-		symbols = { symbol_icons = require("utils.icons").kinds }, -- shared with blink and aerial
+		symbols = { symbol_icons = ui.kinds }, -- shared with blink and aerial
 	},
 	actions = {
 		files = {

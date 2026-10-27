@@ -1,6 +1,6 @@
 local plugins = require("config.plugins")
 local cfg = plugins.noice or {}
-local border = (plugins.settings or {}).border or "single"
+local border = require("utils.ui").border
 if cfg.enabled == false then return end
 
 -- Notifications are drawn by snacks.notifier (plugin/ui/snacks.lua), which
@@ -22,9 +22,12 @@ require("noice").setup({
 		enabled = true,
 	},
 	lsp = {
+		-- Progress goes through the notifier like every other message (one
+		-- notification per server, updated in place), not the borderless "mini"
+		-- view at the bottom right.
 		progress = {
 			enabled = true,
-			view = "mini",
+			view = "notify",
 		},
 		override = {
 			["vim.lsp.util.convert_input_to_markdown_lines"] = true,
@@ -49,6 +52,8 @@ require("noice").setup({
 		popup = { border = { style = border } },
 		confirm = { border = { style = border } },
 		hover = { border = { style = border } },
+		-- The cmdline completion popup (:e <Tab>) has no border by default.
+		popupmenu = { border = { style = border, padding = { 0, 1 } } },
 	},
 })
 
