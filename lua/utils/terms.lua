@@ -536,6 +536,9 @@ local function ensure_term(n, cwd)
 	return buf, true
 end
 
+-- Toggle Term<n>. Opening it (or showing a hidden one) puts the cursor in
+-- it ready to type; closing it leaves the cursor wherever it lands, in
+-- normal mode.
 local function toggle_term(n)
 	local win = slot_win(n)
 	if win then
@@ -543,6 +546,7 @@ local function toggle_term(n)
 		pcall(vim.api.nvim_win_close, win, false)
 	else
 		ensure_term(n)
+		vim.cmd("startinsert")
 	end
 end
 
@@ -804,12 +808,14 @@ function M.setup()
 
 	-- `:Term<n>` toggles the terminal. `:Term<n> <name>` never closes it: the
 	-- terminal is shown (spawned or re-opened if needed) and labelled <name>.
-	-- `:Term<n> -` does the same but clears the label.
+	-- `:Term<n> -` does the same but clears the label. Either way, when the
+	-- terminal is up afterwards the cursor is in it in insert mode.
 	for n = 1, 10 do
 		vim.api.nvim_create_user_command("Term" .. n, function(opts)
 			if opts.args == "" then return toggle_term(n) end
-			if not slot_win(n) then ensure_term(n) end
+			ensure_term(n)
 			set_term_name(n, opts.args ~= "-" and opts.args or nil)
+			vim.cmd("startinsert")
 		end, { nargs = "*" })
 	end
 

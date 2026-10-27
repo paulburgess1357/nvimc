@@ -18,10 +18,10 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | `:Keymaps` | Keymaps |
 | `:Aerials` | Toggle outline sidebar |
 | `:SessionSave` / `:SessionRestore` / `:SessionDelete` | Per-directory session (auto-saved on quit) |
-| `:Term1`..`:Term10` | Toggle a terminal; its slot number decides where it opens (see [Terminals](#terminals)) |
-| `:Term<n> <name>` | Show Term<n> (opening it if needed) and label it `<name>` in its winbar; never closes it |
+| `:Term1`..`:Term10` | Toggle a terminal; its slot number decides where it opens (see [Terminals](#terminals)). Opening it puts you in it in insert mode |
+| `:Term<n> <name>` | Show Term<n> (opening it if needed) in insert mode and label it `<name>` in its winbar; never closes it |
 | `:Term<n> -` | Same, but clears the label |
-| `:Term <name>` | Toggle the terminal labelled `<name>` (a number works too); tab-completes names |
+| `:Term <name>` | Toggle the terminal labelled `<name>` (a number works too), in insert mode when it opens; tab-completes names |
 | `:TermFocus [n\|name]` | Show the terminal (default Term10) and enter insert mode; never closes it |
 | `:[range]TermRun [n\|name]` | Paste the line/range into Term<n> or the terminal labelled `<name>` (default `settings.send_term`) and press Enter, then move the cursor below it |
 
