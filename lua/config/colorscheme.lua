@@ -134,16 +134,20 @@ end
 
 -----------------------------------------------------------
 -- Mode-colored accents. The current line number, the snacks indent scope
--- guide, every float's title (FloatTitle) and the active window's title in
--- the winbars / the current entry in the buffer peek popup (LualineBufActive,
--- used by utils.winbar, utils.terms, utils.buftabs) take the same color as
--- the mode pill at the bottom left of the statusline (green in normal, blue
--- in insert, yellow in the cmdline, cyan in a terminal, so in fzf-lua), so
--- they all agree on what mode you are in. The color is lualine's theme.a
--- for the mode, read from its `auto` theme (derived from this colorscheme),
--- using lualine's own mode -> theme-section mapping; modes the theme
--- doesn't define fall back to normal, as lualine does. Works whether or not
--- lualine is enabled, as long as it is installed.
+-- guide and the active window's title in the winbars / the current entry
+-- in the buffer peek popup (LualineBufActive, used by utils.winbar,
+-- utils.terms, utils.buftabs) take the same color as the mode pill at the
+-- bottom left of the statusline (green in normal, blue in insert, ...), so
+-- they all agree on what mode you are in. Floats are different: a picker,
+-- mini.files or which-key is something you browse, and the Vim mode under
+-- it (fzf-lua runs in a terminal) is not worth a color change, so every
+-- float title (FloatTitle) is the normal-mode green whatever the mode. The
+-- one exception is the cmdline popup, which is command mode itself and
+-- takes the mode color, yellow, like the pill. The colors are lualine's
+-- theme.a per mode, read from its `auto` theme (derived from this
+-- colorscheme) with lualine's own mode -> theme-section mapping; modes the
+-- theme doesn't define fall back to normal, as lualine does. Works whether
+-- or not lualine is enabled, as long as it is installed.
 -----------------------------------------------------------
 local function mode_accents()
 	local ok, hl = pcall(require, "lualine.highlight")
@@ -152,27 +156,28 @@ local function mode_accents()
 	local section = hl.get_mode_suffix():sub(2)
 	local a = (theme[section] or theme.normal or {}).a
 	if not (a and a.bg) then return end
+	local normal = (theme.normal or {}).a
 	vim.api.nvim_set_hl(0, "CursorLineNr", { fg = a.bg, bold = true })
 	vim.api.nvim_set_hl(0, "SnacksIndentScope", { fg = a.bg })
-	vim.api.nvim_set_hl(0, "FloatTitle", { fg = a.bg, bold = true })
-	vim.api.nvim_set_hl(0, "LualineBufActive", { link = "FloatTitle" })
+	vim.api.nvim_set_hl(0, "LualineBufActive", { fg = a.bg, bold = true })
+	vim.api.nvim_set_hl(0, "FloatTitle", { fg = normal and normal.bg or a.bg, bold = true })
 end
 
--- Every plugin's float title group -> FloatTitle, so a picker, mini.files,
--- the cmdline popup and the which-key window are titled like the active
--- pane. (snacks' own SnacksTitle links there already; the notifier's titles
--- keep their level colors.) An unfocused mini.files
--- column is titled in WinBarNC grey, like an inactive pane.
+-- Every plugin's float title group -> FloatTitle (green), except the
+-- cmdline popup's -> LualineBufActive (the mode color: yellow in command
+-- mode). snacks' own SnacksTitle links to FloatTitle already; the notifier's
+-- titles keep their level colors. An unfocused mini.files column is titled
+-- in WinBarNC grey, like an inactive pane.
 local function float_titles()
 	for _, g in ipairs({
 		"FzfLuaTitle", "FzfLuaPreviewTitle", "FzfLuaTabTitle",
 		"SnacksPickerTitle", "WhichKeyTitle",
 		"MiniFilesTitleFocused",
-		"NoiceCmdlinePopupTitle", "NoiceCmdlinePopupTitleCmdline", "NoiceCmdlinePopupTitleSearch",
-		"NoiceCmdlinePopupTitleFilter", "NoiceCmdlinePopupTitleLua", "NoiceCmdlinePopupTitleHelp",
-		"NoiceCmdlinePopupTitleInput", "NoiceCmdlinePopupTitleCalculator",
 	}) do
 		vim.api.nvim_set_hl(0, g, { link = "FloatTitle" })
+	end
+	for _, kind in ipairs({ "", "Cmdline", "Search", "Filter", "Lua", "Help", "Input", "Calculator" }) do
+		vim.api.nvim_set_hl(0, "NoiceCmdlinePopupTitle" .. kind, { link = "LualineBufActive" })
 	end
 	vim.api.nvim_set_hl(0, "MiniFilesTitle", { link = "WinBarNC" })
 end

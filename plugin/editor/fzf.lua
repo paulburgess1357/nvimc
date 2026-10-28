@@ -54,6 +54,12 @@ fzf.setup({
 	files = {
 		cwd_prompt = false,
 	},
+	-- The current buffer is a normal entry at the top. fzf-lua otherwise
+	-- makes it an unselectable header line, so a lone buffer leaves an empty
+	-- list and preview, and with two the cursor can't reach the top one.
+	buffers = {
+		fzf_opts = { ["--header-lines"] = false },
+	},
 	grep = {
 		rg_glob = true,
 		rg_opts = "--column --line-number --no-heading --color=always --smart-case --fixed-strings",
