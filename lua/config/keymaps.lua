@@ -148,11 +148,6 @@ vim.api.nvim_create_user_command("LspIndexAll", function()
 		end
 	end
 
-	local client_names = vim.tbl_map(function(c)
-		return c.name
-	end, clients)
-	local lsp_name = table.concat(client_names, ", ")
-
 	-- Find all files and check if they match LSP filetypes
 	local root = vim.fn.getcwd()
 	local all_files = vim.fn.globpath(root, "**/*", false, true)
@@ -161,13 +156,20 @@ vim.api.nvim_create_user_command("LspIndexAll", function()
 	local processed = 0
 	local last_pct = -1
 
-	-- Progress display helper (writes to command line, no popup)
-	local function show_progress(msg)
-		vim.api.nvim_echo({ { msg, "Normal" } }, false, {})
-		vim.cmd.redraw()
+	-- Reported as LSP progress of the first client (an LspProgress event in
+	-- the shape of clangd's own "indexing"), so it shows in the same
+	-- bottom-right line as any server task (noice's mini view) instead of as
+	-- messages, which noice would turn into notifications.
+	local client_id = clients[1].id
+	local function progress(value)
+		vim.api.nvim_exec_autocmds("LspProgress", {
+			pattern = value.kind,
+			modeline = false,
+			data = { client_id = client_id, params = { token = "LspIndexAll", value = value } },
+		})
 	end
 
-	show_progress(string.format("[%s] Indexing %d files...", lsp_name, total))
+	progress({ kind = "begin", title = "Indexing", message = total .. " files", percentage = 0 })
 
 	local function process_batch(start_idx)
 		local batch_size = 50
@@ -188,17 +190,17 @@ vim.api.nvim_create_user_command("LspIndexAll", function()
 
 		if end_idx < total then
 			local pct = math.floor((processed / total) * 100)
-			-- Only update display every 20%
-			if pct >= last_pct + 20 then
+			-- Only update the display every 10%
+			if pct >= last_pct + 10 then
 				last_pct = pct
-				show_progress(string.format("[%s] Indexing: %d%% (%d files loaded)", lsp_name, pct, count))
+				progress({ kind = "report", message = count .. " files loaded", percentage = pct })
 			end
 			vim.schedule(function()
 				process_batch(end_idx + 1)
 			end)
 		else
-			vim.api.nvim_echo({ { "" } }, false, {}) -- Clear command line
-			vim.notify(("Indexing complete, %d files loaded"):format(count), vim.log.levels.INFO, { title = lsp_name })
+			-- The done line reads "<check> Indexed N files <server>".
+			progress({ kind = "end", title = ("Indexed %d files"):format(count) })
 		end
 	end
 

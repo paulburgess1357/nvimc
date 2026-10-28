@@ -32,12 +32,19 @@ require("noice").setup({
 		enabled = true,
 	},
 	lsp = {
-		-- Progress goes through the notifier like every other message (one
-		-- notification per server, updated in place), not the borderless "mini"
-		-- view at the bottom right.
+		-- Progress in noice's "mini" view: a borderless line per running task
+		-- at the bottom right, redrawn in place. Not the notifier: a long index
+		-- (LspIndexAll on a big project) updates ten times a second, and
+		-- notifier floats at that rate stutter the editor.
 		progress = {
 			enabled = true,
-			view = "notify",
+			view = "mini",
+			-- The finished line's check mark as a Material glyph (see utils.ui).
+			format_done = {
+				{ "\u{F012C} ", hl_group = "NoiceLspProgressSpinner" }, -- md-check
+				{ "{data.progress.title} ", hl_group = "NoiceLspProgressTitle" },
+				{ "{data.progress.client} ", hl_group = "NoiceLspProgressClient" },
+			},
 		},
 		override = {
 			["vim.lsp.util.convert_input_to_markdown_lines"] = true,
