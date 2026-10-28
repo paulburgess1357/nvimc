@@ -42,8 +42,8 @@ vim.api.nvim_create_autocmd("User", {
 
 vim.keymap.set("n", "<leader>e", function()
 	require("mini.files").open(vim.api.nvim_buf_get_name(0), true)
-end, { desc = "Open mini.files (directory of current file)" })
+end, { desc = "Explorer (file directory)" })
 
 vim.keymap.set("n", "<leader>E", function()
 	require("mini.files").open(vim.uv.cwd(), true)
-end, { desc = "Open mini.files (cwd)" })
+end, { desc = "Explorer (cwd)" })

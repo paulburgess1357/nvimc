@@ -26,7 +26,7 @@ require("aerial").setup({
 
 vim.api.nvim_create_user_command("Aerials", "AerialToggle", { desc = "Toggle aerial sidebar" })
 
-vim.keymap.set("n", "<leader>o", "<cmd>AerialToggle<cr>", { desc = "Outline (Aerial)" })
+vim.keymap.set("n", "<leader>o", "<cmd>AerialToggle<cr>", { desc = "Outline" })
 vim.keymap.set("n", "<leader>so", "<cmd>FzfLua aerial<cr>", { desc = "Outline symbols" })
 vim.keymap.set("n", "{", "<cmd>AerialPrev<cr>", { desc = "Previous symbol" })
 vim.keymap.set("n", "}", "<cmd>AerialNext<cr>", { desc = "Next symbol" })

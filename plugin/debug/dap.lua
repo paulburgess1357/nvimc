@@ -214,7 +214,7 @@ vim.keymap.set("n", "<leader>dE", function()
 end, { desc = "Exception breakpoints" })
 vim.keymap.set("n", "<leader>da", function() dapui.elements.watches.add(vim.fn.expand("<cword>")) end, { desc = "Add watch" })
 -- DAP UI
-vim.keymap.set("n", "<leader>du", function() dapui.toggle({}) end, { desc = "DAP UI" })
+vim.keymap.set("n", "<leader>du", function() dapui.toggle({}) end, { desc = "Debug UI" })
 vim.keymap.set({ "n", "v" }, "<leader>de", function() dapui.eval() end, { desc = "Eval" })
 -- F-key bindings
 vim.keymap.set("n", "<F5>", "<cmd>DapContinue<cr>", { desc = "Continue" })

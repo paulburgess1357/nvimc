@@ -57,14 +57,38 @@ function _G.named_winbar()
 	return render(spec.icon, spec.hl, name, false)
 end
 
+-- The slab every float puts under its selected entry (MiniFilesCursorLine,
+-- as in mini.files, the pickers and the buffer peek popup), mapped onto
+-- the cursor line of a side window, which has no line number to mark it.
+local SLAB = "CursorLine:MiniFilesCursorLine"
+local function set_slab(win, on)
+	local parts = vim.split(vim.wo[win].winhighlight, ",", { trimempty = true })
+	parts = vim.tbl_filter(function(p) return p ~= SLAB end, parts)
+	if on then parts[#parts + 1] = SLAB end
+	vim.wo[win].winhighlight = table.concat(parts, ",")
+end
+
 -- The window options of a pane that lists or shows things rather than edits
--- a file: no line numbers, sign column, fold column or listchars. Applied
--- with the named winbar, and by utils.terms to its terminals.
+-- a file: no line numbers, sign column, fold column or listchars, and no
+-- cursor slab. Applied with the named winbar (which adds the slab), and by
+-- utils.terms to its terminals.
 function M.plain_gutter(win)
 	local wo = vim.wo[win][0]
 	wo.number, wo.relativenumber = false, false
 	wo.signcolumn, wo.foldcolumn = "no", "0"
 	wo.list = false
+	set_slab(win, false)
+end
+
+-- The window options of a file window: the global defaults. A split
+-- inherits the options of the window it was split from, so a file opened
+-- in a help or quickfix window would otherwise keep that window's gutter.
+local function file_gutter(win)
+	local wo = vim.wo[win][0]
+	wo.number, wo.relativenumber = vim.go.number, vim.go.relativenumber
+	wo.signcolumn, wo.foldcolumn = vim.go.signcolumn, vim.go.foldcolumn
+	wo.list = vim.go.list
+	set_slab(win, false)
 end
 
 local FILE_WINBAR = "%{%v:lua.file_winbar()%}"
@@ -87,9 +111,11 @@ local function apply(win)
 	if vim.api.nvim_win_get_config(win).relative ~= "" and not vim.w[win].snacks_main then return end
 	if wants_file_winbar(win) then
 		vim.wo[win].winbar = FILE_WINBAR
+		file_gutter(win)
 	elseif wants_named_winbar(win) then
 		vim.wo[win].winbar = NAMED_WINBAR
 		M.plain_gutter(win)
+		set_slab(win, true)
 	elseif vim.wo[win].winbar == FILE_WINBAR or vim.wo[win].winbar == NAMED_WINBAR then
 		vim.wo[win].winbar = ""
 	end
