@@ -26,10 +26,11 @@ if theme == "onedark" then
 		WinSeparator = { fg = "$grey" },
 
 		-- One look for every float: grey border (onedark's FloatBorder), the
-		-- title in the mode color (FloatTitle, set by mode_accents at the
-		-- bottom of this file, which every plugin's title group links to in
-		-- float_titles), and a $bg2 slab on the selected row (mini.files'
-		-- cursor line). Applied to fzf-lua, blink, noice/which-key (PmenuSel)
+		-- title in the normal-mode green (FloatTitle, set by mode_accents at
+		-- the bottom of this file, which every plugin's title group links to
+		-- in float_titles), and a $bg2 slab on the selected row (mini.files'
+		-- cursor line, also the cursor line of side windows and terminals via
+		-- utils.winbar). Applied to fzf-lua, blink, noice/which-key (PmenuSel)
 		-- and snacks below.
 		PmenuSel = { fg = "none", bg = "$bg2" },
 		BlinkCmpMenuSelection = { bg = "$bg2" },

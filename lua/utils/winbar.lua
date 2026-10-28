@@ -14,8 +14,10 @@
 --
 -- Pickers, the dashboard, floats, etc. get none.
 --
--- A side window and a terminal also get the same gutter: none (M.plain_gutter),
--- where a file window keeps its line numbers and sign column.
+-- A side window and a terminal also get the same gutter (M.plain_gutter):
+-- no line numbers or sign column, the cursor row marked by the slab the
+-- floats use instead, where a file window keeps its numbers. The cursor row
+-- is marked in the active window only.
 
 local M = {}
 
