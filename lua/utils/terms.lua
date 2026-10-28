@@ -413,15 +413,19 @@ end
 local function setup_term_buf(n, buf)
 	vim.bo[buf].buflisted = false
 	vim.wo.winbar = term_winbar(n)
-	-- The buffer gets a fresh window every time Term<n> is reopened. Neovim
-	-- sets its terminal window options only once, on TermOpen; after the
-	-- buffer has been shown elsewhere (the buffer popup's preview float) a
-	-- new split can come up with line numbers etc., so reapply them here.
+	-- The side windows' gutter and cursor slab (utils.winbar): now, since the
+	-- window already showed the buffer when the shell started in it (so no
+	-- BufWinEnter), and again on every later display. The buffer gets a
+	-- fresh window every time Term<n> is reopened; Neovim sets its terminal
+	-- window options only once, on TermOpen, so after the buffer has been
+	-- shown elsewhere (the buffer popup's preview float) a new split can
+	-- come up with line numbers etc.
+	require("utils.winbar").plain_gutter(0)
 	vim.api.nvim_create_autocmd("BufWinEnter", {
 		buffer = buf,
 		callback = function()
 			vim.wo.winbar = term_winbar(n)
-			require("utils.winbar").plain_gutter(0) -- the side windows' gutter
+			require("utils.winbar").plain_gutter(0)
 			vim.wo[0][0].wrap = false
 		end,
 	})

@@ -59,7 +59,9 @@ end
 
 -- The slab every float puts under its selected entry (MiniFilesCursorLine,
 -- as in mini.files, the pickers and the buffer peek popup), mapped onto
--- the cursor line of a side window, which has no line number to mark it.
+-- the cursor line of a window that has no line number to mark it: a side
+-- window, or a terminal in normal mode (terminal mode draws no cursor
+-- line, see :help terminal-input).
 local SLAB = "CursorLine:MiniFilesCursorLine"
 local function set_slab(win, on)
 	local parts = vim.split(vim.wo[win].winhighlight, ",", { trimempty = true })
@@ -69,15 +71,15 @@ local function set_slab(win, on)
 end
 
 -- The window options of a pane that lists or shows things rather than edits
--- a file: no line numbers, sign column, fold column or listchars, and no
--- cursor slab. Applied with the named winbar (which adds the slab), and by
+-- a file: no line numbers, sign column, fold column or listchars, and the
+-- slab on the cursor line instead. Applied with the named winbar, and by
 -- utils.terms to its terminals.
 function M.plain_gutter(win)
 	local wo = vim.wo[win][0]
 	wo.number, wo.relativenumber = false, false
 	wo.signcolumn, wo.foldcolumn = "no", "0"
 	wo.list = false
-	set_slab(win, false)
+	set_slab(win, true)
 end
 
 -- The window options of a file window: the global defaults. A split
@@ -115,7 +117,6 @@ local function apply(win)
 	elseif wants_named_winbar(win) then
 		vim.wo[win].winbar = NAMED_WINBAR
 		M.plain_gutter(win)
-		set_slab(win, true)
 	elseif vim.wo[win].winbar == FILE_WINBAR or vim.wo[win].winbar == NAMED_WINBAR then
 		vim.wo[win].winbar = ""
 	end
@@ -123,6 +124,16 @@ end
 
 function M.setup()
 	local group = vim.api.nvim_create_augroup("file_winbar", { clear = true })
+	-- The cursor row is marked in the active window only: the bold line
+	-- number in a file window, the slab in a side window or terminal. Floats
+	-- (mini.files' columns, the pickers) keep their own cursor line.
+	vim.api.nvim_create_autocmd({ "WinEnter", "WinLeave" }, {
+		group = group,
+		callback = function(ev)
+			if vim.api.nvim_win_get_config(0).relative ~= "" then return end
+			vim.wo[0][0].cursorline = ev.event == "WinEnter"
+		end,
+	})
 	vim.api.nvim_create_autocmd({ "BufWinEnter", "BufFilePost", "TermOpen" }, {
 		group = group,
 		callback = function() apply(vim.api.nvim_get_current_win()) end,
