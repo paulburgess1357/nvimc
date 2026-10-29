@@ -76,13 +76,25 @@ lua/config/options.lua      Editor options
 lua/config/keymaps.lua      Key mappings
 lua/config/plugins.lua      Plugin enable/disable and settings
 lua/config/colorscheme.lua  Colorscheme setup (loaded immediately after vim.pack.add)
-lua/utils/                  Hand-rolled features: terminals, sessions, buffer tabs, resize, ...
+lua/utils/                  Hand-rolled features: terminals, sessions, buffer tabs, winbars,
+                            window proportions, the shared look (ui.lua), ...
 plugin/coding/              Plugin configs: treesitter, lsp, blink, conform, lint, etc.
 plugin/editor/              Plugin configs: fzf, gitsigns, mini.files, etc.
 plugin/ui/                  Plugin configs: lualine, noice, snacks, whichkey, etc.
 plugin/debug/               Plugin configs: dap, dap-ui
 install/                    Install scripts
 ```
+
+## Look
+
+One set of rules, defined in `lua/utils/ui.lua` and `lua/config/colorscheme.lua`, that every plugin reads:
+
+- Every float has the same border, one column of padding, no scrollbar, and its title on the left in the normal-mode green. The cmdline popup alone takes the mode color.
+- Every window names itself in a winbar: files by name, terminals as `Term<n>`, side windows (outline, quickfix, help, ...) by what they are. The active window's title, line number and indent scope guide take the mode color.
+- Side windows and terminals have no gutter; their cursor row is marked by the same slab the floats use for a selected entry. The cursor row is marked in the active window only.
+- Every pictogram is a Material Design glyph (Nerd Font `nf-md`); file icons are nvim-web-devicons'.
+- Labels are sentence case and name the feature, not the plugin. Notifications are titled by their source.
+- Split proportions survive a screen resize and a panel opening or closing (`lua/utils/winscale.lua`).
 
 ## Plugins
 

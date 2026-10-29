@@ -7,7 +7,7 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | Command | Action |
 | ------- | ------ |
 | `:Files` | Files |
-| `:Buffers` | Buffer list |
+| `:Buffers` | Buffers |
 | `:Terms` | Open Term slots, with a preview of each terminal; picking one focuses it |
 | `:Rg` / `:Grep` | Live grep |
 | `:Symbols` | Document symbols |
@@ -58,7 +58,7 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 
 | Command | Action |
 | ------- | ------ |
-| `:LspIndexAll` | Force LSP to index all project files |
+| `:LspIndexAll` | Force LSP to index all project files; progress shows in the LSP progress line (bottom right) |
 | `:LspLog` | Open the LSP log file |
 | `:IncRename <name>` | Rename with live preview (`<leader>cr` prefills the word under cursor) |
 

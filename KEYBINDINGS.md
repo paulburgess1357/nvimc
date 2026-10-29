@@ -122,7 +122,6 @@ Leader key is `Space`.
 
 | Key | Action |
 | --- | ------ |
-| `uw` | Toggle line wrap |
 | `ul` | Toggle relative numbers |
 | `us` | Toggle spell |
 | `un` | Dismiss all notifications |
@@ -132,6 +131,7 @@ Leader key is `Space`.
 
 | Key | Action |
 | --- | ------ |
+| `e` | Buffer popup (see [Navigation](#navigation)) |
 | `f` | Files (search root) |
 | `g` | Grep (search root) |
 | `h` | Files (home directory) |
@@ -147,6 +147,8 @@ Leader key is `Space`.
 | `c` | Toggle sticky context (enclosing function/class pinned at the top; `settings.context_max_lines`) |
 | `w` | Toggle line wrap |
 | `t` | Toggle smart wrap copy (rejoin soft-wrapped lines yanked from terminals) |
+| `k` | Toggle terminal window keys: on, `Ctrl/Alt+hjkl` in a terminal move/resize Neovim windows; off, they reach the program (nested vim, TUIs) |
+| `p` | Toggle parent directory in the buffer popup: always shown, not only when two files share a name |
 | `z` | Toggle zoom: current window (file or terminal) fills the screen; again restores the layout |
 | `.` | Cycle the search root for all files/grep pickers: working directory (default) → project root (nearest `.git` or project marker above the current file) → file directory. Shows a notification; the picker title shows the active root |
 
@@ -162,7 +164,7 @@ Leader key is `Space`.
 | `<Esc><Esc>` (terminal mode) | Back to normal mode |
 | `Esc` (in terminal normal mode) | Jump to leftmost window |
 | `q` (in terminal normal mode) | Close the terminal window (shell keeps running) |
-| `<leader>e` | File explorer (directory of current file) |
+| `<leader>e` | File explorer (directory of current file; the dashboard opens the cwd, a terminal or quickfix window warns) |
 | `<leader>E` | File explorer (cwd) |
 | `<leader>o` | Toggle outline |
 | `<leader>n` | Notification history |
