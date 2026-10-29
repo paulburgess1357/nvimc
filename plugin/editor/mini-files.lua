@@ -40,8 +40,19 @@ vim.api.nvim_create_autocmd("User", {
 	end,
 })
 
+-- At the current file; an unnamed buffer (the dashboard, a scratch buffer)
+-- opens the working directory, as mini.files does for an empty path. A
+-- terminal (named Term<n>, which mini.files would reject as "not a valid
+-- path"), a quickfix or location list, or any other buffer whose name is
+-- not a path gets a warning instead.
 vim.keymap.set("n", "<leader>e", function()
-	require("mini.files").open(vim.api.nvim_buf_get_name(0), true)
+	local name = vim.api.nvim_buf_get_name(0)
+	local bt = vim.bo.buftype
+	if bt == "terminal" or bt == "quickfix" or (name ~= "" and not vim.uv.fs_stat(name)) then
+		vim.notify("No file in this window (<leader>E opens the working directory)", vim.log.levels.WARN, { title = "Explorer" })
+		return
+	end
+	require("mini.files").open(name, true)
 end, { desc = "Explorer (file directory)" })
 
 vim.keymap.set("n", "<leader>E", function()
