@@ -1,7 +1,7 @@
 local M = {}
 
 -- Buffer tabs without a tabline. This module keeps an ordered list of listed
--- buffers (open order, kept stable as buffers come and go) and the <S-j>
+-- buffers (open order, kept stable as buffers come and go) and the <leader><leader>e
 -- peek popup below shows it. The order lives
 -- in memory; utils.session saves/restores it. In a terminal window the same
 -- keys walk the Term slots instead (utils.terms), from normal mode.
@@ -11,10 +11,10 @@ local order = {}
 
 -----------------------------------------------------------
 -- Peek popup. There is no tabline (showtabline=0 in options.lua), so
--- <S-j> pops a small float at the top left of the current window
+-- <leader><leader>e pops a small float at the top left of the current window
 -- listing the tabs in order (the Term slots in a terminal window), the
 -- current one on a highlighted line like mini.files. It is modal: j/k (or
--- <S-j>/<S-k>) and gg/G move the highlight, <CR>/<S-CR>/l/L switch to the
+-- J/K) and gg/G move the highlight, <CR>/<S-CR>/l/L switch to the
 -- highlighted entry, <Esc>/q cancel, / and ? search like Vim (then n/N),
 -- and every other key is swallowed. Nothing changes until you choose, so
 -- browsing terminals does not move focus or open hidden slots. A float,
@@ -342,7 +342,7 @@ function M.peek()
 					peek_search.text = peek_search.text .. k
 					peek_incsearch()
 				end
-			elseif k == "j" or k == "J" then -- J/K: Shift still held from <S-j>
+			elseif k == "j" or k == "J" then -- J/K too, for a Shift still held
 				peek_select(peek_sel + 1)
 			elseif k == "k" or k == "K" then
 				peek_select(peek_sel - 1)

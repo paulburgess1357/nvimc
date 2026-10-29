@@ -40,12 +40,12 @@ keymap.set("n", "<leader>-", "<cmd>split<CR>", { desc = "Split horizontally" })
 keymap.set("n", "<leader>|", "<cmd>vsplit<CR>", { desc = "Split vertically" })
 keymap.set("n", "<leader>wd", "<cmd>close<CR>", { desc = "Delete window" })
 
--- Buffer navigation: <S-j> opens the buffer peek popup (utils.buftabs),
--- which lists buffers in tab order and reads its own keys from there (K
--- still moves up inside it). This takes J (join: use gJ or :join); K stays
--- LSP hover (plugin/coding/lsp.lua).
+-- Buffer navigation: <leader><leader>e opens the buffer peek popup
+-- (utils.buftabs), the counterpart of <leader>e for the file explorer; it
+-- lists buffers in tab order and reads its own keys from there (j/k move).
+-- J stays join, K stays LSP hover (plugin/coding/lsp.lua).
 local buftabs = require("utils.buftabs")
-keymap.set("n", "<S-j>", buftabs.peek, { desc = "Buffer peek popup" })
+keymap.set("n", "<leader><leader>e", buftabs.peek, { desc = "Buffer peek popup" })
 
 -- Buffer management
 keymap.set("n", "<leader>bd", function()

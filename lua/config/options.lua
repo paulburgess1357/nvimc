@@ -36,7 +36,7 @@ vim.opt.cmdheight = 0 -- Hide command line (noice handles it in a popup)
 -- utils.ui). Plugins that set their own border read the same setting.
 vim.opt.winborder = require("utils.ui").border
 -- No tabline: file windows are named by their winbar (utils.winbar) and
--- <S-j> shows the buffer tabs in a popup (utils.buftabs). lualine has no
+-- <leader><leader>e shows the buffer tabs in a popup (utils.buftabs). lualine has no
 -- tabline section, so it never turns this back on.
 vim.opt.showtabline = 0
 -- Whitespace you would otherwise not see, in the indent guides' grey

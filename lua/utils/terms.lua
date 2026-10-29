@@ -715,7 +715,7 @@ end
 
 -----------------------------------------------------------
 -- Slot list for the buffer peek popup (utils.buftabs): in a terminal window
--- <S-j> walks the terminals instead of the files.
+-- <leader><leader>e walks the terminals instead of the files.
 -----------------------------------------------------------
 -- Live slots in ascending order: { n, buf, label, visible }. The label is
 -- "Term<n> (name) · title", with the same title filter as the winbar.
