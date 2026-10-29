@@ -72,8 +72,15 @@ keymap.set("n", "<C-u>", "<C-u>zz")
 keymap.set("n", "n", "nzzzv")
 keymap.set("n", "N", "Nzzzv")
 
--- Save file
-keymap.set("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
+-- Save file; a window with nothing to save (a terminal, quickfix, an unnamed
+-- buffer) gets a notice instead of Vim's E382/E32.
+keymap.set("n", "<leader>w", function()
+	if vim.bo.buftype ~= "" or vim.api.nvim_buf_get_name(0) == "" then
+		vim.notify("No file to save in this window", vim.log.levels.WARN, { title = "Save" })
+		return
+	end
+	vim.cmd.write()
+end, { desc = "Save file" })
 
 -- Quit
 keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })

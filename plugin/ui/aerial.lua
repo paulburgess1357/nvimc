@@ -27,6 +27,15 @@ require("aerial").setup({
 vim.api.nvim_create_user_command("Aerials", "AerialToggle", { desc = "Toggle aerial sidebar" })
 
 vim.keymap.set("n", "<leader>o", "<cmd>AerialToggle<cr>", { desc = "Outline" })
-vim.keymap.set("n", "<leader>so", "<cmd>FzfLua aerial<cr>", { desc = "Outline symbols" })
+-- aerial's own fzf-lua picker (fzf-lua ships no "aerial" picker). A window
+-- without a file (a terminal, quickfix) has no symbols: a notice, not
+-- aerial's "no supported backend" error.
+vim.keymap.set("n", "<leader>so", function()
+	if vim.bo.buftype ~= "" then
+		vim.notify("No symbols in this window", vim.log.levels.WARN, { title = "Outline" })
+		return
+	end
+	require("aerial").fzf_lua_picker()
+end, { desc = "Outline symbols" })
 vim.keymap.set("n", "{", "<cmd>AerialPrev<cr>", { desc = "Previous symbol" })
 vim.keymap.set("n", "}", "<cmd>AerialNext<cr>", { desc = "Next symbol" })
