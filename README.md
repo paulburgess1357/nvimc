@@ -126,7 +126,7 @@ One set of rules, defined in `lua/utils/ui.lua` and `lua/config/colorscheme.lua`
 - **Colorscheme** - onedark (transparent). Adding another theme: register its repo in `init.lua`, add a setup branch in `lua/config/colorscheme.lua`, and set `theme` in `lua/config/plugins.lua`.
 - **lualine** - Statusline
 - **which-key** - Keybinding hints
-- **snacks** - Dashboard, indent guides, bigfile
+- **snacks** - Dashboard (header in one of 30 gradients, random per start; `:Dashboard <name>` to browse), indent guides, bigfile
 - **noice** - Modern cmdline/messages/notifications
 - **rainbow-delimiters** - Colored brackets
 - **aerial** - Code outline sidebar

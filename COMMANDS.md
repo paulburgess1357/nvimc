@@ -17,6 +17,7 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | `:Commands` | Commands |
 | `:Keymaps` | Keymaps |
 | `:Aerials` | Toggle outline sidebar |
+| `:Dashboard [name]` | Open the dashboard; with a name, in that header gradient (tab-completes; `random`, `theme` or one of the palettes in `plugin/ui/snacks.lua`). `settings.dashboard_gradient` pins one |
 | `:SessionSave` / `:SessionRestore` / `:SessionDelete` | Per-directory session (auto-saved on quit) |
 | `:Term1`..`:Term10` | Toggle a terminal; its slot number decides where it opens (see [Terminals](#terminals)). Opening it puts you in it in insert mode |
 | `:Term<n> <name>` | Show Term<n> (opening it if needed) in insert mode and label it `<name>` in its winbar; never closes it |
