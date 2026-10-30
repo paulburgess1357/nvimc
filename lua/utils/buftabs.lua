@@ -15,8 +15,10 @@ local order = {}
 -- listing the tabs in order (the Term slots in a terminal window), the
 -- current one on a highlighted line like mini.files. It is modal: j/k (or
 -- J/K) and gg/G move the highlight, <CR>/<S-CR>/l/L switch to the
--- highlighted entry, <Esc>/q cancel, / and ? search like Vim (then n/N),
--- and every other key is swallowed. Nothing changes until you choose, so
+-- highlighted entry, dd deletes it (a buffer, even one on screen: its
+-- window moves to another buffer; a Term entry closes that terminal's
+-- window, the shell kept running), <Esc>/q cancel, / and ? search like
+-- Vim (then n/N), and every other key is swallowed. Nothing changes until you choose, so
 -- browsing terminals does not move focus or open hidden slots. A float,
 -- unlike toggling the tabline, does not shift the layout.
 -----------------------------------------------------------
@@ -306,7 +308,7 @@ function M.peek()
 	for i, item in ipairs(items) do
 		if item.current then peek_sel = i end
 	end
-	local chosen
+	local chosen, closing
 	-- Whatever goes wrong while the popup is up (a window vanishing under
 	-- it, a preview that fails to open), the floats must come down: they
 	-- are not focusable, so nothing else could ever close them.
@@ -357,6 +359,25 @@ function M.peek()
 			elseif (k == "n" or k == "N") and peek_search then
 				local i = next_match(peek_sel, k == "n" and peek_search.dir or -peek_search.dir)
 				if i then peek_select(i) end
+			elseif k == "d" then
+				local ok2, k2 = pcall(vim.fn.getcharstr)
+				if ok2 and k2 == "d" then
+					local item = peek_items[peek_sel]
+					if item.slot then
+						-- Closing a terminal window may close the one the popup
+						-- hangs off, so it is done after the popup is down.
+						closing = item
+						break
+					elseif vim.bo[item.buf].modified then
+						vim.notify(item.name .. " has unsaved changes", vim.log.levels.WARN, { title = "Buffers" })
+					else
+						-- Windows showing the buffer move to another one.
+						require("snacks").bufdelete({ buf = item.buf })
+						peek_items = entries()
+						if #peek_items == 0 then break end
+						peek_select(math.min(peek_sel, #peek_items))
+					end
+				end
 			elseif enter or k == "l" or k == "L" then -- L: still holding Shift
 				chosen = peek_items[peek_sel]
 				break
@@ -371,7 +392,14 @@ function M.peek()
 		vim.notify(tostring(err), vim.log.levels.ERROR, { title = "Buffers" })
 		return
 	end
-	if chosen then
+	if closing then
+		-- dd on a Term entry: close its window if it has one (:Term<n> toggles).
+		if vim.fn.bufwinid(closing.buf) ~= -1 then
+			vim.cmd("Term" .. closing.slot)
+		else
+			vim.notify("Term" .. closing.slot .. " is not open", vim.log.levels.WARN, { title = "Terminals" })
+		end
+	elseif chosen then
 		M.switch_to(chosen)
 	elseif in_terminal() then
 		-- The terminal was in normal mode for the popup: back to typing.
