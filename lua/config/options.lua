@@ -118,6 +118,10 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- Folds by syntax tree, with a code-highlighted fold line (utils.folds)
 require("utils.folds").setup()
 
+-- Quickfix / location list entries in aligned, colored columns with a file
+-- icon, like the pickers that feed them (utils.quickfix)
+require("utils.quickfix").setup()
+
 -- Terminal window title (kitty's title bar / tab): the working directory,
 -- with ~ for home. The active file is already named by its winbar.
 vim.opt.title = true

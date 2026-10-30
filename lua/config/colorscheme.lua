@@ -43,6 +43,20 @@ if theme == "onedark" then
 		TreesitterContextSeparator = { fg = "$grey" },
 		TreesitterContextLineNumber = { fg = "$grey" },
 
+		-- Quickfix / location list (utils.quickfix): the path as fzf-lua draws
+		-- one (directory in grey, file in the normal color), line and column
+		-- numbers in the same colors as the picker's (FzfLuaPathLineNr /
+		-- FzfLuaPathColNr below), and the current entry as a $bg1 slab, one
+		-- step fainter than the $bg2 cursor slab, instead of onedark's blue
+		-- underline.
+		QuickfixDir = { fg = "$grey" },
+		QuickfixFile = { fg = "$fg" },
+		QuickfixLineNr = { fg = "$green" },
+		QuickfixColNr = { fg = "$cyan" },
+		QuickfixSep = { fg = "$grey" },
+		-- (fg / fmt stated: an override only replaces the fields it names.)
+		QuickFixLine = { fg = "none", bg = "$bg1", fmt = "none" },
+
 		-- fzf-lua (onedark has no native support)
 		FzfLuaNormal = { bg = transparent and "none" or "$bg_d" },
 		FzfLuaBorder = { fg = "$grey", bg = transparent and "none" or "$bg_d" },
