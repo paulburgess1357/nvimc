@@ -14,8 +14,13 @@ vim.opt.expandtab = true
 vim.opt.autoindent = true
 -- Note: smartindent/cindent removed - treesitter and filetype indent handle this
 
--- Line wrapping
+-- Line wrapping: off, toggled per window with <leader><leader>w. When it is
+-- on, break between words rather than mid-word and keep a continuation line
+-- at the indent of the line it belongs to, so a wrapped paragraph or long
+-- argument list still reads as one block.
 vim.opt.wrap = false
+vim.opt.linebreak = true
+vim.opt.breakindent = true
 
 -- Search settings
 vim.opt.ignorecase = true
