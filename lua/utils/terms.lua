@@ -806,13 +806,40 @@ function M.setup()
 		end,
 	})
 
+	-- "1,3-5,10" -> { 1, 3, 4, 5, 10 }; nil unless every item is a slot 1-10.
+	local function parse_slots(spec)
+		local out = {}
+		for item in spec:gmatch("[^,]+") do
+			local a, b = item:match("^(%d+)%-(%d+)$")
+			a, b = tonumber(a or item), tonumber(b or item)
+			if not (a and b) or a < 1 or b > 10 or a > b then return nil end
+			for i = a, b do out[#out + 1] = i end
+		end
+		return out
+	end
+
+	-- Open every terminal in a list (never closes one), ending in the last
+	-- one in insert mode.
+	local function open_slots(spec)
+		local slots = parse_slots(spec)
+		if not slots or #slots == 0 then
+			vim.notify("Not a list of terminals 1-10: " .. spec, vim.log.levels.WARN, { title = "Terminals" })
+			return
+		end
+		for _, n in ipairs(slots) do ensure_term(n) end
+		vim.cmd("startinsert")
+	end
+
 	-- `:Term<n>` toggles the terminal. `:Term<n> <name>` never closes it: the
 	-- terminal is shown (spawned or re-opened if needed) and labelled <name>.
 	-- `:Term<n> -` does the same but clears the label. Either way, when the
 	-- terminal is up afterwards the cursor is in it in insert mode.
+	-- `:Term1,2,5` and `:Term1-4,10` (no space: the rest of a list, not a
+	-- name) open every terminal listed.
 	for n = 1, 10 do
 		vim.api.nvim_create_user_command("Term" .. n, function(opts)
 			if opts.args == "" then return toggle_term(n) end
+			if opts.args:match("^[,%-]%d[%d,%-]*$") then return open_slots(n .. opts.args) end
 			ensure_term(n)
 			set_term_name(n, opts.args ~= "-" and opts.args or nil)
 			vim.cmd("startinsert")
@@ -830,8 +857,10 @@ function M.setup()
 		end, { expr = true })
 	end
 
-	-- `:Term <name>` (or `:Term <n>`) toggles a terminal by its label, like Term<n>.
+	-- `:Term <name>` (or `:Term <n>`) toggles a terminal by its label, like
+	-- Term<n>; `:Term 1,3-5` opens a list, like `:Term1,3-5`.
 	vim.api.nvim_create_user_command("Term", function(opts)
+		if opts.args:match("^%d[%d,%-]*$") and opts.args:match("[,%-]") then return open_slots(opts.args) end
 		local n = resolve_term(opts.args)
 		if not n then
 			vim.notify("No terminal named " .. opts.args, vim.log.levels.ERROR, { title = "Terminals" })

@@ -22,6 +22,7 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | `:Term1`..`:Term10` | Toggle a terminal; its slot number decides where it opens (see [Terminals](#terminals)). Opening it puts you in it in insert mode |
 | `:Term<n> <name>` | Show Term<n> (opening it if needed) in insert mode and label it `<name>` in its winbar; never closes it |
 | `:Term<n> -` | Same, but clears the label |
+| `:Term1,2,5` / `:Term1-4,10` | Open every terminal listed (never closes one), ending in the last in insert mode. No space after the number: with one, the rest is a label. `:Term 1,3-5` works too |
 | `:Term <name>` | Toggle the terminal labelled `<name>` (a number works too), in insert mode when it opens; tab-completes names |
 | `:TermFocus [n\|name]` | Show the terminal (default Term10) and enter insert mode; never closes it |
 | `:[range]TermRun [n\|name]` | Paste the line/range into Term<n> or the terminal labelled `<name>` (default `settings.send_term`) and press Enter, then move the cursor below it |
