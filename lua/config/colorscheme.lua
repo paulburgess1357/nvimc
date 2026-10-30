@@ -161,6 +161,8 @@ local function mode_accents()
 	vim.api.nvim_set_hl(0, "CursorLineNr", { fg = a.bg, bold = true })
 	vim.api.nvim_set_hl(0, "SnacksIndentScope", { fg = a.bg })
 	vim.api.nvim_set_hl(0, "LualineBufActive", { fg = a.bg, bold = true })
+	-- Decorative icons in the statusline (branch, filetype; plugin/ui/lualine.lua).
+	vim.api.nvim_set_hl(0, "LualineModeAccent", { fg = a.bg })
 	vim.api.nvim_set_hl(0, "FloatTitle", { fg = normal and normal.bg or a.bg, bold = true })
 end
 

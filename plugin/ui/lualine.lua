@@ -38,7 +38,10 @@ require("lualine").setup({
 	sections = {
 		lualine_a = { "mode" },
 		lualine_b = {
-			{ "branch", icon = "\u{F062C}" }, -- md-source_branch
+			-- The branch icon in the mode color (LualineModeAccent, colorscheme.lua),
+			-- like the filetype icon on the right; the diff and diagnostics icons
+			-- keep their meaning colors.
+			{ "branch", icon = { "\u{F062C}", color = "LualineModeAccent" } }, -- md-source_branch
 			{ "diff", symbols = { added = "\u{F0415} ", modified = "\u{F03EB} ", removed = "\u{F0374} " } }, -- md-plus md-pencil md-minus
 			{
 				"diagnostics",
@@ -58,7 +61,12 @@ require("lualine").setup({
 				colored = true,
 			},
 		},
-		lualine_x = { "filetype" },
+		-- Filetype as two parts so only the icon takes the mode color: the icon
+		-- (devicons' glyph, its own color dropped), then the name.
+		lualine_x = {
+			{ "filetype", icon_only = true, colored = false, color = "LualineModeAccent", separator = "", padding = { left = 1, right = 0 } },
+			{ "filetype", icons_enabled = false, separator = "", padding = { left = 1, right = 1 } },
+		},
 		lualine_y = { "progress" },
 		lualine_z = { "location" },
 	},
