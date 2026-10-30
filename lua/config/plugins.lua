@@ -18,7 +18,7 @@ return {
 		-- Dashboard header gradient: "random" (one of the palettes in
 		-- plugin/ui/snacks.lua per start), a palette name, or "theme" (the
 		-- colorscheme's own syntax colors). `:Dashboard <name>` previews one.
-		dashboard_gradient = "random",
+		dashboard_gradient = "flamingo",
 		-- Border for every float (pickers, completion, hover, which-key, noice,
 		-- buffer popup, 'winborder'). Valid: "single" (square), "rounded",
 		-- "double", "bold", "solid", "shadow", "none"
