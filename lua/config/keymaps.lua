@@ -1,7 +1,13 @@
 local keymap = vim.keymap
 
--- Clear search highlights
-keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+-- Clear search highlights; in a zoomed window (<leader><leader>z) leave the
+-- zoom instead, like q. A terminal's own <Esc> (utils.terms) does the same.
+keymap.set("n", "<Esc>", function()
+	if vim.w.snacks_main and Snacks.zen.win and Snacks.zen.win:valid() then
+		return Snacks.zen.win:close()
+	end
+	vim.cmd("nohlsearch")
+end, { desc = "Clear search highlights / leave zoom" })
 
 -- Literal search: prefix \V (very nomagic) so / and ? need no regex escaping.
 -- Only backslash stays special; regex search is still available via /\v or /\m.

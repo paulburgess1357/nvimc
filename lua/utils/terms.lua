@@ -439,7 +439,13 @@ local function setup_term_buf(n, buf)
 		-- pcall: closing fails if this is the last window (E444)
 		if w then pcall(vim.api.nvim_win_close, w, false) end
 	end, { buffer = buf })
-	vim.keymap.set("n", "<Esc>", "<cmd>wincmd t<CR>", { buffer = buf })
+	vim.keymap.set("n", "<Esc>", function()
+		-- Zoomed (<leader><leader>z): leave the zoom, like q.
+		if vim.w.snacks_main and Snacks.zen.win and Snacks.zen.win:valid() then
+			return Snacks.zen.win:close()
+		end
+		vim.cmd("wincmd t")
+	end, { buffer = buf })
 	for _, key in ipairs({ "<leader>-", "<leader>|" }) do
 		vim.keymap.set("n", key, "<nop>", { buffer = buf })
 	end
