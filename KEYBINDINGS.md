@@ -149,7 +149,7 @@ Leader key is `Space`.
 | `t` | Toggle smart wrap copy (rejoin soft-wrapped lines yanked from terminals) |
 | `k` | Toggle terminal window keys: on, `Ctrl/Alt+hjkl` in a terminal move/resize Neovim windows; off, they reach the program (nested vim, TUIs) |
 | `p` | Toggle parent directory in the buffer popup: always shown, not only when two files share a name |
-| `z` | Toggle zoom: current window (file or terminal) fills the screen; again restores the layout |
+| `z` | Toggle zoom: current window (file or terminal) fills the screen; again, or `q` in normal mode, restores the layout |
 | `.` | Cycle the search root for all files/grep pickers: working directory (default) → project root (nearest `.git` or project marker above the current file) → file directory. Shows a notification; the picker title shows the active root |
 
 ## Other
@@ -182,7 +182,7 @@ Leader key is `Space`.
 | `<` / `>` (visual) | Indent and keep selection |
 | `/` / `?` | Search is literal (`\V` prefix); `/\v` for regex. `:s` patterns are literal too |
 | `Esc` | Clear search highlights |
-| `q` (in quickfix, help, man, checkhealth) | Close that window |
+| `q` (in quickfix, help, man, checkhealth, a zoomed window) | Close that window / leave the zoom |
 | `s` (on dashboard) | Restore this directory's session (auto-saved on quit); also `:SessionRestore` / `:SessionSave` / `:SessionDelete` |
 
 ## FZF Picker (inside a picker)

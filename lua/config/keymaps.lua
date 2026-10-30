@@ -72,6 +72,17 @@ keymap.set("n", "<C-u>", "<C-u>zz")
 keymap.set("n", "n", "nzzzv")
 keymap.set("n", "N", "Nzzzv")
 
+-- q in a zoomed window (<leader><leader>z) leaves the zoom, as q closes a
+-- side window; anywhere else it is q itself (record a macro). A terminal's
+-- own q (utils.terms) does the same check.
+keymap.set("n", "q", function()
+	if vim.w.snacks_main and Snacks.zen.win and Snacks.zen.win:valid() then
+		Snacks.zen.win:close()
+		return ""
+	end
+	return "q"
+end, { expr = true, desc = "Leave zoom, else record macro" })
+
 -- Save file; a window with nothing to save (a terminal, quickfix, an unnamed
 -- buffer) gets a notice instead of Vim's E382/E32.
 keymap.set("n", "<leader>w", function()

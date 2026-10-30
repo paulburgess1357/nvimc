@@ -309,6 +309,13 @@ function M.peek()
 		if item.current then peek_sel = i end
 	end
 	local chosen, closing
+	-- getcharstr() waits without repainting, so a terminal printing while
+	-- the popup is up froze on screen until the next key (blank, when the
+	-- program had just cleared its screen). Repaint a few times a second.
+	local repaint = vim.uv.new_timer()
+	repaint:start(100, 100, vim.schedule_wrap(function()
+		if peek_win and vim.api.nvim_win_is_valid(peek_win) then vim.cmd("redraw") end
+	end))
 	-- Whatever goes wrong while the popup is up (a window vanishing under
 	-- it, a preview that fails to open), the floats must come down: they
 	-- are not focusable, so nothing else could ever close them.
@@ -363,11 +370,22 @@ function M.peek()
 				local ok2, k2 = pcall(vim.fn.getcharstr)
 				if ok2 and k2 == "d" then
 					local item = peek_items[peek_sel]
-					if item.slot then
-						-- Closing a terminal window may close the one the popup
-						-- hangs off, so it is done after the popup is down.
+					local tw = item.slot and vim.fn.bufwinid(item.buf) or -1
+					if item.slot and tw == vim.api.nvim_get_current_win() then
+						-- The terminal the popup hangs off: closed after the popup
+						-- is down, since the popup goes with its window.
 						closing = item
 						break
+					elseif item.slot then
+						-- Another terminal: its window closes (the shell keeps
+						-- running) and the list stays, like a buffer entry.
+						if tw ~= -1 then
+							vim.api.nvim_win_close(tw, false)
+							peek_items = entries()
+							peek_select(math.min(peek_sel, #peek_items))
+						else
+							vim.notify("Term" .. item.slot .. " is not open", vim.log.levels.WARN, { title = "Terminals" })
+						end
 					elseif vim.bo[item.buf].modified then
 						vim.notify(item.name .. " has unsaved changes", vim.log.levels.WARN, { title = "Buffers" })
 					else
@@ -387,18 +405,16 @@ function M.peek()
 			-- anything else: swallowed (modal)
 		end
 	end)
+	repaint:stop()
+	repaint:close()
 	peek_close()
 	if not ok then
 		vim.notify(tostring(err), vim.log.levels.ERROR, { title = "Buffers" })
 		return
 	end
 	if closing then
-		-- dd on a Term entry: close its window if it has one (:Term<n> toggles).
-		if vim.fn.bufwinid(closing.buf) ~= -1 then
-			vim.cmd("Term" .. closing.slot)
-		else
-			vim.notify("Term" .. closing.slot .. " is not open", vim.log.levels.WARN, { title = "Terminals" })
-		end
+		-- dd on the terminal the popup was opened from (:Term<n> toggles it).
+		vim.cmd("Term" .. closing.slot)
 	elseif chosen then
 		M.switch_to(chosen)
 	elseif in_terminal() then

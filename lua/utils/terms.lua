@@ -430,6 +430,11 @@ local function setup_term_buf(n, buf)
 		end,
 	})
 	vim.keymap.set("n", "q", function()
+		-- Zoomed (<leader><leader>z): leave the zoom, not the terminal.
+		if vim.w.snacks_main and Snacks.zen.win and Snacks.zen.win:valid() then
+			Snacks.zen.win:close()
+			return
+		end
 		local w = find_buf_win(buf)
 		-- pcall: closing fails if this is the last window (E444)
 		if w then pcall(vim.api.nvim_win_close, w, false) end
