@@ -7,7 +7,8 @@ local M = {}
 -- was STARTED in (a later :cd does not change which session is written):
 --   <dir>.vim   the :mksession script
 --   <dir>.json  what :mksession can't see: buffer-tab order (utils.buftabs),
---               the visible terminals (M.term) and the quickfix list
+--               tab page names (utils.tabs), the visible terminals in each
+--               tab (M.term) and the quickfix list
 
 -- No `blank` / `terminal`: nofile plugin windows (aerial, dap-ui, ...) can't
 -- be revived, and terminals are respawned through M.term instead.
@@ -84,6 +85,7 @@ function M.save()
 	vim.cmd("mksession! " .. vim.fn.fnameescape(base .. ".vim"))
 	local extra = {
 		tabs = require("utils.buftabs").names(),
+		tabnames = require("utils.tabs").names(),
 		terms = M.term and M.term.snapshot() or {},
 		qf = qf_snapshot(),
 	}
@@ -106,6 +108,7 @@ function M.restore()
 	end)
 	if not ok or type(extra) ~= "table" then return end
 	if type(extra.tabs) == "table" then require("utils.buftabs").restore(extra.tabs) end
+	if type(extra.tabnames) == "table" then require("utils.tabs").restore(extra.tabnames) end
 	if M.term and type(extra.terms) == "table" then M.term.restore(extra.terms) end
 	if type(extra.qf) == "table" then qf_restore(extra.qf) end
 end

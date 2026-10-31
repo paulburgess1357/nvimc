@@ -94,16 +94,14 @@ cmd("SymbolsAll", function() fzf.lsp_live_workspace_symbols(root.opts("Workspace
 cmd("Marks", fzf.marks, { desc = "Marks" })
 cmd("Files", function() fzf.files(root.opts("Files")) end, { desc = "Files" })
 cmd("Buffers", fzf.buffers, { desc = "Buffers" })
--- :Terms is :Buffers for the Term slots (utils.terms): one line per open
--- slot, "Term<n> (name) · title", with the builtin previewer showing the
--- terminal's output. Picking one focuses it, opening its window if hidden.
-cmd("Terms", function()
-	local terms = require("utils.terms")
-	local slots = terms.slots()
-	if #slots == 0 then return vim.notify("No terminals open", vim.log.levels.INFO, { title = "Terminals" }) end
+-- fzf-lua's builtin buffer previewer for the :Terms and :Tabs pickers below,
+-- whose entries are "[bufnr]<nbsp>icon<nbsp>label..." (as fzf-lua's own
+-- buffers picker makes them, so its previewer and actions find the buffer).
+-- Two changes: a terminal buffer is shown as itself, and the preview is
+-- titled by `title_of(fields)` (the entry split at nbsp) instead of
+-- fzf-lua's "buf <n>: <bufname>", which for a terminal is its term:// path.
+local function buffer_previewer(title_of)
 	local utils = require("fzf-lua.utils")
-	-- The builtin previewer titles a buffer "buf <n>: <bufname>", which for a
-	-- terminal is its term:// path. Title it with the entry's label instead.
 	local Previewer = require("fzf-lua.previewer.builtin").buffer_or_file:extend()
 	function Previewer:new(o, opts, fzf_win)
 		Previewer.super.new(self, o, opts, fzf_win)
@@ -144,9 +142,20 @@ cmd("Terms", function()
 	function Previewer:parse_entry(entry_str, ...)
 		local entry = Previewer.super.parse_entry(self, entry_str, ...)
 		local fields = vim.split(entry_str, utils.nbsp, { plain = true })
-		entry.title = " " .. utils.strip_ansi_coloring(fields[#fields]) .. " " -- the label, after bufnr and icon
+		entry.title = " " .. utils.strip_ansi_coloring(title_of(fields)) .. " "
 		return entry
 	end
+	return Previewer
+end
+
+-- :Terms is :Buffers for the Term slots (utils.terms): one line per open
+-- slot, "Term<n> (name) · title", with the builtin previewer showing the
+-- terminal's output. Picking one focuses it, opening its window if hidden.
+cmd("Terms", function()
+	local terms = require("utils.terms")
+	local slots = terms.slots()
+	if #slots == 0 then return vim.notify("No terminals open", vim.log.levels.INFO, { title = "Terminals" }) end
+	local utils = require("fzf-lua.utils")
 	-- The terminal devicon, colored, as the buffer picker shows file icons.
 	local icon = ""
 	local ok, devicons = pcall(require, "nvim-web-devicons")
@@ -166,7 +175,7 @@ cmd("Terms", function()
 	fzf.fzf_exec(entries, {
 		prompt = "> ", -- the title already says what it lists, like fzf-lua's own pickers
 		winopts = { title = " Terminals " }, -- the peek popup's word; the command stays :Terms
-		previewer = Previewer,
+		previewer = buffer_previewer(function(fields) return fields[#fields] end), -- the label, after bufnr and icon
 		-- Show the label only; the "[bufnr]" field stays in the entry for fzf-lua.
 		fzf_opts = { ["--delimiter"] = utils.nbsp, ["--with-nth"] = "2.." },
 		actions = {
@@ -180,6 +189,38 @@ cmd("Terms", function()
 		},
 	})
 end, { desc = "Terminals" })
+-- :Tabs lists the tab pages (utils.tabs): "Tab<n> (name) · what its windows
+-- show", colored like :Terms (Tab<n> as the buffer number, the name as the
+-- buffer name), with the buffer of the tab's current window in the preview.
+-- Picking one goes to it.
+cmd("Tabs", function()
+	local tabs = require("utils.tabs")
+	local utils = require("fzf-lua.utils")
+	local sep = require("utils.ui").sep
+	local icon = utils.ansi_from_hl("Function", "\u{F04DD}") .. utils.nbsp -- md-tab, as the side windows' icons
+	local entries = {}
+	for nr, tab in ipairs(vim.api.nvim_list_tabpages()) do
+		local buf = vim.api.nvim_win_get_buf(vim.api.nvim_tabpage_get_win(tab))
+		local name = tabs.name(tab)
+		local label = utils.ansi_from_hl("FzfLuaBufNr", "Tab" .. nr)
+			.. (name and utils.ansi_from_hl("FzfLuaBufName", " (" .. name .. ")") or "")
+		local contents = table.concat(tabs.contents(tab), ", ")
+		-- Label and contents as separate fields, so the preview title is the label alone.
+		entries[#entries + 1] = string.format("[%d]%s%s%s%s%s", buf, utils.nbsp, icon, label, utils.nbsp, contents ~= "" and (sep .. " " .. contents) or "")
+	end
+	fzf.fzf_exec(entries, {
+		prompt = "> ",
+		winopts = { title = " Tabs " },
+		previewer = buffer_previewer(function(fields) return fields[3] end),
+		fzf_opts = { ["--delimiter"] = utils.nbsp, ["--with-nth"] = "2.." },
+		actions = {
+			["default"] = function(selected)
+				local nr = selected[1] and tonumber(utils.strip_ansi_coloring(selected[1]):match("Tab(%d+)"))
+				if nr then tabs.go(nr) end
+			end,
+		},
+	})
+end, { desc = "Tabs" })
 cmd("Rg", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
 cmd("Grep", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
 cmd("Help", fzf.help_tags, { desc = "Help" })

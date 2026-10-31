@@ -9,6 +9,7 @@ Leader key is `Space`.
 | `<C-h/j/k/l>` | Window navigation. Works while typing in a Term terminal too. Arriving in a terminal starts insert mode; arriving in a file is normal mode |
 | `<C-Space>` | Previous window; press again to flip back. Works while typing in a terminal, and lands in insert mode when it arrives in one |
 | `<A-h/j/k/l>` | Resize window (drags the divider on that side) |
+| `H` / `L` | Previous / next tab page, wrapping round; `3L` goes to tab 3. The statusline shows the tabs when there are two or more; see [Tabs](COMMANDS.md#tabs) |
 | `<C-S-j/k>` | Bisect jump — binary-search the visible window for a line |
 | `<leader><leader>e` | Buffer popup: lists buffers in open order (Term slots when in a terminal) with a preview. `j/k` or `J/K` move, `gg`/`G` first/last, `l`/`<CR>` switch, `dd` delete the buffer (or close that terminal's window), `q`/`<Esc>` close |
 | `/` `?` in the popup | Search like Vim: incremental, `<CR>` keeps the match, `<Esc>` goes back, then `n`/`N` step through matches |

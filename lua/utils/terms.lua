@@ -18,6 +18,12 @@ local M = {}
 --
 -- Shells keep running while their window is closed. Sessions (utils.session)
 -- save and restore which terminals are visible, their sizes, names and cwd.
+--
+-- Tab pages (utils.tabs): the slots and their shells are global, the windows
+-- are per tab. `:Term<n>` in a tab looks for Term<n> among that tab's
+-- windows only, so a shell can be on screen in several tabs at once (like a
+-- file buffer) or in none, and the layout rules above hold within each tab.
+-- A session records the visible terminals tab by tab.
 
 local BOTTOM_MAX = 6
 local BOTTOM_HEIGHT = 0.3 -- of the screen, for the bottom row
@@ -33,9 +39,11 @@ local term_names = {} -- slot -> optional label, set with `:Term<n> <name>`
 -- split still displays the buffer it was split from, so while a slot is being
 -- opened its window is tracked here rather than looked up by buffer.
 local pending = {}
--- For <C-Space> (M.prev_window): the window the cursor was in before the
--- current one. `tracked_win` is the current non-floating window.
-local prev_win, tracked_win
+-- For <C-Space> (M.prev_window), per tab page (keyed by handle): the window
+-- the cursor was in before the current one. `tracked_win` is the current
+-- non-floating window. Per tab so that flipping never leaves the tab: the
+-- window last used in another tab is not "previous" here.
+local prev_win, tracked_win = {}, {}
 -- Whether Ctrl+hjkl / Alt+hjkl act on Neovim windows while typing in a
 -- terminal. Off, every key reaches the program in the terminal instead
 -- (nested vim, TUIs). Toggle: <leader><leader>k (plugin/ui/whichkey.lua).
@@ -64,20 +72,22 @@ local function is_float(win)
 	return vim.api.nvim_win_get_config(win).relative ~= ""
 end
 
--- The layout window showing `buf`. Floats are skipped: the zoom window
--- (<leader><leader>z) shows a terminal's buffer without being its slot.
-local function find_buf_win(buf)
-	for _, w in ipairs(vim.api.nvim_list_wins()) do
+-- The layout window showing `buf` in tab page `tab` (default: the current
+-- one). Floats are skipped: the zoom window (<leader><leader>z) shows a
+-- terminal's buffer without being its slot.
+local function find_buf_win(buf, tab)
+	for _, w in ipairs(vim.api.nvim_tabpage_list_wins(tab or 0)) do
 		if vim.api.nvim_win_get_buf(w) == buf and not is_pending(w) and not is_float(w) then return w end
 	end
 end
 
--- Window showing Term<n> (or about to), nil if it is not on screen.
-local function slot_win(n)
+-- Window showing Term<n> (or about to) in tab page `tab` (default: the
+-- current one), nil if it is not on screen there.
+local function slot_win(n, tab)
 	local p = pending[n]
-	if p and vim.api.nvim_win_is_valid(p) then return p end
+	if p and vim.api.nvim_win_is_valid(p) and (not tab or vim.api.nvim_win_get_tabpage(p) == tab) then return p end
 	local buf = term_bufs[n]
-	return buf and vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf) or nil
+	return buf and vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf, tab) or nil
 end
 
 -- A window of right column `c` (its top terminal if visible), or nil.
@@ -340,14 +350,26 @@ local suppress_layout = false
 local function on_win_closed(ev)
 	local win = tonumber(ev.match)
 	if suppress_layout or not (win and vim.api.nvim_win_is_valid(win)) or is_float(win) then return end
+	-- Only the current tab's layout is kept in shape: a window closing in
+	-- another tab is none of this tab's business.
+	local tab = vim.api.nvim_get_current_tabpage()
+	if vim.api.nvim_win_get_tabpage(win) ~= tab then return end
 	local buf = vim.api.nvim_win_get_buf(win)
 	local slot
 	for n, b in pairs(term_bufs) do
 		if b == buf then slot = n end
 	end
 	if not slot then return end
+	-- The fix-ups run once the window is gone, and only if this tab is still
+	-- the current one: when the whole tab went with the window (:CloseTab),
+	-- they would otherwise resize whichever tab is current by then.
+	local function later(fn)
+		vim.schedule(function()
+			if vim.api.nvim_get_current_tabpage() == tab then fn() end
+		end)
+	end
 	if not is_right(slot) then
-		vim.schedule(equalize_bottom)
+		later(equalize_bottom)
 		return
 	end
 	-- A column that keeps its other terminal just gives it the full height.
@@ -355,9 +377,7 @@ local function on_win_closed(ev)
 	if partner and partner ~= win then return end
 	-- The column is going away: its width would land on one neighbour only.
 	local left = snapshot_left()
-	vim.schedule(function()
-		settle(left, default_col_widths())
-	end)
+	later(function() settle(left, default_col_widths()) end)
 end
 
 -----------------------------------------------------------
@@ -523,7 +543,9 @@ local function ensure_term(n, cwd)
 		pending[n] = nil
 		error(err, 0)
 	end
-	if origin ~= vim.api.nvim_get_current_win() and not is_float(origin) then prev_win = origin end
+	if origin ~= vim.api.nvim_get_current_win() and not is_float(origin) then
+		prev_win[vim.api.nvim_get_current_tabpage()] = origin
+	end
 	if live then
 		vim.api.nvim_set_current_buf(buf)
 		pending[n] = nil
@@ -630,78 +652,115 @@ local session_provider = {
 	-- would otherwise run after the session loads and resize its windows.
 	close_all = function()
 		suppress_layout = true
-		for n in pairs(term_bufs) do
-			local win = slot_win(n)
-			if win then pcall(vim.api.nvim_win_close, win, false) end
+		for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+			for n in pairs(term_bufs) do
+				local win = vim.api.nvim_tabpage_is_valid(tab) and slot_win(n, tab)
+				if win then pcall(vim.api.nvim_win_close, win, false) end
+			end
 		end
 		suppress_layout = false
 	end,
+	-- One entry per visible terminal window, tab by tab (`tab` is the tab's
+	-- number, as :mksession recreates them); a shell shown in two tabs has
+	-- two entries.
 	snapshot = function()
 		local terms = {}
-		local cur_buf = vim.api.nvim_get_current_buf()
-		for n, buf in pairs(term_bufs) do
-			local win = slot_win(n)
-			if win then
-				local ok, pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
-				local cwd = ok and vim.uv.fs_readlink("/proc/" .. pid .. "/cwd") or nil
-				local agents = require("utils.agents")
-				table.insert(terms, {
-					n = n,
-					cwd = cwd,
-					name = term_names[n],
-					focus = buf == cur_buf or nil,
-					width = width(win),
-					height = height(win),
-					agent = (ok and agents.enabled()) and agents.detect(pid) or nil,
-				})
+		local cur_win = vim.api.nvim_get_current_win()
+		local agents = require("utils.agents")
+		for ti, tab in ipairs(vim.api.nvim_list_tabpages()) do
+			for n, buf in pairs(term_bufs) do
+				local win = slot_win(n, tab)
+				if win then
+					local ok, pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
+					local cwd = ok and vim.uv.fs_readlink("/proc/" .. pid .. "/cwd") or nil
+					table.insert(terms, {
+						n = n,
+						tab = ti,
+						cwd = cwd,
+						name = term_names[n],
+						focus = win == cur_win or nil,
+						width = width(win),
+						height = height(win),
+						agent = (ok and agents.enabled()) and agents.detect(pid) or nil,
+					})
+				end
 			end
 		end
-		table.sort(terms, function(a, b) return a.n < b.n end)
+		table.sort(terms, function(a, b) return a.tab < b.tab or (a.tab == b.tab and a.n < b.n) end)
 		return terms
 	end,
+	-- Runs after the session file made the tabs and their file windows.
 	restore = function(terms)
-		local origin = vim.api.nvim_get_current_win()
+		local origin_tab, origin = vim.api.nvim_get_current_tabpage(), vim.api.nvim_get_current_win()
 		local agents = require("utils.agents")
 		local focus
+		-- Entries by tab number. A session saved before tabs were recorded
+		-- has no `tab`: everything belongs to the first.
+		local by_tab, order = {}, {}
 		for _, t in ipairs(terms) do
-			local cwd = t.cwd and vim.fn.isdirectory(t.cwd) == 1 and t.cwd or vim.fn.getcwd()
-			if type(t.n) == "number" and t.n >= 1 and t.n <= 10 then
-				local buf = ensure_term(t.n, cwd) -- leaves the terminal window current
-				if type(t.name) == "string" then set_term_name(t.n, t.name) end
-				if t.focus then focus = vim.api.nvim_get_current_win() end
-				-- A terminal window follows output only while its cursor is on the
-				-- last line, and a fresh one starts at the top: park it at the
-				-- bottom so the prompt (and an agent's screen) is in view.
-				local function to_bottom()
-					local w = vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
-					if w then pcall(vim.api.nvim_win_set_cursor, w, { vim.api.nvim_buf_line_count(buf), 0 }) end
-				end
-				to_bottom()
-				if t.agent and agents.enabled() then
-					local cmd = agents.resume_cmd(t.agent)
-					if cmd then
-						-- Typed into the shell once it is up, as :TermRun does for a
-						-- fresh shell; the shell stays underneath when the agent exits.
-						-- The agent's first screen can arrive after the cursor was
-						-- parked, so park it again once that output has landed.
-						vim.defer_fn(function()
-							if not vim.api.nvim_buf_is_valid(buf) then return end
-							vim.api.nvim_chan_send(vim.bo[buf].channel, cmd .. "\r")
-							vim.defer_fn(to_bottom, 700)
-						end, 300)
-					else
-						vim.notify(
-							("Term%d was running %s but its conversation id is unknown; opened a plain shell"):format(t.n, tostring(t.agent.name)),
-							vim.log.levels.WARN,
-							{ title = "Terminals" }
-						)
+			local ti = type(t.tab) == "number" and t.tab or 1
+			if not by_tab[ti] then
+				by_tab[ti] = {}
+				order[#order + 1] = ti
+			end
+			table.insert(by_tab[ti], t)
+		end
+		table.sort(order)
+		local tabs = vim.api.nvim_list_tabpages()
+		for _, ti in ipairs(order) do
+			-- A tab the snapshot saw but the session file has not got is skipped.
+			if tabs[ti] then
+				vim.api.nvim_set_current_tabpage(tabs[ti])
+				for _, t in ipairs(by_tab[ti]) do
+					local cwd = t.cwd and vim.fn.isdirectory(t.cwd) == 1 and t.cwd or vim.fn.getcwd()
+					if type(t.n) == "number" and t.n >= 1 and t.n <= 10 then
+						-- Leaves the terminal window current. `created` is false when the
+						-- shell is already up (an earlier tab's entry spawned it): then
+						-- only a window for it is opened here.
+						local buf, created = ensure_term(t.n, cwd)
+						if type(t.name) == "string" then set_term_name(t.n, t.name) end
+						if t.focus then focus = vim.api.nvim_get_current_win() end
+						-- A terminal window follows output only while its cursor is on
+						-- the last line, and a fresh one starts at the top: park it at
+						-- the bottom so the prompt (and an agent's screen) is in view.
+						local function to_bottom()
+							local w = vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
+							if w then pcall(vim.api.nvim_win_set_cursor, w, { vim.api.nvim_buf_line_count(buf), 0 }) end
+						end
+						to_bottom()
+						if created and t.agent and agents.enabled() then
+							local cmd = agents.resume_cmd(t.agent)
+							if cmd then
+								-- Typed into the shell once it is up, as :TermRun does for a
+								-- fresh shell; the shell stays underneath when the agent
+								-- exits. The agent's first screen can arrive after the cursor
+								-- was parked, so park it again once that output has landed.
+								vim.defer_fn(function()
+									if not vim.api.nvim_buf_is_valid(buf) then return end
+									vim.api.nvim_chan_send(vim.bo[buf].channel, cmd .. "\r")
+									vim.defer_fn(to_bottom, 700)
+								end, 300)
+							else
+								vim.notify(
+									("Term%d was running %s but its conversation id is unknown; opened a plain shell"):format(t.n, tostring(t.agent.name)),
+									vim.log.levels.WARN,
+									{ title = "Terminals" }
+								)
+							end
+						end
 					end
 				end
+				restore_sizes(by_tab[ti])
 			end
 		end
-		restore_sizes(terms)
-		local target = focus or origin
-		if vim.api.nvim_win_is_valid(target) then vim.api.nvim_set_current_win(target) end
+		-- Back to the tab the session file left current, or into the
+		-- terminal that had the cursor (which lies in that tab).
+		if focus and vim.api.nvim_win_is_valid(focus) then
+			vim.api.nvim_set_current_win(focus)
+		elseif vim.api.nvim_tabpage_is_valid(origin_tab) then
+			vim.api.nvim_set_current_tabpage(origin_tab)
+			if vim.api.nvim_win_is_valid(origin) then vim.api.nvim_set_current_win(origin) end
+		end
 	end,
 }
 
@@ -775,6 +834,11 @@ function M.slots()
 	return out
 end
 
+-- "Term<n> (name)" for slot n, as its winbar and the pickers show it.
+function M.label(n)
+	return term_label(n)
+end
+
 -- Slot number of a terminal buffer, nil if it is not a Term<n>.
 function M.slot_of(buf)
 	for n, b in pairs(term_bufs) do
@@ -807,8 +871,10 @@ end
 -- never count as "previous", and neither do the windows a terminal hops
 -- through while it is being opened. Does nothing if that window is gone.
 function M.prev_window()
-	local win = prev_win
+	local tab = vim.api.nvim_get_current_tabpage()
+	local win = prev_win[tab]
 	if not (win and win ~= vim.api.nvim_get_current_win() and vim.api.nvim_win_is_valid(win)) then return end
+	if vim.api.nvim_win_get_tabpage(win) ~= tab then return end
 	-- Not both: a :stopinsert issued from terminal mode only takes effect
 	-- after the mapping returns, and would cancel the :startinsert.
 	if vim.bo[vim.api.nvim_win_get_buf(win)].buftype == "terminal" then
@@ -826,12 +892,22 @@ end
 function M.setup()
 	local settings = require("config.plugins").settings or {}
 
-	tracked_win = vim.api.nvim_get_current_win()
+	tracked_win[vim.api.nvim_get_current_tabpage()] = vim.api.nvim_get_current_win()
 	vim.api.nvim_create_autocmd("WinEnter", {
 		callback = function()
-			local win = vim.api.nvim_get_current_win()
-			if is_float(win) or win == tracked_win then return end
-			prev_win, tracked_win = tracked_win, win
+			local tab, win = vim.api.nvim_get_current_tabpage(), vim.api.nvim_get_current_win()
+			if is_float(win) or win == tracked_win[tab] then return end
+			prev_win[tab], tracked_win[tab] = tracked_win[tab], win
+		end,
+	})
+	-- Forget the windows of a closed tab.
+	vim.api.nvim_create_autocmd("TabClosed", {
+		callback = function()
+			for _, t in ipairs({ prev_win, tracked_win }) do
+				for tab in pairs(t) do
+					if not vim.api.nvim_tabpage_is_valid(tab) then t[tab] = nil end
+				end
+			end
 		end,
 	})
 

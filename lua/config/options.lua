@@ -40,9 +40,11 @@ vim.opt.cmdheight = 0 -- Hide command line (noice handles it in a popup)
 -- Float border for everything (settings.border in plugins.lua, read through
 -- utils.ui). Plugins that set their own border read the same setting.
 vim.opt.winborder = require("utils.ui").border
--- No tabline: file windows are named by their winbar (utils.winbar) and
--- <leader><leader>e shows the buffer tabs in a popup (utils.buftabs). lualine has no
--- tabline section, so it never turns this back on.
+-- No tabline: tab pages are shown in the statusline instead (plugin/ui/
+-- lualine.lua, only with two or more; :Tabs lists them, utils.tabs), file
+-- windows are named by their winbar (utils.winbar) and <leader><leader>e
+-- shows the buffer tabs in a popup (utils.buftabs). lualine has no tabline
+-- section, so it never turns this back on.
 vim.opt.showtabline = 0
 -- Whitespace you would otherwise not see, in the indent guides' grey
 -- (Whitespace / NonText): trailing spaces as the usual dot, no-break spaces,

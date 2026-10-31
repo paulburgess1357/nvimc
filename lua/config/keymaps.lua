@@ -41,6 +41,12 @@ keymap.set("n", "<A-l>", resize.resize_right, { desc = "Resize window right" })
 keymap.set("n", "<A-k>", resize.resize_up, { desc = "Resize window up" })
 keymap.set("n", "<A-j>", resize.resize_down, { desc = "Resize window down" })
 
+-- Tab pages (utils.tabs): H / L go to the previous / next tab, wrapping
+-- round; a count goes to that tab (3L is tab 3). Vim's own H / L (cursor to
+-- the top / bottom of the window) are given up for this.
+keymap.set("n", "H", "gT", { desc = "Previous tab" })
+keymap.set("n", "L", "gt", { desc = "Next tab" })
+
 -- Window splitting
 keymap.set("n", "<leader>-", "<cmd>split<CR>", { desc = "Split horizontally" })
 keymap.set("n", "<leader>|", "<cmd>vsplit<CR>", { desc = "Split vertically" })
@@ -107,6 +113,10 @@ keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Comment" })
 
 -- Per-directory sessions: auto-save on quit, restore from the dashboard (`s`)
 require("utils.session").setup()
+
+-- Tab pages as a numbered, nameable list: :NewTab, :CloseTab, :Tab, :TabName
+-- (utils.tabs; :Tabs is in plugin/editor/fzf.lua)
+require("utils.tabs").setup()
 
 -- Keep split proportions when the screen is resized (utils.winscale)
 require("utils.winscale").setup()

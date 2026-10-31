@@ -17,6 +17,7 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | `:Commands` | Commands |
 | `:Keymaps` | Keymaps |
 | `:Aerials` | Toggle outline sidebar |
+| `:Tabs` | Tab pages, each with what its windows show; picking one goes to it (see [Tabs](#tabs)) |
 | `:Dashboard [name]` | Open the dashboard; with a name, in that header gradient (tab-completes; `random`, `theme` or one of the palettes in `plugin/ui/snacks.lua`). `settings.dashboard_gradient` pins one |
 | `:SessionSave` / `:SessionRestore` / `:SessionDelete` | Per-directory session (auto-saved on quit) |
 | `:Term1`..`:Term10` | Toggle a terminal; its slot number decides where it opens (see [Terminals](#terminals)). Opening it puts you in it in insert mode |
@@ -44,7 +45,24 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 - The two columns are always the same width: 28% of the screen with one open, 22% each with both.
 - Shells keep running while hidden. Sessions restore which terminals were visible, their sizes, names and directories.
 - Lowercase works too: `:term9` is rewritten to `:Term9` (it would otherwise be Vim's `:terminal 9`).
+- Tab pages: the ten slots and their shells are shared by every tab, the windows are per tab. `:Term3` in a tab looks for Term3 among that tab's windows only, so a shell can be on screen in two tabs at once (like a file) or in none. The layout above holds within each tab, and a session restores the terminals of every tab.
 - Code lives in `lua/utils/terms.lua`.
+
+## Tabs
+
+A tab page is a window layout: each tab has its own splits, while buffers and Term shells are shared. Tabs form a numbered list that grows at the end; `H` / `L` step through them. With two or more tabs the statusline shows them (`2 (build)`), the current one in the mode color.
+
+| Command | Action |
+| ------- | ------ |
+| `:NewTab [file]` | New tab after the last, showing the dashboard (or `file`). `:tabnew` typed alone is rewritten to this |
+| `:CloseTab [n\|name]` | Close the current tab (or that one). Closing the last tab leaves one window with the dashboard; buffers stay loaded and shells keep running. `:tabclose` typed alone is rewritten to this |
+| `:Tab <n\|name>` | Go to a tab, by number or name (tab-completes both). `:Tab` alone opens `:Tabs` |
+| `:Tab <n> <name>` | Go to tab `<n>` and name it; `:Tab <n> -` clears the name |
+| `:TabName [name\|-]` | Name the current tab (`-` clears; no argument shows it) |
+| `:Tabs` | fzf-lua picker: `Tab<n> (name) · files, Term slots and side windows open in it`, with the tab's current buffer in the preview |
+
+- Names are saved with the session, as is which tab was current; `:mksession` saves the tabs and their windows.
+- Code lives in `lua/utils/tabs.lua` (`:Tabs` in `plugin/editor/fzf.lua`).
 
 ## Git / Diff
 

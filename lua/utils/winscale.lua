@@ -25,10 +25,16 @@
 -- left as Neovim made it: a split still halves the window it splits and a
 -- closed window still hands its space to its neighbour. Floats are not
 -- part of winlayout().
+--
+-- Per tab page: winlayout() describes the current tab, so each tab keeps
+-- its own snapshot, and a tab is put back in shape when it is entered after
+-- the screen changed size while another tab was current.
 
 local M = {}
 
-local snap -- annotated layout tree from the last layout change
+-- Annotated layout tree from the last layout change, per tab page (keyed
+-- by its handle).
+local snaps = {}
 -- seen[frame key][frame size along its axis] = the children's sizes then.
 local seen = {}
 
@@ -164,13 +170,18 @@ local function remember(rec)
 end
 
 local function snapshot()
-	snap = record(vim.fn.winlayout())
-	remember(snap)
+	local tab = vim.api.nvim_get_current_tabpage()
+	snaps[tab] = record(vim.fn.winlayout())
+	remember(snaps[tab])
+	for t in pairs(snaps) do
+		if not vim.api.nvim_tabpage_is_valid(t) then snaps[t] = nil end
+	end
 end
 
 -- Restore the recorded shares of every frame that survived the last change,
 -- then snapshot the result.
 function M.rescale()
+	local snap = snaps[vim.api.nvim_get_current_tabpage()]
 	if snap then reconcile(index(snap), record(vim.fn.winlayout())) end
 	snapshot()
 end
@@ -179,9 +190,13 @@ end
 -- window opened with :noautocmd, as aerial's is, fires no WinNew, but the
 -- windows it pushed aside still fire WinResized), restore the surviving
 -- frames; otherwise the change is the new normal (the user dragged a
--- separator, a plugin resized its window) and is just snapshotted.
+-- separator, a plugin resized its window) and is just snapshotted. The same
+-- when the whole layout is not the size it was (on entering a tab after a
+-- screen resize happened in another: Neovim re-laid this one too, handing
+-- the difference to one window).
 local function settle()
-	if snap and snap.key ~= record(vim.fn.winlayout()).key then
+	local snap, cur = snaps[vim.api.nvim_get_current_tabpage()], record(vim.fn.winlayout())
+	if snap and (snap.key ~= cur.key or snap.w ~= cur.w or snap.h ~= cur.h) then
 		M.rescale()
 	else
 		snapshot()
@@ -196,7 +211,7 @@ function M.setup()
 		group = group,
 		callback = function() vim.schedule(M.rescale) end,
 	})
-	vim.api.nvim_create_autocmd({ "VimEnter", "WinResized", "SessionLoadPost" }, {
+	vim.api.nvim_create_autocmd({ "VimEnter", "WinResized", "SessionLoadPost", "TabEnter" }, {
 		group = group,
 		callback = function() vim.schedule(settle) end,
 	})

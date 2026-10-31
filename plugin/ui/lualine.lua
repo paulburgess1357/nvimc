@@ -24,6 +24,11 @@ for _, mode in pairs(custom_theme) do
 	end
 end
 
+-- Tab pages show only when there is more than one (see lualine_x).
+local function many_tabs()
+	return #vim.api.nvim_list_tabpages() > 1
+end
+
 require("lualine").setup({
 	options = {
 		theme = custom_theme,
@@ -62,10 +67,39 @@ require("lualine").setup({
 			},
 		},
 		-- Filetype as two parts so only the icon takes the mode color: the icon
-		-- (devicons' glyph, its own color dropped), then the name.
+		-- (devicons' glyph, its own color dropped), then the name. After it,
+		-- only with two or more tab pages, the tabs (utils.tabs): a tab icon in
+		-- the mode color, then each tab's number with its name ("2 (build)"),
+		-- the current one in the mode color and bold like the active winbar
+		-- (LualineBufActive), the others in WinBarNC grey like the inactive
+		-- ones. Vim's own tabline stays off ('showtabline', config/options.lua).
 		lualine_x = {
 			{ "filetype", icon_only = true, colored = false, color = "LualineModeAccent", separator = "", padding = { left = 1, right = 0 } },
-			{ "filetype", icons_enabled = false, separator = "", padding = { left = 1, right = 1 } },
+			-- The name keeps its separator: the bar before the tabs. lualine
+			-- drops it when the name is the last thing in the section.
+			{ "filetype", icons_enabled = false, padding = { left = 1, right = 1 } },
+			{
+				function() return "\u{F04DD}" end, -- md-tab
+				-- The mode color read from its group rather than named: a group
+				-- name as `color` makes lualine drop the separator before it.
+				color = function()
+					local hl = vim.api.nvim_get_hl(0, { name = "LualineModeAccent", link = false })
+					return hl.fg and { fg = string.format("#%06x", hl.fg) } or {}
+				end,
+				cond = many_tabs,
+				separator = "",
+				padding = { left = 1, right = 0 },
+			},
+			{
+				"tabs",
+				mode = 1, -- the label from fmt alone
+				fmt = function(_, tab) return require("utils.tabs").short_label(tab.tabnr) end,
+				show_modified_status = false,
+				tabs_color = { active = "LualineBufActive", inactive = "WinBarNC" },
+				component_separators = { left = "", right = "" }, -- none between the tabs
+				padding = { left = 1, right = 0 },
+				cond = many_tabs,
+			},
 		},
 		lualine_y = { "progress" },
 		lualine_z = { "location" },
