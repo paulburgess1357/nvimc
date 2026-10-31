@@ -19,6 +19,13 @@ vim.api.nvim_create_autocmd("FileType", {
 		local max_filesize = (settings.treesitter_max_kb or 100) * 1024
 		local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(args.buf))
 		if ok and stats and stats.size > max_filesize then
+			-- Neovim starts treesitter itself for some filetypes (lua, c, ...),
+			-- so for a file over the limit it is stopped, not merely not started.
+			-- Folds come from treesitter too (utils.folds) and would parse the
+			-- whole file on their own: manual folding here, as snacks' bigfile
+			-- does above its own limit.
+			pcall(vim.treesitter.stop, args.buf)
+			vim.opt_local.foldmethod = "manual"
 			return
 		end
 		pcall(vim.treesitter.start, args.buf)

@@ -284,8 +284,10 @@ function M.setup()
 			-- Nothing worth saving (quit from the dashboard, :checkhealth, ...):
 			-- keep the previous session rather than overwriting it with nothing.
 			if deleted or not has_files() then return end
-			-- Launched as git's editor (commit message, rebase todo, ...)
-			if vim.fn.argv(0):find("/.git/", 1, true) then return end
+			-- Launched as git's editor (commit message, rebase todo, ...). Git
+			-- gives the path relative to the repository, ".git/COMMIT_EDITMSG",
+			-- so it is made absolute before looking for the directory.
+			if vim.fn.fnamemodify(vim.fn.argv(0), ":p"):find("/.git/", 1, true) then return end
 			pcall(M.save)
 		end,
 	})

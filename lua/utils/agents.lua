@@ -211,6 +211,9 @@ local function agent_of(argv)
 	end
 end
 
+-- Clock ticks per second, read once (a process spawn, about a millisecond).
+local clk_tck
+
 -- Epoch seconds the process started at, from /proc (field 22 of stat is
 -- clock ticks after boot; btime in /proc/stat is the boot time).
 local function start_time(pid)
@@ -223,10 +226,12 @@ local function start_time(pid)
 	local fields = vim.split(rest, " ", { trimempty = true })
 	local ticks = tonumber(fields[20]) -- field 22 overall: 2 (pid, comm) precede `rest`
 	if not ticks then return nil end
-	local hz = 100
-	local ok, out = pcall(vim.fn.system, { "getconf", "CLK_TCK" })
-	if ok and tonumber(vim.trim(out)) then hz = tonumber(vim.trim(out)) end
-	return tonumber(btime) + math.floor(ticks / hz)
+	if not clk_tck then
+		clk_tck = 100
+		local ok, out = pcall(vim.fn.system, { "getconf", "CLK_TCK" })
+		if ok and tonumber(vim.trim(out)) then clk_tck = tonumber(vim.trim(out)) end
+	end
+	return tonumber(btime) + math.floor(ticks / clk_tck)
 end
 
 -- What the shell with pid `shell_pid` is running: { name, id } for the

@@ -69,8 +69,9 @@ vim.opt.clipboard:append("unnamedplus")
 -- The provider named outright. Left to itself Neovim probes for every
 -- clipboard tool it knows (wl-copy, xclip, xsel, ...) before the first
 -- frame, about 3 ms; xsel is what that probe picks here (X11 and Xwayland).
--- A machine without xsel gets the probe as before.
-if vim.fn.executable("xsel") == 1 then
+-- Without xsel or without an X display (a console, an ssh session) the
+-- probe runs as before.
+if vim.env.DISPLAY and vim.fn.executable("xsel") == 1 then
 	vim.g.clipboard = {
 		name = "xsel",
 		copy = { ["+"] = { "xsel", "--nodetach", "-i", "-b" }, ["*"] = { "xsel", "--nodetach", "-i", "-p" } },
