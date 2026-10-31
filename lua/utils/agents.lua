@@ -25,6 +25,10 @@
 --           whose first line names the session's cwd. A running codex is
 --           matched to the file written at its start time in its cwd, or
 --           its id is read from `codex resume <id>` when launched that way.
+--   qwen    Writes ~/.qwen/sessions/<pid>.json for each running process,
+--           with the session id inside, so the id is read from there (or
+--           from --session-id / --resume on the command line). Resumed
+--           with --resume <id>.
 --
 -- Nothing outside Neovim changes: ~/.bashrc is untouched and shells not
 -- spawned by the Term system never see the wrapper.
@@ -100,6 +104,20 @@ M.agents = {
 		end,
 		resume = function(id)
 			return "codex resume " .. id
+		end,
+	},
+	qwen = {
+		id = function(argv, proc)
+			local file = vim.fn.expand("~/.qwen/sessions/" .. proc.pid .. ".json")
+			if vim.fn.filereadable(file) == 1 then
+				local ok, data = pcall(vim.json.decode, table.concat(vim.fn.readfile(file), "\n"))
+				local id = ok and type(data) == "table" and data.sessionId
+				if type(id) == "string" and id:match("^" .. UUID .. "$") then return id end
+			end
+			return flag_value(argv, { "--session-id", "--resume", "-r" })
+		end,
+		resume = function(id)
+			return "qwen --resume " .. id
 		end,
 	},
 }
