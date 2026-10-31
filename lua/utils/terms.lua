@@ -532,12 +532,10 @@ local function ensure_term(n, cwd)
 		end
 		return buf, false
 	end
-	if cwd then
-		vim.cmd("enew")
-		vim.fn.jobstart(vim.o.shell, { term = true, cwd = cwd })
-	else
-		vim.cmd("terminal")
-	end
+	-- The shell through utils.agents: 'shell' as is, or via its rcfile when
+	-- settings.restore_agents is on.
+	vim.cmd("enew")
+	vim.fn.jobstart(require("utils.agents").shell_cmd(), { term = true, cwd = cwd })
 	buf = vim.api.nvim_get_current_buf()
 	term_bufs[n] = buf
 	pending[n] = nil
@@ -583,6 +581,11 @@ end
 -- and name, and which terminal (if any) had focus, then respawn fresh shells
 -- on restore. :mksession also can't point its final `wincmd w` at a skipped
 -- terminal window, so `focus` is what puts the cursor back in it.
+--
+-- With settings.restore_agents on, a slot's entry also records the agent
+-- its shell was running and that conversation's id (utils.agents), and the
+-- restore types the agent's resume command into the respawned shell. An
+-- agent whose id could not be learned gets a plain shell and a warning.
 -----------------------------------------------------------
 
 -- Terminals respawn at their default size, so put back what the snapshot
@@ -641,6 +644,7 @@ local session_provider = {
 			if win then
 				local ok, pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
 				local cwd = ok and vim.uv.fs_readlink("/proc/" .. pid .. "/cwd") or nil
+				local agents = require("utils.agents")
 				table.insert(terms, {
 					n = n,
 					cwd = cwd,
@@ -648,6 +652,7 @@ local session_provider = {
 					focus = buf == cur_buf or nil,
 					width = width(win),
 					height = height(win),
+					agent = (ok and agents.enabled()) and agents.detect(pid) or nil,
 				})
 			end
 		end
@@ -656,13 +661,42 @@ local session_provider = {
 	end,
 	restore = function(terms)
 		local origin = vim.api.nvim_get_current_win()
+		local agents = require("utils.agents")
 		local focus
 		for _, t in ipairs(terms) do
 			local cwd = t.cwd and vim.fn.isdirectory(t.cwd) == 1 and t.cwd or vim.fn.getcwd()
 			if type(t.n) == "number" and t.n >= 1 and t.n <= 10 then
-				ensure_term(t.n, cwd) -- leaves the terminal window current
+				local buf = ensure_term(t.n, cwd) -- leaves the terminal window current
 				if type(t.name) == "string" then set_term_name(t.n, t.name) end
 				if t.focus then focus = vim.api.nvim_get_current_win() end
+				-- A terminal window follows output only while its cursor is on the
+				-- last line, and a fresh one starts at the top: park it at the
+				-- bottom so the prompt (and an agent's screen) is in view.
+				local function to_bottom()
+					local w = vim.api.nvim_buf_is_valid(buf) and find_buf_win(buf)
+					if w then pcall(vim.api.nvim_win_set_cursor, w, { vim.api.nvim_buf_line_count(buf), 0 }) end
+				end
+				to_bottom()
+				if t.agent and agents.enabled() then
+					local cmd = agents.resume_cmd(t.agent)
+					if cmd then
+						-- Typed into the shell once it is up, as :TermRun does for a
+						-- fresh shell; the shell stays underneath when the agent exits.
+						-- The agent's first screen can arrive after the cursor was
+						-- parked, so park it again once that output has landed.
+						vim.defer_fn(function()
+							if not vim.api.nvim_buf_is_valid(buf) then return end
+							vim.api.nvim_chan_send(vim.bo[buf].channel, cmd .. "\r")
+							vim.defer_fn(to_bottom, 700)
+						end, 300)
+					else
+						vim.notify(
+							("Term%d was running %s but its conversation id is unknown; opened a plain shell"):format(t.n, tostring(t.agent.name)),
+							vim.log.levels.WARN,
+							{ title = "Terminals" }
+						)
+					end
+				end
 			end
 		end
 		restore_sizes(terms)

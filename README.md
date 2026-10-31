@@ -155,3 +155,7 @@ colorscheme = { enabled = true, theme = "onedark" },
 ```
 
 Global settings (file size limits, etc.) are in the `settings` table at the top of that file.
+
+### Sessions and agents
+
+A session is saved per launch directory on quit and restored from the dashboard (`s`). Terminals come back as fresh shells in their saved directories. With `settings.restore_agents = true`, a Term that was running an agent (claude, codex) comes back with the same conversation open: the id is read off the running process on quit and the agent's resume command is typed into the respawned shell. Term shells then start through a bash rcfile Neovim writes (it sources `~/.bashrc`, then adds a `claude` wrapper that gives every conversation an id); nothing outside Neovim changes. A conversation whose id could not be learned comes back as a plain shell with a warning. See `lua/utils/agents.lua`.
