@@ -4,12 +4,21 @@ local ui = require("utils.ui")
 local border = ui.border
 if cfg.enabled == false then return end
 
-local fzf = require("fzf-lua")
-local actions = require("fzf-lua.actions")
+-- fzf-lua loads lazily: `fzf.<picker>` is a function that requires the
+-- module when it is called, so the commands and keymaps below can name the
+-- pickers now and the module (2-3 ms) loads at the first keypress.
+local fzf = setmetatable({}, {
+	__index = function(_, name)
+		return function(...) return require("fzf-lua")[name](...) end
+	end,
+})
 -- Directory-scoped pickers take their root from utils.search_root (cwd, or
 -- the current file's directory when the <leader><leader>. toggle is on).
 local root = require("utils.search_root")
 
+-- The configuration once the first frame is drawn (utils.startup).
+require("utils.startup").after(function()
+local actions = require("fzf-lua.actions")
 fzf.setup({
 	"default-title",
 	fzf_colors = true,
@@ -86,6 +95,7 @@ fzf.setup({
 })
 
 fzf.register_ui_select()
+end)
 
 -- User commands
 local cmd = vim.api.nvim_create_user_command

@@ -36,6 +36,13 @@ vim.opt.termguicolors = true
 vim.opt.signcolumn = "yes"
 vim.opt.cursorline = true
 vim.opt.showmode = false -- Hide native mode indicator (lualine shows it)
+-- With lualine: one statusline for every window from the first frame, blank
+-- until lualine (plugin/ui/lualine.lua, set up once that frame is drawn)
+-- takes it over, so Vim's "[No Name]" statusline never shows.
+if (require("config.plugins").lualine or {}).enabled ~= false then
+	vim.opt.laststatus = 3
+	vim.opt.statusline = " "
+end
 vim.opt.cmdheight = 0 -- Hide command line (noice handles it in a popup)
 -- Float border for everything (settings.border in plugins.lua, read through
 -- utils.ui). Plugins that set their own border read the same setting.
@@ -59,6 +66,18 @@ vim.opt.backspace = "indent,eol,start"
 
 -- Clipboard
 vim.opt.clipboard:append("unnamedplus")
+-- The provider named outright. Left to itself Neovim probes for every
+-- clipboard tool it knows (wl-copy, xclip, xsel, ...) before the first
+-- frame, about 3 ms; xsel is what that probe picks here (X11 and Xwayland).
+-- A machine without xsel gets the probe as before.
+if vim.fn.executable("xsel") == 1 then
+	vim.g.clipboard = {
+		name = "xsel",
+		copy = { ["+"] = { "xsel", "--nodetach", "-i", "-b" }, ["*"] = { "xsel", "--nodetach", "-i", "-p" } },
+		paste = { ["+"] = { "xsel", "-o", "-b" }, ["*"] = { "xsel", "-o", "-p" } },
+		cache_enabled = true,
+	}
+end
 
 -- Split windows
 vim.opt.splitright = true

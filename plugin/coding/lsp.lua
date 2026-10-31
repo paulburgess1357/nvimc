@@ -53,23 +53,30 @@ vim.lsp.config.lua_ls = {
 	},
 }
 
+-- SchemaStore's catalog is a large table (several ms to load); it is read
+-- when the server starts, not at startup, by filling in the settings just
+-- before the initialize request.
 vim.lsp.config.jsonls = {
 	settings = {
 		json = {
-			schemas = require("schemastore").json.schemas(),
 			validate = { enable = true },
 		},
 	},
+	before_init = function(_, config)
+		config.settings.json.schemas = require("schemastore").json.schemas()
+	end,
 }
 
 vim.lsp.config.yamlls = {
 	settings = {
 		yaml = {
 			schemaStore = { enable = false, url = "" },
-			schemas = require("schemastore").yaml.schemas(),
 			validate = true,
 		},
 	},
+	before_init = function(_, config)
+		config.settings.yaml.schemas = require("schemastore").yaml.schemas()
+	end,
 }
 
 vim.lsp.config.tailwindcss = {
@@ -159,32 +166,54 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 -----------------------------------------------------------
--- Mason
+-- Servers and Mason
 -----------------------------------------------------------
-if mason_cfg.enabled ~= false then
-	require("mason").setup({ ui = { border = border } })
-	require("mason-lspconfig").setup({
-		ensure_installed = {
-			"lua_ls", "clangd", "pyright", "rust_analyzer", "gopls",
-			"ts_ls", "bashls", "html", "cssls", "tailwindcss",
-			"jsonls", "yamlls", "taplo", "dockerls", "docker_compose_language_service",
-		},
-		automatic_enable = true,
-	})
+-- The servers mason keeps installed, enabled here outright. vim.lsp.enable()
+-- costs nothing (a FileType autocmd that looks each config up on first use)
+-- and must run before VimEnter: a file named on the command line gets its
+-- FileType event before then. A server in the list that is not installed
+-- yet is skipped when a buffer of its type opens (noted in :LspLog only).
+-- mason-lspconfig used to do this enabling, at the price of loading its
+-- registry (20-30 ms) before the first frame.
+local servers = {
+	"lua_ls", "clangd", "pyright", "rust_analyzer", "gopls",
+	"ts_ls", "bashls", "html", "cssls", "tailwindcss",
+	"jsonls", "yamlls", "taplo", "dockerls", "docker_compose_language_service",
+}
 
-	-- Non-LSP tools used by conform/nvim-lint. mason-lspconfig only installs
-	-- language servers, so ensure these separately via the registry.
-	local ensure_tools = { "shfmt", "hadolint" }
-	local registry = require("mason-registry")
-	local function install_missing_tools()
-		for _, name in ipairs(ensure_tools) do
-			local ok, pkg = pcall(registry.get_package, name)
-			if ok and not pkg:is_installed() then
-				pkg:install()
+if mason_cfg.enabled ~= false then
+	-- Mason's bin directory first in PATH, where mason.setup() would put it,
+	-- so the servers are found when the first buffer opens.
+	vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
+end
+vim.lsp.enable(servers)
+
+if mason_cfg.enabled ~= false then
+	-- mason and mason-lspconfig load their package registry: for the :Mason
+	-- UI, for installing what ensure_installed lacks, and for enabling any
+	-- server installed by hand through :Mason. None of it is needed for the
+	-- first frame, so it runs once that is drawn (utils.startup).
+	require("utils.startup").after(function()
+		require("mason").setup({ ui = { border = border }, PATH = "skip" })
+		require("mason-lspconfig").setup({
+			ensure_installed = servers,
+			automatic_enable = true,
+		})
+
+		-- Non-LSP tools used by conform/nvim-lint. mason-lspconfig only installs
+		-- language servers, so ensure these separately via the registry.
+		local ensure_tools = { "shfmt", "hadolint" }
+		local registry = require("mason-registry")
+		local function install_missing_tools()
+			for _, name in ipairs(ensure_tools) do
+				local ok, pkg = pcall(registry.get_package, name)
+				if ok and not pkg:is_installed() then
+					pkg:install()
+				end
 			end
 		end
-	end
-	registry.refresh(vim.schedule_wrap(install_missing_tools))
+		registry.refresh(vim.schedule_wrap(install_missing_tools))
+	end)
 end
 
 vim.api.nvim_create_user_command("LspLog", function()

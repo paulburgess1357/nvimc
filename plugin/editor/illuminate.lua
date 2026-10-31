@@ -32,7 +32,17 @@ vim.api.nvim_create_autocmd("WinLeave", {
 		require("illuminate.reference").buf_set_references(ev.buf, {})
 	end,
 })
+-- Not while a session script builds its layout (SessionLoad, :mksession's
+-- flag): it passes through every window, and each refresh scans the buffer
+-- for references. The window it ends in is refreshed once, below.
 vim.api.nvim_create_autocmd("WinEnter", {
+	group = group,
+	callback = function()
+		if vim.g.SessionLoad then return end
+		require("illuminate.engine").refresh_references()
+	end,
+})
+vim.api.nvim_create_autocmd("SessionLoadPost", {
 	group = group,
 	callback = function() require("illuminate.engine").refresh_references() end,
 })

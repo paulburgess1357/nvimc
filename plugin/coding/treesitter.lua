@@ -3,11 +3,16 @@ local cfg = plugins.treesitter or {}
 local settings = plugins.settings or {}
 if cfg.enabled == false then return end
 
-require("nvim-treesitter").install({
-	"c", "cpp", "lua", "vim", "vimdoc", "python", "bash",
-	"markdown", "markdown_inline", "ruby", "json", "yaml",
-	"toml", "dockerfile", "regex",
-})
+-- Parsers missing from this list are installed in the background. The
+-- check reads the parser directory, so it waits for the first frame
+-- (utils.startup); the installed parsers work without it.
+require("utils.startup").after(function()
+	require("nvim-treesitter").install({
+		"c", "cpp", "lua", "vim", "vimdoc", "python", "bash",
+		"markdown", "markdown_inline", "ruby", "json", "yaml",
+		"toml", "dockerfile", "regex",
+	})
+end)
 
 vim.api.nvim_create_autocmd("FileType", {
 	callback = function(args)

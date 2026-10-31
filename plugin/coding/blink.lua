@@ -4,6 +4,11 @@ local ui = require("utils.ui")
 local border = ui.border
 if cfg.enabled == false then return end
 
+-- Set up once the first frame is drawn (utils.startup): blink validates its
+-- whole config and checks its fuzzy-matcher binary at setup, none of which
+-- the dashboard needs. Its keymaps are applied on InsertEnter, so a setup
+-- a few milliseconds after startup changes nothing.
+require("utils.startup").after(function()
 require("blink.cmp").setup({
 	keymap = {
 		preset = "default",
@@ -63,3 +68,4 @@ require("blink.cmp").setup({
 		implementation = "prefer_rust_with_warning",
 	},
 })
+end)

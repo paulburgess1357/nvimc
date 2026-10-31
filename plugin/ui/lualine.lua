@@ -3,6 +3,11 @@ if cfg.enabled == false then return end
 
 local ui = require("utils.ui")
 
+-- Set up once the first frame is drawn (utils.startup): lualine defines a
+-- highlight group per component and mode at setup, 6-9 ms the dashboard
+-- does not need. Until then the global statusline is blank ('laststatus'
+-- and 'statusline' in config/options.lua), so nothing flashes.
+require("utils.startup").after(function()
 -- Start from lualine's `auto` theme: it derives every color from the ACTIVE
 -- colorscheme's highlight groups, so changing themes later "just works".
 --
@@ -47,7 +52,19 @@ require("lualine").setup({
 			-- like the filetype icon on the right; the diff and diagnostics icons
 			-- keep their meaning colors.
 			{ "branch", icon = { "\u{F062C}", color = "LualineModeAccent" } }, -- md-source_branch
-			{ "diff", symbols = { added = "\u{F0415} ", modified = "\u{F03EB} ", removed = "\u{F0374} " } }, -- md-plus md-pencil md-minus
+			{
+				"diff",
+				symbols = { added = "\u{F0415} ", modified = "\u{F03EB} ", removed = "\u{F0374} " }, -- md-plus md-pencil md-minus
+				-- The counts gitsigns already keeps for the buffer. Without a
+				-- source lualine runs its own `git diff` process on every
+				-- BufEnter and write.
+				source = function()
+					local status = vim.b.gitsigns_status_dict
+					if status then
+						return { added = status.added, modified = status.changed, removed = status.removed }
+					end
+				end,
+			},
 			{
 				"diagnostics",
 				-- The same glyphs as the gutter signs and the notifier.
@@ -105,3 +122,4 @@ require("lualine").setup({
 		lualine_z = { "location" },
 	},
 })
+end)

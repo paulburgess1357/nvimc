@@ -77,7 +77,8 @@ lua/config/keymaps.lua      Key mappings
 lua/config/plugins.lua      Plugin enable/disable and settings
 lua/config/colorscheme.lua  Colorscheme setup (loaded immediately after vim.pack.add)
 lua/utils/                  Hand-rolled features: terminals, tab pages, sessions, buffer tabs, winbars,
-                            window proportions, the shared look (ui.lua), ...
+                            window proportions, the shared look (ui.lua), setup deferred past the
+                            first frame (startup.lua), ...
 plugin/coding/              Plugin configs: treesitter, lsp, blink, conform, lint, etc.
 plugin/editor/              Plugin configs: fzf, gitsigns, mini.files, etc.
 plugin/ui/                  Plugin configs: lualine, noice, snacks, whichkey, etc.

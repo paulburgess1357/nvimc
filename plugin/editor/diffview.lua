@@ -49,6 +49,10 @@ local function cleanup_buffers()
 end
 -- ===========================================================================
 
+-- The configuration once the first frame is drawn (utils.startup); the
+-- :Diffview commands exist from the start and the keymaps below load the
+-- plugin when pressed.
+require("utils.startup").after(function()
 local actions = require("diffview.actions")
 
 require("diffview").setup({
@@ -112,6 +116,7 @@ require("diffview").setup({
 		},
 	},
 })
+end)
 
 -- Toggle the working-tree diff: open if nothing is showing, else close.
 -- The diff lives in its own tab, so from another tab (after H / L) a diff

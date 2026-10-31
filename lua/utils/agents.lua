@@ -131,9 +131,13 @@ M.enabled = enabled
 -- The shell the Term slots run
 -----------------------------------------------------------
 local rcfile_path = vim.fn.stdpath("state") .. "/term-rc.bash"
+local rcfile_written = false
 
 -- Write the rcfile: ~/.bashrc, then every agent's wrapper. Returns its path.
+-- Its content depends on M.agents alone, so it is written once per run
+-- (about 2 ms), not for every shell spawned.
 function M.rcfile()
+	if rcfile_written then return rcfile_path end
 	local lines = {
 		"# Written by Neovim (lua/utils/agents.lua) for the Term slots. Do not edit.",
 		"[ -f ~/.bashrc ] && . ~/.bashrc",
@@ -149,6 +153,7 @@ function M.rcfile()
 	end
 	vim.fn.mkdir(vim.fn.fnamemodify(rcfile_path, ":h"), "p")
 	vim.fn.writefile(lines, rcfile_path)
+	rcfile_written = true
 	return rcfile_path
 end
 
