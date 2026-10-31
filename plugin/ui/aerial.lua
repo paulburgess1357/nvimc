@@ -13,6 +13,13 @@ require("aerial").setup({
 	},
 	attach_mode = "global",
 	autojump = true,
+	-- aerial's H / L (close / open the tree recursively) would shadow the
+	-- global H / L (previous / next tab, config/keymaps.lua) in the outline
+	-- window; zC / zO do the same thing, so they go.
+	keymaps = {
+		["H"] = false,
+		["L"] = false,
+	},
 	disable_max_lines = settings.aerial_max_lines or 50000,
 	filter_kind = false,
 	show_guides = true,

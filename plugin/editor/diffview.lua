@@ -49,6 +49,8 @@ local function cleanup_buffers()
 end
 -- ===========================================================================
 
+local actions = require("diffview.actions")
+
 require("diffview").setup({
 	enhanced_diff_hl = true, -- richer add/change/delete highlighting in the diff
 	-- File panel pictograms: Material, like every other (see utils.ui).
@@ -68,16 +70,29 @@ require("diffview").setup({
 		-- Fallback snapshot for entry points that bypass our keymaps
 		-- (e.g. `:DiffviewOpen main...HEAD` typed directly). No-ops when the
 		-- feature is disabled, since snapshot_buffers() leaves the snapshot nil.
-		view_opened = function()
+		--
+		-- Diffview opens in a tab page it makes with `:tab split`, which puts
+		-- it right after the current tab and renumbers every tab behind it.
+		-- The tabs are a numbered list that only grows at the end (utils.tabs),
+		-- so the diff tab is moved to the end and named, "3 (diff)" or
+		-- "3 (history)" in the statusline. Closing the diff removes it again.
+		view_opened = function(view)
 			if not pre_diff_buffers then
 				snapshot_buffers()
 			end
+			vim.cmd("tabmove $")
+			local kind = view and view.class and view.class.__name
+			require("utils.tabs").set_name(0, kind == "FileHistoryView" and "history" or "diff")
 		end,
 		view_closed = cleanup_buffers,
 	},
 	-- `q` closes the diff from anywhere inside it (view or either panel).
 	-- `<leader><leader>e` is disabled so the buffer popup can't swap a normal
-	-- buffer into a diffview window.
+	-- buffer into a diffview window. (`<leader>e` is diffview's own "focus the
+	-- file panel" there, not the explorer, for the same reason.)
+	-- `L` is diffview's "open commit log" in both panels; that would shadow
+	-- the global L (next tab, config/keymaps.lua), so it is dropped and the
+	-- commit log moves to gL. H is untouched by diffview, so both work.
 	keymaps = {
 		view = {
 			{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" } },
@@ -86,22 +101,35 @@ require("diffview").setup({
 		file_panel = {
 			{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" } },
 			{ "n", "<leader><leader>e", "<Nop>", { desc = "Disabled in diffview" } },
+			{ "n", "L", false },
+			{ "n", "gL", actions.open_commit_log, { desc = "Open the commit log" } },
 		},
 		file_history_panel = {
 			{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" } },
 			{ "n", "<leader><leader>e", "<Nop>", { desc = "Disabled in diffview" } },
+			{ "n", "L", false },
+			{ "n", "gL", actions.open_commit_log, { desc = "Open the commit log" } },
 		},
 	},
 })
 
 -- Toggle the working-tree diff: open if nothing is showing, else close.
+-- The diff lives in its own tab, so from another tab (after H / L) a diff
+-- that is still open is brought back first; :DiffviewClose only closes the
+-- diff of the current tab and would be a no-op anywhere else.
 local function toggle_diffview()
-	if next(require("diffview.lib").views) ~= nil then
+	local lib = require("diffview.lib")
+	if lib.get_current_view() then
 		vim.cmd("DiffviewClose")
-	else
-		snapshot_buffers()
-		vim.cmd("DiffviewOpen")
+		return
 	end
+	local view = lib.views[1]
+	if view and view.tabpage and vim.api.nvim_tabpage_is_valid(view.tabpage) then
+		vim.api.nvim_set_current_tabpage(view.tabpage)
+		return
+	end
+	snapshot_buffers()
+	vim.cmd("DiffviewOpen")
 end
 
 vim.keymap.set("n", "<leader>gd", toggle_diffview, { desc = "Diff view (toggle)" })

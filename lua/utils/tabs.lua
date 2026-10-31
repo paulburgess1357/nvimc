@@ -136,7 +136,13 @@ local function dashboard(win)
 		and not vim.bo[buf].modified
 		and vim.api.nvim_buf_line_count(buf) == 1
 		and vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] == ""
-	Snacks.dashboard.open({ win = win, buf = fresh and buf or nil })
+	local dash = Snacks.dashboard.open({ win = win, buf = fresh and buf or nil })
+	-- snacks keeps one autocommand group for "the" dashboard (cleared on
+	-- every open) and deletes it when the dashboard's buffer is wiped. With
+	-- a dashboard per tab the second one wiped finds the group already gone
+	-- and errors (E367) when a file is opened from it or its tab is closed.
+	-- Each of these dashboards deletes a group of its own instead.
+	dash.augroup = vim.api.nvim_create_augroup("snacks_dashboard_" .. dash.buf, { clear = true })
 end
 
 -- A new tab after the last one, with the dashboard, or `file` when given.
@@ -230,13 +236,22 @@ function M.setup()
 
 	-- `:tabnew` and `:tabclose` typed on their own become :NewTab and
 	-- :CloseTab (so the new tab goes to the end with the dashboard, and the
-	-- last tab can be "closed"), and so do the lowercase `:newtab` and
-	-- `:closetab` (user commands must start with a capital), the way
-	-- `:term9` becomes :Term9 in utils.terms: only when it is the whole
-	-- command typed so far.
-	for lower, upper in pairs({ tabnew = "NewTab", newtab = "NewTab", tabclose = "CloseTab", closetab = "CloseTab" }) do
-		vim.keymap.set("ca", lower, function()
-			return (vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == lower) and upper or lower
+	-- last tab can be "closed"), and so do the other spellings: lowercase
+	-- `:newtab` and `:closetab` (user commands must start with a capital)
+	-- and the word order reversed, `:TabNew` and `:TabClose`. As `:term9`
+	-- becomes :Term9 in utils.terms: only when it is the whole command
+	-- typed so far.
+	local spellings = {
+		tabnew = "NewTab",
+		newtab = "NewTab",
+		TabNew = "NewTab",
+		tabclose = "CloseTab",
+		closetab = "CloseTab",
+		TabClose = "CloseTab",
+	}
+	for typed, command in pairs(spellings) do
+		vim.keymap.set("ca", typed, function()
+			return (vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == typed) and command or typed
 		end, { expr = true })
 	end
 end

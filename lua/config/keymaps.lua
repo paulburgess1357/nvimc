@@ -43,7 +43,10 @@ keymap.set("n", "<A-j>", resize.resize_down, { desc = "Resize window down" })
 
 -- Tab pages (utils.tabs): H / L go to the previous / next tab, wrapping
 -- round; a count goes to that tab (3L is tab 3). Vim's own H / L (cursor to
--- the top / bottom of the window) are given up for this.
+-- the top / bottom of the window) are given up for this. Side windows that
+-- map H / L themselves give them up too (diffview's panels, aerial), so the
+-- keys work from any window of a tab; the mini.files explorer keeps its
+-- own (it is a popup that closes before you would move).
 keymap.set("n", "H", "gT", { desc = "Previous tab" })
 keymap.set("n", "L", "gt", { desc = "Next tab" })
 
