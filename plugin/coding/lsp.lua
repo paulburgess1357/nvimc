@@ -213,6 +213,15 @@ if mason_cfg.enabled ~= false then
 			end
 		end
 		registry.refresh(vim.schedule_wrap(install_missing_tools))
+
+		-- Resolve the enabled configs now (nvim-lspconfig's lsp/<name>.lua
+		-- files, a few ms in all) rather than at the first FileType event,
+		-- which otherwise does it for every enabled server before the first
+		-- buffer can attach. Neovim caches a resolved config while it stays
+		-- enabled; after mason-lspconfig, which enables servers of its own.
+		for _, name in ipairs(servers) do
+			local _ = vim.lsp.config[name]
+		end
 	end)
 end
 

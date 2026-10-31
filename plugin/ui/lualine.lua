@@ -8,6 +8,10 @@ local ui = require("utils.ui")
 -- does not need. Until then the global statusline is blank ('laststatus'
 -- and 'statusline' in config/options.lua), so nothing flashes.
 require("utils.startup").after(function()
+-- snacks hides the statusline while its dashboard is open ('laststatus' 0,
+-- put back when the dashboard closes); lualine's setup turns it on again,
+-- so it is hidden again afterwards.
+local hidden = vim.o.laststatus == 0
 -- Start from lualine's `auto` theme: it derives every color from the ACTIVE
 -- colorscheme's highlight groups, so changing themes later "just works".
 --
@@ -122,4 +126,5 @@ require("lualine").setup({
 		lualine_z = { "location" },
 	},
 })
+if hidden then vim.o.laststatus = 0 end
 end)

@@ -83,6 +83,12 @@ add("dap", gh("mfussenegger/nvim-dap"), gh("nvim-neotest/nvim-nio"), gh("rcarrig
 -----------------------------------------------------------
 -- Install and load all plugins
 -----------------------------------------------------------
+-- :packadd (which vim.pack.add runs per plugin) searches every 'packpath'
+-- directory, twenty by default, nearly all of them system directories that
+-- hold nothing for this config. Only the three that can: this directory
+-- (pack/local for LeetNeoCode), vim.pack's own under stdpath("data"), and
+-- the runtime's bundled pack/dist. Halves the loading time.
+vim.o.packpath = table.concat({ vim.fn.stdpath("config"), vim.fn.stdpath("data") .. "/site", vim.env.VIMRUNTIME }, ",")
 if #specs > 0 then
 	vim.pack.add(specs)
 end
