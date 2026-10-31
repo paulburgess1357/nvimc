@@ -88,8 +88,9 @@ Leader key is `Space`.
 | `gc` | Commits |
 | `gb` | Branches |
 | `gs` | Status |
-| `gd` | Diff view (toggle) |
-| `gh` | File history (current file) |
+| `gd` | Diff view (toggle): opens in its own tab at the end (`diff`); from another tab it goes back to the open diff, from the diff tab it closes it |
+| `gh` | File history (current file), in a `history` tab |
+| `q` in a diff | Close the diff from the view or either panel. `H` / `L` still switch tabs there; the panels' commit log is `gL` |
 | `hs` / `hr` | Stage / reset hunk (visual: selected lines) |
 | `hS` / `hR` | Stage / reset buffer |
 | `hu` | Undo stage hunk |

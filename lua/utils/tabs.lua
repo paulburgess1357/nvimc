@@ -127,8 +127,9 @@ end
 -- The dashboard in `win`, as Neovim starts: in the window's own buffer when
 -- that is a fresh empty one (a new tab's, so no [No Name] buffer is left
 -- behind in the buffer list), else in a new scratch buffer. Without snacks
--- the window is left as it is.
-local function dashboard(win)
+-- the window is left as it is. Also used by utils.session for the tabs a
+-- session brings back empty.
+function M.dashboard(win)
 	if not (package.loaded["snacks"] and Snacks.dashboard) then return end
 	local buf = vim.api.nvim_win_get_buf(win)
 	local fresh = vim.api.nvim_buf_get_name(buf) == ""
@@ -151,7 +152,7 @@ function M.new(file)
 	if file and file ~= "" then
 		vim.cmd.edit(file)
 	else
-		dashboard(vim.api.nvim_get_current_win())
+		M.dashboard(vim.api.nvim_get_current_win())
 	end
 end
 
@@ -165,7 +166,7 @@ function M.close(nr)
 		return
 	end
 	vim.cmd("silent! only")
-	dashboard(vim.api.nvim_get_current_win())
+	M.dashboard(vim.api.nvim_get_current_win())
 end
 
 function M.go(nr)

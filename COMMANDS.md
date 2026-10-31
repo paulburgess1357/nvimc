@@ -54,14 +54,15 @@ A tab page is a window layout: each tab has its own splits, while buffers and Te
 
 | Command | Action |
 | ------- | ------ |
-| `:NewTab [file]` | New tab after the last, showing the dashboard (or `file`). `:tabnew` typed alone is rewritten to this |
-| `:CloseTab [n\|name]` | Close the current tab (or that one). Closing the last tab leaves one window with the dashboard; buffers stay loaded and shells keep running. `:tabclose` typed alone is rewritten to this |
+| `:NewTab [file]` | New tab after the last, showing the dashboard (or `file`). `:tabnew`, `:newtab` or `:TabNew` typed alone is rewritten to this |
+| `:CloseTab [n\|name]` | Close the current tab (or that one). Closing the last tab leaves one window with the dashboard; buffers stay loaded and shells keep running. `:tabclose`, `:closetab` or `:TabClose` typed alone is rewritten to this |
 | `:Tab <n\|name>` | Go to a tab, by number or name (tab-completes both). `:Tab` alone opens `:Tabs` |
 | `:Tab <n> <name>` | Go to tab `<n>` and name it; `:Tab <n> -` clears the name |
 | `:TabName [name\|-]` | Name the current tab (`-` clears; no argument shows it) |
 | `:Tabs` | fzf-lua picker: `Tab<n> (name) · files, Term slots and side windows open in it`, with the tab's current buffer in the preview |
 
-- Names are saved with the session, as is which tab was current; `:mksession` saves the tabs and their windows.
+- Names are saved with the session, as is which tab was current; `:mksession` saves the tabs and their windows. A tab holding only the dashboard or only terminals comes back the same way.
+- A diff (`<leader>gd`, `<leader>gh`) opens in its own tab at the end, named `diff` or `history`, and closes with `q` or the toggle from any tab. It is never saved in a session.
 - Code lives in `lua/utils/tabs.lua` (`:Tabs` in `plugin/editor/fzf.lua`).
 
 ## Git / Diff

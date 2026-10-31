@@ -9,6 +9,9 @@ local M = {}
 --   <dir>.json  what :mksession can't see: buffer-tab order (utils.buftabs),
 --               tab page names (utils.tabs), the visible terminals in each
 --               tab (M.term) and the quickfix list
+--
+-- A diff (diffview) is closed before the save, and after a restore the
+-- tabs :mksession could only bring back empty get their dashboard (tidy).
 
 -- No `blank` / `terminal`: nofile plugin windows (aerial, dap-ui, ...) can't
 -- be revived, and terminals are respawned through M.term instead.
@@ -66,6 +69,62 @@ local function qf_restore(qf)
 	end
 end
 
+-- Diffview's tab (plugin/editor/diffview.lua) is a view of the repository,
+-- not a layout of files: :mksession would record its diffview:// buffers
+-- and bring the tab back broken. Every diff is closed before a save, which
+-- also keeps the terminal snapshot's tab numbers in step with the session's.
+local function close_diffs()
+	local lib = package.loaded["diffview.lib"]
+	if not lib then return end
+	for _, view in ipairs(vim.list_slice(lib.views)) do
+		view:close()
+		lib.dispose_view(view)
+	end
+end
+
+-- After the session loaded: a diff tab a session saved before close_diffs
+-- existed is closed, with its diffview:// buffers. Then the empty windows
+-- :mksession leaves behind: a tab whose windows it could not record (a
+-- dashboard, or only terminals, which M.term brings back) comes back as
+-- one [No Name] window. Beside other windows it is closed; alone in its
+-- tab it gets the dashboard, as :NewTab makes it. Tab names are on the
+-- tab handles by now, so closing a tab shifts no name.
+local function tidy()
+	for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+		for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+			if vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(win)):match("^diffview://") then
+				if #vim.api.nvim_list_tabpages() > 1 then
+					vim.cmd(vim.api.nvim_tabpage_get_number(tab) .. "tabclose!")
+				end
+				break
+			end
+		end
+	end
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_get_name(buf):match("^diffview://") then pcall(vim.api.nvim_buf_delete, buf, { force = true }) end
+	end
+	local cur = vim.api.nvim_get_current_win()
+	for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+		local wins = vim.tbl_filter(function(w) return vim.api.nvim_win_get_config(w).relative == "" end, vim.api.nvim_tabpage_list_wins(tab))
+		for _, win in ipairs(wins) do
+			local buf = vim.api.nvim_win_get_buf(win)
+			local empty = vim.api.nvim_buf_get_name(buf) == ""
+				and vim.bo[buf].buftype == ""
+				and not vim.bo[buf].modified
+				and vim.api.nvim_buf_line_count(buf) == 1
+				and vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] == ""
+			if empty then
+				if #wins > 1 then
+					pcall(vim.api.nvim_win_close, win, false)
+				else
+					require("utils.tabs").dashboard(win)
+				end
+			end
+		end
+	end
+	if vim.api.nvim_win_is_valid(cur) then vim.api.nvim_set_current_win(cur) end
+end
+
 local function has_files()
 	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
 		if vim.bo[buf].buflisted and vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= "" then
@@ -81,6 +140,7 @@ end
 
 function M.save()
 	deleted = false
+	close_diffs()
 	vim.fn.mkdir(dir, "p")
 	vim.cmd("mksession! " .. vim.fn.fnameescape(base .. ".vim"))
 	local extra = {
@@ -111,6 +171,7 @@ function M.restore()
 	if type(extra.tabnames) == "table" then require("utils.tabs").restore(extra.tabnames) end
 	if M.term and type(extra.terms) == "table" then M.term.restore(extra.terms) end
 	if type(extra.qf) == "table" then qf_restore(extra.qf) end
+	tidy()
 end
 
 -- Also stops this run from re-saving on quit, so the delete sticks.
