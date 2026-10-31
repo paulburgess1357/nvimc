@@ -162,6 +162,7 @@ Leader key is `Space`.
 | `<F9>` | Paste current line (visual: selection) into the default terminal and press Enter, then move down (`:TermRun`; default set by `settings.send_term`) |
 | `{n}<F9>` | Same, into Term{n}: `3<F9>` runs in Term3 (`:TermRun 3`) |
 | `<Esc><Esc>` (terminal mode) | Back to normal mode |
+| `<C-q>` | Back to normal mode from anywhere: terminal, insert, visual, command line. A single `Esc` in a terminal reaches the program (an agent's interrupt) untouched |
 | `Esc` (in terminal normal mode) | Jump to leftmost window |
 | `q` (in terminal normal mode) | Close the terminal window (shell keeps running) |
 | `<leader>e` | File explorer (directory of current file; the dashboard opens the cwd, a terminal or quickfix window warns) |

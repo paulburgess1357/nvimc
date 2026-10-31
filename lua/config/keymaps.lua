@@ -117,6 +117,14 @@ require("utils.winbar").setup()
 -- Terminal: Term1-10 slots, :Term / :TermRun, session support (utils.terms)
 require("utils.terms").setup()
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+-- <C-q>: back to normal mode from wherever you are. In a terminal it is the
+-- one key that never reaches the program (an agent's own Escape handling is
+-- untouched, and the pty swallows Ctrl-Q anyway), and it is a plain control
+-- character, so it works in any terminal emulator. Normal mode keeps <C-q>
+-- as the visual-block alternative to <C-v>.
+keymap.set("t", "<C-q>", "<C-\\><C-n>", { desc = "Normal mode" })
+keymap.set({ "i", "x", "s", "o" }, "<C-q>", "<Esc>", { desc = "Normal mode" })
+keymap.set("c", "<C-q>", "<C-c>", { desc = "Normal mode" })
 -- Smart Wrap Copy: yanks in terminal buffers rejoin soft-wrapped lines so
 -- pasted commands/output keep their real line breaks (toggle: <leader><leader>t)
 require("utils.smart_wrap_copy").setup()
