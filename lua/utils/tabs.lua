@@ -230,9 +230,11 @@ function M.setup()
 
 	-- `:tabnew` and `:tabclose` typed on their own become :NewTab and
 	-- :CloseTab (so the new tab goes to the end with the dashboard, and the
-	-- last tab can be "closed"), the way `:term9` becomes :Term9 in
-	-- utils.terms: only when it is the whole command typed so far.
-	for lower, upper in pairs({ tabnew = "NewTab", tabclose = "CloseTab" }) do
+	-- last tab can be "closed"), and so do the lowercase `:newtab` and
+	-- `:closetab` (user commands must start with a capital), the way
+	-- `:term9` becomes :Term9 in utils.terms: only when it is the whole
+	-- command typed so far.
+	for lower, upper in pairs({ tabnew = "NewTab", newtab = "NewTab", tabclose = "CloseTab", closetab = "CloseTab" }) do
 		vim.keymap.set("ca", lower, function()
 			return (vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == lower) and upper or lower
 		end, { expr = true })
