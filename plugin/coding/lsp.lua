@@ -162,8 +162,19 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		map("<leader>cd", fzf.diagnostics_document, "Document diagnostics")
 		map("[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "Prev diagnostic")
 		map("]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "Next diagnostic")
+		map("<leader>cx", vim.lsp.codelens.run, "Run code lens")
 	end,
 })
+
+-- Neovim's own LSP maps gra, gri, grn, grr, grt and grx begin with gr, so gr
+-- (references, above) would wait 'timeoutlen' for a third key before every
+-- picker. Their actions are all mapped above (<leader>ca, gI, <leader>cr,
+-- gr, gy, <leader>cx), so the defaults go.
+for _, lhs in ipairs({ "gra", "gri", "grn", "grr", "grt", "grx" }) do
+	for _, mode in ipairs({ "n", "x" }) do
+		pcall(vim.keymap.del, mode, lhs)
+	end
+end
 
 -----------------------------------------------------------
 -- Servers and Mason

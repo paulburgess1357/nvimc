@@ -64,6 +64,7 @@ Leader key is `Space`.
 | `cf` | Format buffer |
 | `cd` | Document diagnostics |
 | `cl` | Trigger lint |
+| `cx` | Run code lens (LSP) |
 | `c` (visual) | Comment selection |
 
 ## LSP (active while a server is attached)
@@ -175,7 +176,7 @@ Leader key is `Space`.
 | `<leader>q` | Quit |
 | `<leader>-` | Split horizontal |
 | `<leader>\|` | Split vertical |
-| `<leader>wd` | Close window |
+| `<leader>W` | Close window |
 | `<leader>bd` / `<leader>bD` | Delete buffer / force delete |
 | `<leader>:` | Command history |
 | `<leader>?` | Buffer-local keymaps (which-key) |

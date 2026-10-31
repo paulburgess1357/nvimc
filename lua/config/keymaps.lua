@@ -53,7 +53,10 @@ keymap.set("n", "L", "gt", { desc = "Next tab" })
 -- Window splitting
 keymap.set("n", "<leader>-", "<cmd>split<CR>", { desc = "Split horizontally" })
 keymap.set("n", "<leader>|", "<cmd>vsplit<CR>", { desc = "Split vertically" })
-keymap.set("n", "<leader>wd", "<cmd>close<CR>", { desc = "Delete window" })
+-- <leader>W, not <leader>wd: a mapping that begins with another one
+-- (<leader>w, save) makes that one wait 'timeoutlen' for the next key, so
+-- every save would land 300 ms late.
+keymap.set("n", "<leader>W", "<cmd>close<CR>", { desc = "Delete window" })
 
 -- Buffer navigation: <leader><leader>e opens the buffer peek popup
 -- (utils.buftabs), the counterpart of <leader>e for the file explorer; it
