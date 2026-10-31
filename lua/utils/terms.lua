@@ -711,6 +711,11 @@ local session_provider = {
 			-- A tab the snapshot saw but the session file has not got is skipped.
 			if tabs[ti] then
 				vim.api.nvim_set_current_tabpage(tabs[ti])
+				-- The tab's current window, as the session left it: ensure_term
+				-- leaves each terminal window current, and that must not stick
+				-- in a tab the cursor was not in. (A focused terminal takes the
+				-- cursor below, after every tab is done.)
+				local keep = vim.api.nvim_get_current_win()
 				for _, t in ipairs(by_tab[ti]) do
 					local cwd = t.cwd and vim.fn.isdirectory(t.cwd) == 1 and t.cwd or vim.fn.getcwd()
 					if type(t.n) == "number" and t.n >= 1 and t.n <= 10 then
@@ -751,6 +756,7 @@ local session_provider = {
 					end
 				end
 				restore_sizes(by_tab[ti])
+				if vim.api.nvim_win_is_valid(keep) then vim.api.nvim_set_current_win(keep) end
 			end
 		end
 		-- Back to the tab the session file left current, or into the
