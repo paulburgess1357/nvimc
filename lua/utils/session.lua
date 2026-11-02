@@ -4,14 +4,16 @@ local M = {}
 -- on demand (dashboard `s` / :SessionRestore). Built on :mksession, no plugin.
 --
 -- Files live in stdpath("state")/sessions/, named after the directory Neovim
--- was STARTED in (a later :cd does not change which session is written):
+-- was STARTED in (a later :cd does not change which session is written;
+-- M.switch, behind the :Sessions picker, does):
 --   <dir>.vim   the :mksession script
---   <dir>.json  what :mksession can't see: buffer-tab order (utils.buftabs),
---               tab page names (utils.tabs), the visible terminals in each
---               tab (M.term), the quickfix list, the current window of
---               each tab (which :mksession keeps for the current tab only)
---               and the window sizes of each tab (which :mksession drops
---               for a tab holding a window it skips, see layouts_snapshot)
+--   <dir>.json  what :mksession can't see: the directory itself (for
+--               M.list), buffer-tab order (utils.buftabs), tab page names
+--               (utils.tabs), the visible terminals in each tab (M.term),
+--               the quickfix list, the current window of each tab (which
+--               :mksession keeps for the current tab only) and the window
+--               sizes of each tab (which :mksession drops for a tab holding
+--               a window it skips, see layouts_snapshot)
 --
 -- A diff (diffview) is closed before the save, and after a restore the
 -- tabs :mksession could only bring back empty get their dashboard (tidy).
@@ -27,7 +29,12 @@ local M = {}
 vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize"
 
 local dir = vim.fn.stdpath("state") .. "/sessions/"
-local base = dir .. vim.fn.getcwd():gsub("[/\\:]", "%%")
+-- The directory the session is for, and its files' path without extension.
+local root = vim.fs.normalize(vim.fn.getcwd())
+local function base_for(path)
+	return dir .. path:gsub("[/\\:]", "%%")
+end
+local base = base_for(root)
 
 -- Terminal provider, registered by utils.terms:
 --   { close_all = fun(), snapshot = fun(): table, restore = fun(terms: table),
@@ -274,6 +281,14 @@ local function views_restore(saved)
 	end
 end
 
+-- The .json of a session, or nil when it is missing or unreadable.
+local function read_extra(b)
+	local ok, extra = pcall(function()
+		return vim.json.decode(table.concat(vim.fn.readfile(b .. ".json")))
+	end)
+	return (ok and type(extra) == "table") and extra or nil
+end
+
 local function has_files()
 	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
 		if vim.bo[buf].buflisted and vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= "" then
@@ -293,6 +308,7 @@ function M.save()
 	vim.fn.mkdir(dir, "p")
 	vim.cmd("mksession! " .. vim.fn.fnameescape(base .. ".vim"))
 	local extra = {
+		cwd = root,
 		tabs = require("utils.buftabs").names(),
 		tabnames = require("utils.tabs").names(),
 		terms = M.term and M.term.snapshot() or {},
@@ -315,10 +331,8 @@ function M.restore()
 	vim.cmd("silent! only")
 	vim.cmd("silent! source " .. vim.fn.fnameescape(base .. ".vim"))
 	local views = views_snapshot()
-	local ok, extra = pcall(function()
-		return vim.json.decode(table.concat(vim.fn.readfile(base .. ".json")))
-	end)
-	if not ok or type(extra) ~= "table" then return end
+	local extra = read_extra(base)
+	if not extra then return end
 	if type(extra.curwins) == "table" then curwins_restore(extra.curwins) end
 	if type(extra.tabs) == "table" then require("utils.buftabs").restore(extra.tabs) end
 	if type(extra.tabnames) == "table" then require("utils.tabs").restore(extra.tabnames) end
@@ -327,6 +341,124 @@ function M.restore()
 	tidy()
 	if type(extra.layouts) == "table" then layouts_restore(extra.layouts) end
 	views_restore(views)
+end
+
+-- Directories whose sessions :Sessions leaves out: scratch places, not
+-- projects (a session is still written there and `s` still restores it):
+-- the temp directory and Neovim's cache, with its parent when that is the
+-- XDG ~/.cache (other programs' caches too, not all of AppData on Windows).
+local function hidden()
+	local out = { vim.uv.os_tmpdir(), vim.fn.stdpath("cache") }
+	local parent = vim.fs.dirname(vim.fn.stdpath("cache"))
+	if vim.fs.basename(parent) == ".cache" then out[#out + 1] = parent end
+	return out
+end
+
+local function is_hidden(path)
+	for _, dir in ipairs(hidden()) do
+		if dir and vim.fs.relpath(dir, path) then return true end
+	end
+	return false
+end
+
+-- Every saved session, most recently saved first, for the :Sessions picker
+-- (plugin/editor/fzf.lua). Each: { path, current (this run's session),
+-- saved (epoch seconds), tabs (count), tabnames ({ ["2"] = "build" }),
+-- terms ({ { n, tab, name }, ...}) and files (the buffer-tab order,
+-- absolute) }. The directory comes from
+-- the .json; a file from before it was recorded there is named back from
+-- the file name (every `%` was a `/`). Sessions of directories that are
+-- gone, or hidden, are left out.
+function M.list()
+	local out = {}
+	for _, vimfile in ipairs(vim.fn.glob(dir .. "*.vim", false, true)) do
+		local b = vimfile:sub(1, -5)
+		local extra = read_extra(b) or {}
+		local path = type(extra.cwd) == "string" and extra.cwd or (vim.fn.fnamemodify(b, ":t"):gsub("%%", "/"))
+		path = vim.fs.normalize(path)
+		if vim.fn.isdirectory(path) == 1 and not is_hidden(path) then
+			local tabs = 0
+			if type(extra.layouts) == "table" then
+				tabs = #vim.tbl_keys(extra.layouts)
+			else
+				for _, line in ipairs(vim.fn.readfile(vimfile)) do
+					if line:match("^tabnew") then tabs = tabs + 1 end
+				end
+				tabs = tabs + 1
+			end
+			local terms = {}
+			for _, t in ipairs(type(extra.terms) == "table" and extra.terms or {}) do
+				if type(t.n) == "number" then
+					terms[#terms + 1] = { n = t.n, tab = type(t.tab) == "number" and t.tab or 1, name = t.name }
+				end
+			end
+			local stat = vim.uv.fs_stat(vimfile)
+			out[#out + 1] = {
+				path = path,
+				current = b == base,
+				saved = stat and stat.mtime.sec or 0,
+				tabs = tabs,
+				tabnames = type(extra.tabnames) == "table" and extra.tabnames or {},
+				terms = terms,
+				files = type(extra.tabs) == "table" and extra.tabs or {},
+			}
+		end
+	end
+	table.sort(out, function(a, b) return a.saved > b.saved end)
+	return out
+end
+
+-- Lines describing an M.list() entry, for the picker's preview: when it
+-- was saved, each tab with its name and terminals, then the files.
+function M.describe(s)
+	local lines = { "Saved " .. os.date("%Y-%m-%d %H:%M", s.saved), "" }
+	local by_tab = {}
+	for _, t in ipairs(s.terms) do
+		by_tab[t.tab] = by_tab[t.tab] or {}
+		table.insert(by_tab[t.tab], "Term" .. t.n .. (t.name and (" (" .. t.name .. ")") or ""))
+	end
+	for nr = 1, s.tabs do
+		local name = s.tabnames[tostring(nr)]
+		local label = "Tab" .. nr .. (name and (" (" .. name .. ")") or "")
+		local terms = by_tab[nr] and (" " .. require("utils.ui").sep .. " " .. table.concat(by_tab[nr], ", ")) or ""
+		lines[#lines + 1] = label .. terms
+	end
+	if #s.files > 0 then
+		lines[#lines + 1] = ""
+		lines[#lines + 1] = "Files"
+		for _, f in ipairs(s.files) do
+			local rel = vim.fs.relpath(s.path, f) or vim.fn.fnamemodify(f, ":~")
+			lines[#lines + 1] = "  " .. rel
+		end
+	end
+	return lines
+end
+
+-- Make `path`'s session the current one and restore it: the current session
+-- (when it holds files and was not deleted) is saved first, then its tabs,
+-- windows and unmodified file buffers are dropped (modified ones stay
+-- listed), Neovim moves to `path` and the quit-save goes there from now
+-- on. The current directory again saves and reloads it.
+function M.switch(path)
+	path = vim.fs.normalize(vim.fn.fnamemodify(path, ":p")):gsub("/+$", "")
+	local b = base_for(path)
+	if vim.fn.filereadable(b .. ".vim") == 0 then
+		vim.notify("No session for " .. path, vim.log.levels.WARN, { title = "Session" })
+		return
+	end
+	if not deleted and has_files() then pcall(M.save) end
+	if M.term then M.term.close_all() end
+	vim.cmd("silent! tabonly")
+	vim.cmd("silent! only")
+	vim.cmd("enew")
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.bo[buf].buflisted and vim.bo[buf].buftype == "" and not vim.bo[buf].modified then
+			pcall(vim.api.nvim_buf_delete, buf, {})
+		end
+	end
+	vim.cmd.cd(vim.fn.fnameescape(path))
+	root, base, deleted = path, b, false
+	M.restore()
 end
 
 -- Also stops this run from re-saving on quit, so the delete sticks.

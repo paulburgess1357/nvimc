@@ -189,6 +189,7 @@ Leader key is `Space`.
 | `q` / `<Esc>` (in a zoomed window) | Leave the zoom (normal mode) |
 | `q` (in quickfix, help, man, checkhealth) | Close that window |
 | `s` (on dashboard) | Restore this directory's session (auto-saved on quit); also `:SessionRestore` / `:SessionSave` / `:SessionDelete` |
+| `S` (on dashboard) | Pick a saved session of any directory (`:Sessions`) |
 
 ## FZF Picker (inside a picker)
 

@@ -231,6 +231,59 @@ cmd("Tabs", function()
 		},
 	})
 end, { desc = "Tabs" })
+-- :Sessions lists the saved sessions (utils.session), one per directory,
+-- most recent first: "~/dir · 3 tabs, 2 terms", with the session's tabs,
+-- terminals and files in the preview. Picking one saves the current session
+-- (when there is one) and restores that one in its directory.
+cmd("Sessions", function()
+	local session = require("utils.session")
+	local list = session.list()
+	if #list == 0 then return vim.notify("No saved sessions", vim.log.levels.INFO, { title = "Session" }) end
+	local utils = require("fzf-lua.utils")
+	local sep = require("utils.ui").sep
+	local icon = utils.ansi_from_hl("Function", "\u{F09DB}") .. utils.nbsp -- md-chevron_right_box_outline, the dashboard's session icon
+	local function plural(n, word) return n .. " " .. word .. (n == 1 and "" or "s") end
+	local entries = {}
+	for i, s in ipairs(list) do
+		local label = utils.ansi_from_hl("FzfLuaBufName", vim.fn.fnamemodify(s.path, ":~"))
+			.. (s.current and utils.ansi_from_hl("FzfLuaBufFlagCur", " (current)") or "")
+		local summary = plural(s.tabs, "tab")
+		if #s.terms > 0 then summary = summary .. ", " .. plural(#s.terms, "term") end
+		-- The index first, for the previewer and the action; hidden by --with-nth.
+		entries[#entries + 1] = string.format("%d%s%s%s%s%s %s", i, utils.nbsp, icon, label, utils.nbsp, sep, summary)
+	end
+	local function picked(entry_str)
+		return list[tonumber(entry_str and entry_str:match("^(%d+)"))]
+	end
+	local Previewer = require("fzf-lua.previewer.builtin").base:extend()
+	function Previewer:new(o, opts, fzf_win)
+		Previewer.super.new(self, o, opts, fzf_win)
+		setmetatable(self, Previewer)
+		return self
+	end
+	function Previewer:gen_winopts()
+		return vim.tbl_extend("force", self.winopts, { wrap = false, number = false, cursorline = false })
+	end
+	function Previewer:populate_preview_buf(entry_str)
+		local s = picked(entry_str)
+		local buf = self:get_tmp_buffer()
+		vim.api.nvim_buf_set_lines(buf, 0, -1, false, s and session.describe(s) or {})
+		self:set_preview_buf(buf)
+		if s then self.win:update_preview_title(" " .. vim.fn.fnamemodify(s.path, ":~") .. " ") end
+	end
+	fzf.fzf_exec(entries, {
+		prompt = "> ",
+		winopts = { title = " Sessions " },
+		previewer = Previewer,
+		fzf_opts = { ["--delimiter"] = utils.nbsp, ["--with-nth"] = "2.." },
+		actions = {
+			["default"] = function(selected)
+				local s = picked(selected[1])
+				if s then session.switch(s.path) end
+			end,
+		},
+	})
+end, { desc = "Sessions" })
 cmd("Rg", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
 cmd("Grep", function() fzf.grep(root.opts("Grep", { search = "" })) end, { desc = "Grep" })
 cmd("Help", fzf.help_tags, { desc = "Help" })

@@ -162,6 +162,13 @@ require("snacks").setup({
 					action = ":lua require('utils.session').restore()",
 					enabled = function() return require("utils.session").exists() end,
 				},
+				{
+					icon = "\u{F0A16} ", -- md-folder_multiple_outline
+					key = "S",
+					desc = "Sessions",
+					action = ":Sessions",
+					enabled = function() return #require("utils.session").list() > 0 end,
+				},
 				{ icon = "\u{F02DA} ", key = "r", desc = "Recent files", action = ":lua Snacks.dashboard.pick('oldfiles')" }, -- md-history
 				{ icon = "\u{F0493} ", key = "c", desc = "Config", action = ":e " .. vim.fn.stdpath("config") .. "/lua/config/plugins.lua" }, -- md-cog
 				{ icon = "\u{F06B0} ", key = "u", desc = "Update plugins", action = ":lua vim.pack.update()" }, -- md-update

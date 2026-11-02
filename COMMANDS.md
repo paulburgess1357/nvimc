@@ -20,6 +20,7 @@ See [KEYBINDINGS.md](KEYBINDINGS.md) for key bindings.
 | `:Tabs` | Tab pages, each with what its windows show; picking one goes to it (see [Tabs](#tabs)) |
 | `:Dashboard [name]` | Open the dashboard; with a name, in that header gradient (tab-completes; `random`, `theme` or one of the palettes in `plugin/ui/snacks.lua`). `settings.dashboard_gradient` pins one |
 | `:SessionSave` / `:SessionRestore` / `:SessionDelete` | Per-directory session (auto-saved on quit) |
+| `:Sessions` | Saved sessions, one per directory, most recent first, with each one's tabs, terminals and files in the preview; picking one saves the current session, moves to that directory and restores it (sessions under `/tmp` and the cache are left out) |
 | `:Term1`..`:Term10` | Toggle a terminal; its slot number decides where it opens (see [Terminals](#terminals)). Opening it puts you in it in insert mode |
 | `:Term<n> <name>` | Show Term<n> (opening it if needed) in insert mode and label it `<name>` in its winbar; never closes it |
 | `:Term<n> -` | Same, but clears the label |

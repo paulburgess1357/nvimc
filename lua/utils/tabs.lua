@@ -138,12 +138,29 @@ function M.dashboard(win)
 		and vim.api.nvim_buf_line_count(buf) == 1
 		and vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] == ""
 	local dash = Snacks.dashboard.open({ win = win, buf = fresh and buf or nil })
-	-- snacks keeps one autocommand group for "the" dashboard (cleared on
-	-- every open) and deletes it when the dashboard's buffer is wiped. With
-	-- a dashboard per tab the second one wiped finds the group already gone
-	-- and errors (E367) when a file is opened from it or its tab is closed.
-	-- Each of these dashboards deletes a group of its own instead.
+	-- snacks keeps one autocommand group for "the" dashboard, cleared on
+	-- every open and deleted when the dashboard's buffer is wiped. With a
+	-- dashboard per tab that goes wrong both ways: the second one wiped finds
+	-- the group gone and errors (E367), and the autocommands of the last one
+	-- opened outlive its window in the shared group (its WinResized handler
+	-- then errors on every resize, "Invalid window id"). So each dashboard
+	-- gets a group of its own, holding its autocommands, moved out of the
+	-- shared group, which is left empty.
+	local shared = dash.augroup
 	dash.augroup = vim.api.nvim_create_augroup("snacks_dashboard_" .. dash.buf, { clear = true })
+	for _, a in ipairs(vim.api.nvim_get_autocmds({ group = shared })) do
+		vim.api.nvim_create_autocmd(a.event, {
+			group = dash.augroup,
+			pattern = not a.buflocal and a.pattern or nil,
+			buffer = a.buflocal and a.buffer or nil,
+			callback = a.callback,
+			command = not a.callback and a.command or nil,
+			once = a.once,
+			nested = a.nested,
+			desc = a.desc,
+		})
+	end
+	vim.api.nvim_create_augroup("snacks_dashboard", { clear = true })
 end
 
 -- A new tab after the last one, with the dashboard, or `file` when given.
