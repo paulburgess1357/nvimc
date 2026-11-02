@@ -31,7 +31,7 @@ local base = dir .. vim.fn.getcwd():gsub("[/\\:]", "%%")
 
 -- Terminal provider, registered by utils.terms:
 --   { close_all = fun(), snapshot = fun(): table, restore = fun(terms: table),
---     slot = fun(win): integer? }
+--     slot = fun(win): integer?, repair = fun() }
 M.term = nil
 
 local deleted = false
@@ -67,6 +67,9 @@ end
 
 -- `:copen` always opens full-width at the bottom of the screen, so it lands
 -- under the terminal row just as it would have when the list was first opened.
+-- The right columns (Term7-10) are cut short by that too; utils.terms
+-- repairs it on the FileType event, but scheduled, so it is also done here,
+-- now, for layouts_restore to find the layout the sizes were saved in.
 local function qf_restore(qf)
 	if type(qf.items) == "table" then
 		vim.fn.setqflist({}, " ", { items = qf.items, title = qf.title })
@@ -74,6 +77,7 @@ local function qf_restore(qf)
 	if qf.height then
 		local cur = vim.api.nvim_get_current_win()
 		vim.cmd("copen " .. qf.height)
+		if M.term and M.term.repair then pcall(M.term.repair) end
 		if qf.line then pcall(vim.api.nvim_win_set_cursor, 0, { qf.line, 0 }) end
 		if not qf.focus and vim.api.nvim_win_is_valid(cur) then vim.api.nvim_set_current_win(cur) end
 	end

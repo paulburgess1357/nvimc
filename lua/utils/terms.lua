@@ -648,6 +648,10 @@ local function restore_sizes(terms)
 end
 
 local session_provider = {
+	-- Put the right columns back to full height, now: :copen's FileType
+	-- schedules the same repair, which would otherwise run only after
+	-- utils.session has applied the saved window sizes.
+	repair = repair_right,
 	-- The Term<n> slot shown in a window, or nil for any other window.
 	slot = function(win)
 		local buf = vim.api.nvim_win_get_buf(win)
