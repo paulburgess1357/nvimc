@@ -195,6 +195,13 @@ local function descendants(pid)
 	return out
 end
 
+-- Whether the shell `shell_pid` is running something (any child process):
+-- true, false, or nil where /proc has no answer (not Linux).
+function M.busy(shell_pid)
+	if not read(("/proc/%d/task/%d/children"):format(shell_pid, shell_pid)) then return nil end
+	return #descendants(shell_pid) > 0
+end
+
 local function argv_of(pid)
 	local raw = read("/proc/" .. pid .. "/cmdline")
 	if not raw or raw == "" then return nil end

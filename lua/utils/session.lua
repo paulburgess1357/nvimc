@@ -38,7 +38,7 @@ local base = base_for(root)
 
 -- Terminal provider, registered by utils.terms:
 --   { close_all = fun(), snapshot = fun(): table, restore = fun(terms: table),
---     slot = fun(win): integer?, repair = fun() }
+--     slot = fun(win): integer?, repair = fun(), kill_idle = fun() }
 M.term = nil
 
 local deleted = false
@@ -434,31 +434,73 @@ function M.describe(s)
 	return lines
 end
 
--- Make `path`'s session the current one and restore it: the current session
--- (when it holds files and was not deleted) is saved first, then its tabs,
--- windows and unmodified file buffers are dropped (modified ones stay
--- listed), Neovim moves to `path` and the quit-save goes there from now
--- on. The current directory again saves and reloads it.
+-- Language servers left with no buffer once the old session's buffers are
+-- gone (the new session's servers have their own roots). Stopping them is
+-- what Neovim would do had the buffers been closed one by one.
+local function stop_idle_lsp()
+	for _, client in ipairs(vim.lsp.get_clients()) do
+		if next(client.attached_buffers) == nil then client:stop() end
+	end
+end
+
+local function notify(msg, level)
+	vim.notify(msg, level or vim.log.levels.WARN, { title = "Session" })
+end
+
+-- Make `path`'s session the current one and restore it (:Sessions):
+--
+--   1. Refused with a modified buffer (it would be carried over and saved
+--      with the other session on quit; :wa or :bd! first) or while a
+--      debug session runs.
+--   2. The current session is saved, when it holds files and was not
+--      deleted; a save that fails leaves everything as it is.
+--   3. Teardown: diffs closed, terminal windows closed and, when moving to
+--      another directory, idle shells dropped (M.term.kill_idle: a shell
+--      running something is kept, as a file buffer would be), every tab
+--      but one closed, that tab's windows closed to one, every file buffer
+--      dropped, the quickfix stack freed.
+--   4. Neovim moves to `path`, the quit-save goes there from now on, and
+--      the session is restored as `s` does. Language servers left without
+--      a buffer are stopped once the new session's buffers have attached.
+--
+-- The current directory again saves and reloads it.
 function M.switch(path)
 	path = vim.fs.normalize(vim.fn.fnamemodify(path, ":p")):gsub("/+$", "")
 	local b = base_for(path)
-	if vim.fn.filereadable(b .. ".vim") == 0 then
-		vim.notify("No session for " .. path, vim.log.levels.WARN, { title = "Session" })
-		return
-	end
-	if not deleted and has_files() then pcall(M.save) end
-	if M.term then M.term.close_all() end
-	vim.cmd("silent! tabonly")
-	vim.cmd("silent! only")
-	vim.cmd("enew")
+	if vim.fn.filereadable(b .. ".vim") == 0 then return notify("No session for " .. path) end
+	local modified = {}
 	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-		if vim.bo[buf].buflisted and vim.bo[buf].buftype == "" and not vim.bo[buf].modified then
-			pcall(vim.api.nvim_buf_delete, buf, {})
+		if vim.bo[buf].buflisted and vim.bo[buf].modified then
+			local name = vim.api.nvim_buf_get_name(buf)
+			modified[#modified + 1] = name ~= "" and vim.fn.fnamemodify(name, ":t") or "[No Name]"
 		end
 	end
+	if #modified > 0 then
+		return notify(("Not switching: %d modified (%s). :wa or :bd! first"):format(#modified, table.concat(modified, ", ")))
+	end
+	if package.loaded["dap"] and require("dap").session() then
+		return notify("Not switching: a debug session is running. Terminate it first")
+	end
+	if not deleted and has_files() then
+		local ok, err = pcall(M.save)
+		if not ok then return notify("Not switching: the session could not be saved: " .. tostring(err), vim.log.levels.ERROR) end
+	end
+	local moving = b ~= base
+	close_diffs()
+	if M.term then
+		M.term.close_all()
+		if moving and M.term.kill_idle then M.term.kill_idle() end
+	end
+	vim.cmd("silent! tabonly")
+	vim.cmd("silent! only")
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.bo[buf].buflisted and vim.bo[buf].buftype == "" then pcall(vim.api.nvim_buf_delete, buf, {}) end
+	end
+	vim.fn.setqflist({}, "f")
 	vim.cmd.cd(vim.fn.fnameescape(path))
 	root, base, deleted = path, b, false
 	M.restore()
+	if moving then vim.defer_fn(stop_idle_lsp, 500) end
 end
 
 -- Also stops this run from re-saving on quit, so the delete sticks.

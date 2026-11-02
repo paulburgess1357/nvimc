@@ -652,6 +652,23 @@ local session_provider = {
 	-- schedules the same repair, which would otherwise run only after
 	-- utils.session has applied the saved window sizes.
 	repair = repair_right,
+	-- Drop every shell that is running nothing (utils.agents.busy), so the
+	-- restore that follows spawns it afresh in the session's directory. A
+	-- shell with a process under it (an agent, a server, a background job)
+	-- is kept, and so is every shell where that can't be told. For a switch
+	-- to another directory's session (utils.session.switch).
+	kill_idle = function()
+		local agents = require("utils.agents")
+		suppress_layout = true
+		for n, buf in pairs(term_bufs) do
+			local ok, pid = pcall(vim.fn.jobpid, vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].channel or -1)
+			if ok and agents.busy(pid) == false then
+				pcall(vim.api.nvim_buf_delete, buf, { force = true })
+				term_bufs[n], term_names[n] = nil, nil
+			end
+		end
+		suppress_layout = false
+	end,
 	-- The Term<n> slot shown in a window, or nil for any other window.
 	slot = function(win)
 		local buf = vim.api.nvim_win_get_buf(win)
