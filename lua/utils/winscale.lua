@@ -29,6 +29,10 @@
 -- Per tab page: winlayout() describes the current tab, so each tab keeps
 -- its own snapshot, and a tab is put back in shape when it is entered after
 -- the screen changed size while another tab was current.
+--
+-- Windows are told apart by their handle, except through M.record /
+-- M.restore, where the caller names them (utils.session: a tree saved in
+-- one Neovim run is matched against the layout of the next).
 
 local M = {}
 
@@ -38,23 +42,29 @@ local snaps = {}
 -- seen[frame key][frame size along its axis] = the children's sizes then.
 local seen = {}
 
+-- A window's name in a frame key: its handle unless the caller names it.
+local function handle(win)
+	return tostring(win)
+end
+
 -- Annotated copy of a winlayout() node: kind ("leaf", "row" or "col"),
 -- children, size and position (separators included), key (the sorted
--- windows it holds, which identifies a frame across layout changes) and
--- frac (each child's share of the parent's axis).
-local function record(node)
+-- names of the windows it holds, which identifies a frame across layout
+-- changes) and frac (each child's share of the parent's axis).
+local function record(node, ident)
+	ident = ident or handle
 	local kind, v = node[1], node[2]
 	if kind == "leaf" then
 		local pos = vim.api.nvim_win_get_position(v)
 		return {
-			kind = "leaf", win = v, key = tostring(v), row = pos[1], col = pos[2],
+			kind = "leaf", win = v, key = ident(v), row = pos[1], col = pos[2],
 			w = vim.api.nvim_win_get_width(v), h = vim.api.nvim_win_get_height(v),
 		}
 	end
 	local out = { kind = kind, children = {}, w = 0, h = 0, row = math.huge, col = math.huge }
 	local wins, total = {}, 0
 	for i, child in ipairs(v) do
-		local c = record(child)
+		local c = record(child, ident)
 		out.children[i] = c
 		out.row, out.col = math.min(out.row, c.row), math.min(out.col, c.col)
 		if kind == "row" then
@@ -63,7 +73,7 @@ local function record(node)
 			out.w, out.h = math.max(out.w, c.w), out.h + c.h + (i > 1 and 1 or 0)
 		end
 		total = total + (kind == "row" and c.w or c.h)
-		for w in c.key:gmatch("%d+") do wins[#wins + 1] = tonumber(w) end
+		for w in c.key:gmatch("[^,]+") do wins[#wins + 1] = w end
 	end
 	for _, c in ipairs(out.children) do
 		local s = kind == "row" and c.w or c.h
@@ -100,7 +110,9 @@ end
 -- current size win when the frame had no shape to compare with (it just
 -- re-formed when a panel between its children closed) or when they still
 -- agree with the recorded shares, within a cell each; a separator dragged
--- since then wins otherwise, and the shares are scaled to the new size.
+-- since then wins otherwise. Then the recorded sizes themselves when the
+-- frame is the size it was recorded at (no rounding), else the shares
+-- scaled to the new size.
 local function targets(rec, cur)
 	local size = cur.kind == "row" and cur.w or cur.h
 	local exact = (seen[cur.key] or {})[size]
@@ -114,14 +126,19 @@ local function targets(rec, cur)
 	end
 	if exact then return exact end
 	if not rec then return nil end
-	local total, out = size - (#cur.children - 1), {}
+	local out = {}
+	if (rec.kind == "row" and rec.w or rec.h) == size then
+		for i, c in ipairs(rec.children) do out[i] = rec.kind == "row" and c.w or c.h end
+		return out
+	end
+	local total = size - (#cur.children - 1)
 	for i, c in ipairs(rec.children) do out[i] = math.max(1, math.floor(c.frac * total + 0.5)) end
 	return out
 end
 
 -- Size the children of `cur` to `want`: each child's separator is dragged
 -- in turn; the last child takes the remainder.
-local function apply(cur, want)
+local function apply(cur, want, ident)
 	for i = 1, #cur.children - 1 do
 		local c = cur.children[i]
 		local have = cur.kind == "row" and c.w or c.h
@@ -133,7 +150,7 @@ local function apply(cur, want)
 				pcall(vim.fn.win_move_statusline, win, want[i] - have)
 			end
 			-- The drag resized the next child too: re-read the frame.
-			local fresh = record(vim.fn.winlayout())
+			local fresh = record(vim.fn.winlayout(), ident)
 			cur = index(fresh)[cur.key] or cur
 		end
 	end
@@ -144,7 +161,7 @@ end
 -- in the snapshot (or re-formed with children it has held before), give
 -- them their sizes back. Frames whose children changed are left alone, but
 -- their unchanged descendants are still restored.
-local function reconcile(old, cur)
+local function reconcile(old, cur, ident)
 	if cur.kind == "leaf" then return end
 	local rec = old[cur.key]
 	if rec and rec.kind == cur.kind and #rec.children == #cur.children then
@@ -155,8 +172,23 @@ local function reconcile(old, cur)
 		rec = nil
 	end
 	local want = targets(rec, cur)
-	if want then cur = apply(cur, want) end
-	for _, c in ipairs(cur.children) do reconcile(old, c) end
+	if want then cur = apply(cur, want, ident) end
+	for _, c in ipairs(cur.children) do reconcile(old, c, ident) end
+end
+
+-- The layout of tab page `tabnr` with each window named by `ident(win)`
+-- (a name that outlives the window: the same window of a later Neovim run
+-- gets the same name), for M.restore.
+function M.record(tabnr, ident)
+	return record(vim.fn.winlayout(tabnr), ident)
+end
+
+-- Give the current tab's frames the sizes they had in `tree` (from
+-- M.record): every frame whose windows, named by `ident`, are all there
+-- again in the same arrangement; a frame that gained or lost a window is
+-- left as it is, its matching sub-frames are still sized.
+function M.restore(tree, ident)
+	reconcile(index(tree), record(vim.fn.winlayout(), ident), ident)
 end
 
 -- Remember each frame's children's sizes at the frame's current size.

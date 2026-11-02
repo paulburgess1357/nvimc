@@ -8,8 +8,10 @@ local M = {}
 --   <dir>.vim   the :mksession script
 --   <dir>.json  what :mksession can't see: buffer-tab order (utils.buftabs),
 --               tab page names (utils.tabs), the visible terminals in each
---               tab (M.term), the quickfix list and the current window of
+--               tab (M.term), the quickfix list, the current window of
 --               each tab (which :mksession keeps for the current tab only)
+--               and the window sizes of each tab (which :mksession drops
+--               for a tab holding a window it skips, see layouts_snapshot)
 --
 -- A diff (diffview) is closed before the save, and after a restore the
 -- tabs :mksession could only bring back empty get their dashboard (tidy).
@@ -28,7 +30,8 @@ local dir = vim.fn.stdpath("state") .. "/sessions/"
 local base = dir .. vim.fn.getcwd():gsub("[/\\:]", "%%")
 
 -- Terminal provider, registered by utils.terms:
---   { close_all = fun(), snapshot = fun(): table, restore = fun(terms: table) }
+--   { close_all = fun(), snapshot = fun(): table, restore = fun(terms: table),
+--     slot = fun(win): integer? }
 M.term = nil
 
 local deleted = false
@@ -174,6 +177,55 @@ local function curwins_restore(curwins)
 	end
 end
 
+-- Window sizes. 'sessionoptions' has "winsize", but :mksession writes a
+-- tab's resize commands only when it recorded every window of the tab; a
+-- tab with a window it skips (a terminal, the dashboard, aerial...) gets
+-- `wincmd =` instead and comes back with equal splits. So each tab's
+-- layout tree (utils.winscale) is saved too, with every window under a
+-- name the next run gives it again: file windows by their index among the
+-- session windows, terminals by slot, the quickfix window. Once the
+-- terminals and the quickfix list are back, each frame whose windows are
+-- all there again gets its sizes back (its shares, on a screen of another
+-- size). A window nothing brings back is named by its handle, which
+-- matches nothing: the frame holding it is left as :mksession made it.
+local function ident_for(tab)
+	local names = {}
+	for i, win in ipairs(session_wins(tab)) do names[win] = "f" .. i end
+	return function(win)
+		if names[win] then return names[win] end
+		local slot = M.term and M.term.slot and M.term.slot(win)
+		if slot then return "t" .. slot end
+		if vim.bo[vim.api.nvim_win_get_buf(win)].buftype == "quickfix" then return "qf" end
+		return "x" .. win
+	end
+end
+
+-- { ["1"] = tree, ... } by tab number.
+local function layouts_snapshot()
+	local winscale = require("utils.winscale")
+	local out = {}
+	for nr, tab in ipairs(vim.api.nvim_list_tabpages()) do
+		out[tostring(nr)] = winscale.record(nr, ident_for(tab))
+	end
+	return out
+end
+
+-- Once the layout is final (terminals, quickfix and tidy done): winscale
+-- works on the current tab, so each tab is entered in turn.
+local function layouts_restore(layouts)
+	local winscale = require("utils.winscale")
+	local cur = vim.api.nvim_get_current_tabpage()
+	local tabs = vim.api.nvim_list_tabpages()
+	for nr, tree in pairs(layouts) do
+		local tab = tabs[tonumber(nr)]
+		if tab and type(tree) == "table" then
+			vim.api.nvim_set_current_tabpage(tab)
+			pcall(winscale.restore, tree, ident_for(tab))
+		end
+	end
+	if vim.api.nvim_tabpage_is_valid(cur) then vim.api.nvim_set_current_tabpage(cur) end
+end
+
 -- Every file window's view as the session script set it, by window
 -- handle: cursor, top line and height.
 local function views_snapshot()
@@ -242,6 +294,7 @@ function M.save()
 		terms = M.term and M.term.snapshot() or {},
 		qf = qf_snapshot(),
 		curwins = curwins_snapshot(),
+		layouts = layouts_snapshot(),
 	}
 	vim.fn.writefile({ vim.json.encode(extra) }, base .. ".json")
 end
@@ -268,6 +321,7 @@ function M.restore()
 	if M.term and type(extra.terms) == "table" then M.term.restore(extra.terms) end
 	if type(extra.qf) == "table" then qf_restore(extra.qf) end
 	tidy()
+	if type(extra.layouts) == "table" then layouts_restore(extra.layouts) end
 	views_restore(views)
 end
 

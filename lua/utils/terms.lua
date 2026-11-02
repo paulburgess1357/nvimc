@@ -648,6 +648,13 @@ local function restore_sizes(terms)
 end
 
 local session_provider = {
+	-- The Term<n> slot shown in a window, or nil for any other window.
+	slot = function(win)
+		local buf = vim.api.nvim_win_get_buf(win)
+		for n, b in pairs(term_bufs) do
+			if b == buf then return n end
+		end
+	end,
 	-- Close every terminal window without the WinClosed layout fix-ups, which
 	-- would otherwise run after the session loads and resize its windows.
 	close_all = function()
