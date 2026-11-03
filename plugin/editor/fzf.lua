@@ -130,16 +130,26 @@ local function buffer_previewer(title_of)
 		pcall(vim.keymap.del, "n", "i", { buffer = entry.bufnr })
 		vim.wo[self.win.preview_winid][0].winbar = "" -- the buffer brings its Term<n> winbar along
 		if tmpbuf ~= entry.bufnr then self:safe_buf_delete(tmpbuf) end
-		-- Latest output at the bottom, as in the buffer popup's preview. Set
-		-- the view directly: `normal!` is not allowed while fzf's own
-		-- terminal window has the mode.
-		local win, last = self.win.preview_winid, vim.api.nvim_buf_line_count(entry.bufnr)
-		while last > 1 and vim.api.nvim_buf_get_lines(entry.bufnr, last - 1, last, false)[1]:match("^%s*$") do
+		self:preview_buf_post(entry, true)
+	end
+	-- Where fzf-lua places the cursor once the preview is filled: line 1 for
+	-- an entry with no line, which scrolls a terminal to its oldest output.
+	-- A terminal gets the latest output at the bottom instead, as in the
+	-- buffer popup's preview. The buffer ends in blank padding rows, so the
+	-- last real line is found first. The view is set directly: `normal!` is
+	-- not allowed while fzf's own terminal window has the mode.
+	function Previewer:set_cursor_hl(entry)
+		if not entry.terminal then return Previewer.super.set_cursor_hl(self, entry) end
+		local win, buf = self.win.preview_winid, entry.bufnr
+		local last = vim.api.nvim_buf_line_count(buf)
+		while last > 1 and (vim.api.nvim_buf_get_lines(buf, last - 1, last, false)[1] or ""):match("^%s*$") do
 			last = last - 1
 		end
+		self.orig_pos = { last, 0 }
+		vim.wo[win].cursorline = false
+		vim.wo[win].scrolloff = 0
 		local topline = math.max(1, last - vim.api.nvim_win_get_height(win) + 1)
 		vim.api.nvim_win_call(win, function() vim.fn.winrestview({ lnum = last, col = 0, topline = topline }) end)
-		self:preview_buf_post(entry, true)
 	end
 	function Previewer:safe_buf_delete(bufnr, ...)
 		if bufnr and vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].buftype == "terminal" then return end

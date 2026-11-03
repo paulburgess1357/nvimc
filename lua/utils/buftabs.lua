@@ -93,6 +93,7 @@ local function peek_preview(list_width)
 		while line > 1 and vim.api.nvim_buf_get_lines(buf, line - 1, line, false)[1]:match("^%s*$") do
 			line = line - 1
 		end
+		vim.wo[preview_win].scrolloff = 0 -- else zb leaves 'scrolloff' padding rows under it
 		vim.api.nvim_win_set_cursor(preview_win, { line, 0 })
 		vim.api.nvim_win_call(preview_win, function() vim.cmd("normal! zb") end)
 	else
