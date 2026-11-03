@@ -98,6 +98,15 @@ fzf.register_ui_select()
 end)
 
 -- User commands
+-- The picker runs in a terminal buffer, where <C-q> is mapped to normal
+-- mode (config/keymaps.lua). Here it is fzf's own key (ctrl-q above: marked
+-- lines to quickfix), so the buffer sends it through; fzf's raw mode lets
+-- it past the pty's flow control.
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "fzf",
+	callback = function(ev) vim.keymap.set("t", "<C-q>", "<C-q>", { buffer = ev.buf, desc = "fzf: to quickfix" }) end,
+})
+
 local cmd = vim.api.nvim_create_user_command
 cmd("Symbols", fzf.lsp_document_symbols, { desc = "Document symbols" })
 cmd("SymbolsAll", function() fzf.lsp_live_workspace_symbols(root.opts("Workspace Symbols", { cwd_only = true })) end, { desc = "Workspace symbols (live)" })

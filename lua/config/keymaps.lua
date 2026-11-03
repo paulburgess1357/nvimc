@@ -137,7 +137,8 @@ keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 -- one key that never reaches the program (an agent's own Escape handling is
 -- untouched, and the pty swallows Ctrl-Q anyway), and it is a plain control
 -- character, so it works in any terminal emulator. Normal mode keeps <C-q>
--- as the visual-block alternative to <C-v>.
+-- as the visual-block alternative to <C-v>. An fzf picker is the exception
+-- (plugin/editor/fzf.lua): there <C-q> is its quickfix key.
 keymap.set("t", "<C-q>", "<C-\\><C-n>", { desc = "Normal mode" })
 keymap.set({ "i", "x", "s", "o" }, "<C-q>", "<Esc>", { desc = "Normal mode" })
 keymap.set("c", "<C-q>", "<C-c>", { desc = "Normal mode" })
