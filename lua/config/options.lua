@@ -11,7 +11,6 @@ vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.softtabstop = 2
 vim.opt.expandtab = true
-vim.opt.autoindent = true
 -- Note: smartindent/cindent removed - treesitter and filetype indent handle this
 
 -- Line wrapping: off, toggled per window with <leader><leader>w. When it is
@@ -25,8 +24,6 @@ vim.opt.breakindent = true
 -- Search settings
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-vim.opt.hlsearch = true
-vim.opt.incsearch = true
 -- Literal search/substitute lives in keymaps.lua (/, ? and :s prefix \V).
 -- Do NOT set 'magic' off for this: plugins build patterns assuming it is
 -- on (:h 'magic').
@@ -104,9 +101,8 @@ vim.opt.jumpoptions = "view"
 -- whenever a right-side column opens or closes.
 vim.opt.scrollback = 2000
 
--- Undo and backup
+-- Undo across runs, no swap files
 vim.opt.undofile = true
-vim.opt.backup = false
 vim.opt.swapfile = false
 
 -- Update time
@@ -116,8 +112,8 @@ vim.opt.timeoutlen = 300
 -- Confirm before quitting with unsaved changes
 vim.opt.confirm = true
 
--- Auto-reload files changed outside of Neovim
-vim.opt.autoread = true
+-- Reload a file changed outside Neovim ('autoread') as soon as that can be
+-- noticed, not only on the next shell command.
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
 	command = "silent! checktime",
 })

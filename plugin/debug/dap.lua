@@ -133,30 +133,11 @@ require("utils.startup").after(function()
 	}
 	dap.configurations.bash = dap.configurations.sh
 
-	-- DAP UI
+	-- DAP UI: the default layout (scopes, breakpoints, stacks and watches on
+	-- the left, REPL and console at the bottom).
 	local dapui = require("dapui")
 	dapui.setup({
 		floating = { border = require("utils.ui").border }, -- <leader>de eval float, the shared border
-		layouts = {
-			{
-				elements = {
-					{ id = "scopes", size = 0.25 },
-					{ id = "breakpoints", size = 0.25 },
-					{ id = "stacks", size = 0.25 },
-					{ id = "watches", size = 0.25 },
-				},
-				position = "left",
-				size = 40,
-			},
-			{
-				elements = {
-					{ id = "repl", size = 0.5 },
-					{ id = "console", size = 0.5 },
-				},
-				position = "bottom",
-				size = 10,
-			},
-		},
 	})
 
 	dap.listeners.after.event_initialized["dapui_config"] = function()
@@ -169,16 +150,8 @@ require("utils.startup").after(function()
 		dapui.close({})
 	end
 
-	-- DAP Virtual Text
-	require("nvim-dap-virtual-text").setup({
-		enabled = true,
-		enabled_commands = true,
-		highlight_changed_variables = true,
-		highlight_new_as_changed = false,
-		show_stop_reason = true,
-		commented = false,
-		virt_text_pos = "eol",
-	})
+	-- Variable values as virtual text at the end of the line, the defaults.
+	require("nvim-dap-virtual-text").setup()
 end)
 
 -----------------------------------------------------------

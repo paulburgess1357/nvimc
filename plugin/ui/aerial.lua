@@ -23,12 +23,6 @@ require("aerial").setup({
 	disable_max_lines = settings.aerial_max_lines or 50000,
 	filter_kind = false,
 	show_guides = true,
-	guides = {
-		mid_item = "├─",
-		last_item = "└─",
-		nested_top = "│ ",
-		whitespace = "  ",
-	},
 })
 
 vim.api.nvim_create_user_command("Aerials", "AerialToggle", { desc = "Toggle aerial sidebar" })

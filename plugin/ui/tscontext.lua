@@ -9,7 +9,5 @@ if cfg.enabled == false then return end
 require("treesitter-context").setup({
 	max_lines = settings.context_max_lines or 3, -- at most this many pinned lines
 	multiline_threshold = 1, -- a context that spans several lines shows only its first
-	trim_scope = "outer", -- past max_lines, drop the outermost scopes first
-	mode = "cursor",
 	separator = "─", -- TreesitterContextSeparator, set in config/colorscheme.lua
 })

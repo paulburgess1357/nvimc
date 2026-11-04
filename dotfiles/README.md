@@ -13,7 +13,7 @@ Contains config for: Black, ruff, mypy, pylint
 ## C++
 
 ```bash
-cp ~/.config/nvim-custom/test/cpp_project/.clang* ./
+cp ~/.config/nvim-custom/dotfiles/.clang* ./
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build
 ln -s build/compile_commands.json .
 ```

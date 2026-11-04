@@ -4,6 +4,10 @@ if cfg.enabled == false then return end
 local ui = require("utils.ui")
 local sep = ui.sep -- the same " · " as the Term winbars
 
+-- Set up once the first frame is drawn (utils.startup): setup() attaches to
+-- every loaded buffer itself, and the signs arrive from an async git call
+-- either way, so a file named on the command line loses nothing.
+require("utils.startup").after(function()
 require("gitsigns").setup({
 	-- Added / changed lines marked with the same bar as the indent guides and
 	-- the statusline separators (utils.ui.bar), untracked with its dashed form.
@@ -67,3 +71,4 @@ require("gitsigns").setup({
 		end, { desc = "Diff this ~" })
 	end,
 })
+end)

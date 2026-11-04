@@ -1,39 +1,18 @@
 local cfg = require("config.plugins").rendermarkdown or {}
 if cfg.enabled == false then return end
 
+-- render-markdown's defaults, less the sign column marks and the heading
+-- icons, with a thin border on code blocks and Material checkboxes.
 require("render-markdown").setup({
-	enabled = true,
-	render_modes = { "n", "c", "t" },
-	max_file_size = 10.0,
 	sign = { enabled = false },
 	heading = {
-		enabled = true,
 		sign = false,
 		icons = {},
 	},
-	code = {
-		enabled = true,
-		sign = true,
-		style = "full",
-		width = "full",
-		border = "thin",
-	},
-	bullet = {
-		enabled = true,
-		icons = { "●", "○", "◆", "◇" },
-	},
+	code = { border = "thin" },
 	checkbox = {
-		enabled = true,
 		unchecked = { icon = "\u{F0131} " }, -- md-checkbox_blank_outline
 		checked = { icon = "\u{F0C52} " }, -- md-checkbox_outline
-	},
-	quote = {
-		enabled = true,
-		icon = "▋",
-	},
-	pipe_table = {
-		enabled = true,
-		style = "full",
 	},
 })
 

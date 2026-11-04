@@ -10,8 +10,9 @@ if cfg.enabled == false then return end
 -- a few milliseconds after startup changes nothing.
 require("utils.startup").after(function()
 require("blink.cmp").setup({
+	-- The default preset (<C-space> menu, <C-e> hide, <C-y> accept, ...),
+	-- plus Tab to accept and <C-j>/<C-k> to move, as in the fzf pickers.
 	keymap = {
-		preset = "default",
 		["<Tab>"] = {
 			function(cmp)
 				if cmp.snippet_active() then
@@ -28,11 +29,7 @@ require("blink.cmp").setup({
 		["<C-k>"] = { "select_prev", "fallback" },
 	},
 	appearance = {
-		nerd_font_variant = "mono",
-		kind_icons = require("utils.ui").kinds, -- shared with aerial and fzf-lua
-	},
-	sources = {
-		default = { "lsp", "path", "snippets", "buffer" },
+		kind_icons = ui.kinds, -- shared with aerial and fzf-lua
 	},
 	completion = {
 		menu = {
@@ -63,9 +60,6 @@ require("blink.cmp").setup({
 			border = border,
 			scrollbar = false,
 		},
-	},
-	fuzzy = {
-		implementation = "prefer_rust_with_warning",
 	},
 })
 end)

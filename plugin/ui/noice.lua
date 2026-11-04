@@ -9,8 +9,6 @@ if cfg.enabled == false then return end
 -- style as every other float. <leader>n still lists the history.
 require("noice").setup({
 	cmdline = {
-		enabled = true,
-		view = "cmdline_popup",
 		-- Prompt icons: Material, like every other pictogram (see utils.ui).
 		format = {
 			cmdline = { icon = "\u{F07B7}" }, -- md-console_line
@@ -21,24 +19,12 @@ require("noice").setup({
 			input = { icon = "\u{F03EB}" }, -- md-pencil
 		},
 	},
-	messages = {
-		enabled = true,
-	},
-	popupmenu = {
-		enabled = true,
-		backend = "nui",
-	},
-	notify = {
-		enabled = true,
-	},
 	lsp = {
-		-- Progress in noice's "mini" view: a borderless line per running task
-		-- at the bottom right, redrawn in place. Not the notifier: a long index
-		-- (LspIndexAll on a big project) updates ten times a second, and
-		-- notifier floats at that rate stutter the editor.
+		-- Progress in noice's "mini" view (the default): a borderless line per
+		-- running task at the bottom right, redrawn in place. Not the
+		-- notifier: a long index (LspIndexAll on a big project) updates ten
+		-- times a second, and notifier floats at that rate stutter the editor.
 		progress = {
-			enabled = true,
-			view = "mini",
 			-- The finished line's check mark as a Material glyph (see utils.ui).
 			format_done = {
 				{ "\u{F012C} ", hl_group = "NoiceLspProgressSpinner" }, -- md-check
@@ -51,7 +37,7 @@ require("noice").setup({
 			["vim.lsp.util.stylize_markdown"] = true,
 		},
 		signature = {
-			enabled = false,
+			enabled = false, -- blink draws signature help (plugin/coding/blink.lua)
 		},
 	},
 	presets = {

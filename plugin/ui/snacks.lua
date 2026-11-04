@@ -140,7 +140,6 @@ vim.api.nvim_create_autocmd("ColorScheme", { callback = function() set_gradient_
 require("snacks").setup({
 	bigfile = {
 		enabled = true,
-		notify = true,
 		size = (settings.bigfile_max_mb or 1.5) * 1024 * 1024,
 		setup = function()
 			vim.cmd([[NoMatchParen]])
@@ -177,15 +176,14 @@ require("snacks").setup({
 	-- (SnacksIndentScope, config/colorscheme.lua).
 	indent = {
 		enabled = true,
-		indent = { char = ui.bar, only_scope = false, only_current = false },
-		scope = { enabled = true, char = ui.bar, underline = false },
-		animate = { enabled = true, duration = { step = 20, total = 300 } },
+		indent = { char = ui.bar },
+		scope = { char = ui.bar },
+		animate = { duration = { total = 300 } },
 	},
 	-- Notifications, top right, as small floats in the usual border with the
 	-- level's icon and title; the border takes the level's diagnostic color.
 	notifier = {
 		enabled = true,
-		timeout = 3000,
 		-- The same level glyphs as the gutter and lualine (utils.ui), stated
 		-- rather than relying on snacks' defaults matching.
 		icons = {
@@ -195,7 +193,6 @@ require("snacks").setup({
 			debug = "\u{F00E4} ", -- md-bug
 			trace = "\u{F03EB} ", -- md-pencil
 		},
-		top_down = true,
 		-- snacks' "compact" style with the title on the left like the other floats.
 		style = function(buf, notif, ctx)
 			local title = vim.trim(notif.icon .. " " .. (notif.title or ""))
@@ -206,10 +203,9 @@ require("snacks").setup({
 			vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(notif.msg, "\n"))
 		end,
 	},
-	scroll = { enabled = false },
 	-- Zoom (<leader><leader>z): the buffer in a full-size float. The shared
 	-- border frames it, and it keeps its winbar (utils.winbar / utils.terms
 	-- allow it on this float), so it is titled like the window it came from.
 	zen = { zoom = { win = { border = ui.border } } },
-	toggle = { enabled = true, which_key = true, notify = true },
+	toggle = { enabled = true },
 })

@@ -12,11 +12,8 @@ require("illuminate").configure({
 		"treesitter",
 		"regex",
 	},
-	filetypes_denylist = {
-		"dirbuf", "dirvish", "fugitive", "alpha", "NvimTree",
-		"neo-tree", "minifiles", "dashboard", "TelescopePrompt",
-		"mason",
-	},
+	-- Panes that list things rather than show code.
+	filetypes_denylist = { "snacks_dashboard", "minifiles", "mason", "qf", "aerial" },
 	min_count_to_highlight = 1,
 })
 

@@ -1,33 +1,13 @@
 local cfg = require("config.plugins").minifiles or {}
 if cfg.enabled == false then return end
 
+-- mini.files' defaults (h/l to move, q to close, = to synchronize, ...) with
+-- a preview column and wider panes. Set up before the first frame: with
+-- `use_as_default_explorer` it is what opens a directory given on the
+-- command line.
 require("mini.files").setup({
-	content = {
-		filter = nil,
-		sort = nil,
-	},
-	mappings = {
-		close = "q",
-		go_in = "l",
-		go_out = "h",
-		go_in_plus = "L",
-		mark_goto = "'",
-		mark_set = "m",
-		reset = "<BS>",
-		reveal_cwd = "@",
-		show_help = "g?",
-		synchronize = "=",
-		trim_left = "<",
-		trim_right = ">",
-	},
-	options = {
-		permanent_delete = true,
-		use_as_default_explorer = true,
-	},
 	windows = {
-		max_number = math.huge,
 		preview = true,
-		width_focus = 50,
 		width_nofocus = 20,
 		width_preview = 100,
 	},

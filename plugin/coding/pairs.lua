@@ -1,17 +1,9 @@
 local cfg = require("config.plugins").pairs or {}
 if cfg.enabled == false then return end
 
-require("mini.pairs").setup({
-	modes = { insert = true, command = false, terminal = false },
-	mappings = {
-		["("] = { action = "open", pair = "()", neigh_pattern = "[^\\]." },
-		["["] = { action = "open", pair = "[]", neigh_pattern = "[^\\]." },
-		["{"] = { action = "open", pair = "{}", neigh_pattern = "[^\\]." },
-		[")"] = { action = "close", pair = "()", neigh_pattern = "[^\\]." },
-		["]"] = { action = "close", pair = "[]", neigh_pattern = "[^\\]." },
-		["}"] = { action = "close", pair = "{}", neigh_pattern = "[^\\]." },
-		['"'] = { action = "closeopen", pair = '""', neigh_pattern = "[^\\].", register = { cr = false } },
-		["'"] = { action = "closeopen", pair = "''", neigh_pattern = "[^%a\\].", register = { cr = false } },
-		["`"] = { action = "closeopen", pair = "``", neigh_pattern = "[^\\].", register = { cr = false } },
-	},
-})
+-- mini.pairs' defaults as they are: brackets and quotes auto-closed in insert
+-- mode, no pair after a backslash, no `'` after a letter. Set up once the
+-- first frame is drawn (utils.startup): the mappings are insert-mode only.
+require("utils.startup").after(function()
+	require("mini.pairs").setup()
+end)

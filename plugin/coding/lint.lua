@@ -19,31 +19,34 @@ local function get_cppcheck_cache_dir()
 	return dir
 end
 
-local cppcheck_linter = settings.cppcheck ~= false and { "cppcheck" } or {}
 lint.linters_by_ft = {
-	c = cppcheck_linter,
-	cpp = cppcheck_linter,
 	sh = { "shellcheck" },
 	bash = { "shellcheck" },
 	dockerfile = { "hadolint" },
 }
 
-lint.linters.cppcheck.args = {
-	"--enable=all",
-	"--inconclusive",
-	"--check-level=exhaustive",
-	function()
-		return vim.bo.filetype == "cpp" and "--language=c++" or "--language=c"
-	end,
-	"--std=c++17",
-	"--suppress=missingIncludeSystem",
-	"--inline-suppr",
-	"--quiet",
-	"--template={file}:{line}:{column}: [{id}] {severity}: {message}",
-	function()
-		return "--cppcheck-build-dir=" .. get_cppcheck_cache_dir()
-	end,
-}
+-- cppcheck only when settings.cppcheck is on: touching lint.linters.cppcheck
+-- loads that linter's module, which an off switch has no use for.
+if settings.cppcheck ~= false then
+	lint.linters_by_ft.c = { "cppcheck" }
+	lint.linters_by_ft.cpp = { "cppcheck" }
+	lint.linters.cppcheck.args = {
+		"--enable=all",
+		"--inconclusive",
+		"--check-level=exhaustive",
+		function()
+			return vim.bo.filetype == "cpp" and "--language=c++" or "--language=c"
+		end,
+		"--std=c++17",
+		"--suppress=missingIncludeSystem",
+		"--inline-suppr",
+		"--quiet",
+		"--template={file}:{line}:{column}: [{id}] {severity}: {message}",
+		function()
+			return "--cppcheck-build-dir=" .. get_cppcheck_cache_dir()
+		end,
+	}
+end
 
 vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost" }, {
 	group = vim.api.nvim_create_augroup("lint", { clear = true }),

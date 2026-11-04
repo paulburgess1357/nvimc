@@ -42,5 +42,3 @@ Makefile
 .vscode/
 .idea/
 *.code-workspace
-
-nvim-pack-lock.json
