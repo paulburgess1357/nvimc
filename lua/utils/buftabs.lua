@@ -83,7 +83,7 @@ local function peek_preview(list_width)
 		preview_win = vim.api.nvim_open_win(buf, false, config)
 	end
 	vim.wo[preview_win].winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder"
-	vim.wo[preview_win].winbar = "" -- utils.terms puts its Term<n> winbar on any window showing the buffer
+	vim.wo[preview_win].winbar = "" -- utils.terms puts its Term <n> winbar on any window showing the buffer
 	vim.wo[preview_win].cursorline = true
 	local last = vim.api.nvim_buf_line_count(buf)
 	if item.slot then
@@ -229,7 +229,7 @@ end
 local function peek_render()
 	local lines, hls, width = peek_lines(peek_items)
 	-- Titled like mini.files (FloatTitle, left, padded); never narrower than
-	-- the title, which is wider than a short list of Term<n> entries. A
+	-- the title, which is wider than a short list of Term <n> entries. A
 	-- search shows its pattern, with a _ while it is still being typed.
 	local title = (in_terminal() and " Terminals" or " Buffers") .. " "
 	if peek_search then
@@ -385,7 +385,7 @@ function M.peek()
 							peek_items = entries()
 							peek_select(math.min(peek_sel, #peek_items))
 						else
-							vim.notify("Term" .. item.slot .. " is not open", vim.log.levels.WARN, { title = "Terminals" })
+							vim.notify("Term " .. item.slot .. " is not open", vim.log.levels.WARN, { title = "Terminals" })
 						end
 					elseif vim.bo[item.buf].modified then
 						vim.notify(item.name .. " has unsaved changes", vim.log.levels.WARN, { title = "Buffers" })
@@ -414,8 +414,8 @@ function M.peek()
 		return
 	end
 	if closing then
-		-- dd on the terminal the popup was opened from (:Term<n> toggles it).
-		vim.cmd("Term" .. closing.slot)
+		-- dd on the terminal the popup was opened from closes its window.
+		require("utils.terms").toggle(closing.slot)
 	elseif chosen then
 		M.switch_to(chosen)
 	elseif in_terminal() then

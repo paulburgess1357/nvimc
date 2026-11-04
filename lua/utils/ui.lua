@@ -22,7 +22,7 @@ M.title_pos = "left"
 -- fzf-lua draws no padding of its own.
 M.padding = { 0, 1 }
 
--- Separator between the parts of a label: "Term1 (build) · make", the git
+-- Separator between the parts of a label: "Term 1 (build) · make", the git
 -- blame line, "Quickfix · Grep foo".
 M.sep = "·"
 

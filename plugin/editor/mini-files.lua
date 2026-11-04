@@ -42,7 +42,7 @@ vim.api.nvim_create_autocmd("User", {
 
 -- At the current file; an unnamed buffer (the dashboard, a scratch buffer)
 -- opens the working directory, as mini.files does for an empty path. A
--- terminal (named Term<n>, which mini.files would reject as "not a valid
+-- terminal (named Term <n>, which mini.files would reject as "not a valid
 -- path"), a quickfix or location list, or any other buffer whose name is
 -- not a path gets a warning instead.
 vim.keymap.set("n", "<leader>e", function()

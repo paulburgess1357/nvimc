@@ -1,18 +1,18 @@
 local M = {}
 
--- Terminal slots. `:Term<n>` toggles slot n; where it opens depends on n:
+-- Terminal slots. `:Term <n>` opens slot n; where it opens depends on n:
 --
 --   +-----------------------+--------+--------+
---   |                       | Term9  | Term10 |
+--   |                       | Term 9 | Term 10|
 --   |         files         |        |        |
 --   |                       +--------+--------+
---   +-------+-------+-------+ Term7  | Term8  |
---   | Term1 |  ...  | Term6 |        |        |
+--   +-------+-------+-------+ Term 7 | Term 8 |
+--   | Term 1|  ...  | Term 6|        |        |
 --   +-------+-------+-------+--------+--------+
 --
 -- 1-6   bottom row under the files, left to right, equal widths.
--- 7-10  two full-height columns on the right: Term10 over Term8 at the far
---       right, Term9 over Term7 to its left. A column exists while either of
+-- 7-10  two full-height columns on the right: Term 10 over Term 8 at the far
+--       right, Term 9 over Term 7 to its left. A column exists while either of
 --       its terminals is visible; a lone terminal takes the whole column.
 --       Both columns are always the same width.
 --
@@ -20,7 +20,7 @@ local M = {}
 -- save and restore which terminals are visible, their sizes, names and cwd.
 --
 -- Tab pages (utils.tabs): the slots and their shells are global, the windows
--- are per tab. `:Term<n>` in a tab looks for Term<n> among that tab's
+-- are per tab. `:Term <n>` in a tab looks for Term <n> among that tab's
 -- windows only, so a shell can be on screen in several tabs at once (like a
 -- file buffer) or in none, and the layout rules above hold within each tab.
 -- A session records the visible terminals tab by tab.
@@ -34,7 +34,7 @@ local PARTNER = { [9] = 7, [7] = 9, [10] = 8, [8] = 10 }
 local COL_WIDTH = { 0.28, 0.22 }
 
 local term_bufs = {} -- slot -> terminal buffer
-local term_names = {} -- slot -> optional label, set with `:Term<n> <name>`
+local term_names = {} -- slot -> optional label, set with `:Term <n> <name>`
 -- slot -> window opened for it that does not show its buffer yet. A fresh
 -- split still displays the buffer it was split from, so while a slot is being
 -- opened its window is tracked here rather than looked up by buffer.
@@ -81,7 +81,7 @@ local function find_buf_win(buf, tab)
 	end
 end
 
--- Window showing Term<n> (or about to) in tab page `tab` (default: the
+-- Window showing Term <n> (or about to) in tab page `tab` (default: the
 -- current one), nil if it is not on screen there.
 local function slot_win(n, tab)
 	local p = pending[n]
@@ -115,7 +115,7 @@ local function left_wins()
 end
 
 -----------------------------------------------------------
--- Bottom row (Term1-6)
+-- Bottom row (Term 1-6)
 -----------------------------------------------------------
 local function bottom_wins()
 	local wins = {}
@@ -143,7 +143,7 @@ local function equalize_bottom()
 end
 
 -----------------------------------------------------------
--- Right columns (Term7-10): layout upkeep
+-- Right columns (Term 7-10): layout upkeep
 -----------------------------------------------------------
 local function col_widths()
 	local c1, c2 = col_win(1), col_win(2)
@@ -230,8 +230,8 @@ local function stack_tops()
 	return tops
 end
 
--- Put the right columns back in shape: each one full height, Term9's column
--- left of Term10's, bottom terminal stacked under the top one. Needed when a
+-- Put the right columns back in shape: each one full height, Term 9's column
+-- left of Term 10's, bottom terminal stacked under the top one. Needed when a
 -- column is added on the wrong side, and after anything that splits
 -- `botright` (the first bottom terminal, :copen) and so cuts the columns
 -- short. Each column's first window is moved out to a full-height split at
@@ -332,7 +332,7 @@ local function open_right_win(n)
 		return
 	end
 	-- New column. `botright vsplit` lands at the far right, which is wrong for
-	-- Term9's column when Term10's is already there.
+	-- Term 9's column when Term 10's is already there.
 	local left = snapshot_left()
 	vim.cmd("botright vsplit")
 	local win = vim.api.nvim_get_current_win()
@@ -381,7 +381,7 @@ local function on_win_closed(ev)
 end
 
 -----------------------------------------------------------
--- Winbar: " <devicon> Term<n> (name) · title". With globalstatus a terminal
+-- Winbar: " <devicon> Term <n> (name) · title". With globalstatus a terminal
 -- window shows no name, so label it and show the live terminal title
 -- (b:term_title: a running program, an agent's status). Drawn by
 -- utils.winbar's render, the same one as the file and side-window winbars,
@@ -389,9 +389,9 @@ end
 -- on the others are one definition.
 -----------------------------------------------------------
 
--- "Term<n> (name)" for slot n.
+-- "Term <n> (name)" for slot n.
 local function term_label(n)
-	return "Term" .. n .. (term_names[n] and (" (" .. term_names[n] .. ")") or "")
+	return "Term " .. n .. (term_names[n] and (" (" .. term_names[n] .. ")") or "")
 end
 
 -- The title segment for a terminal buffer, or nil. Only titles a program set
@@ -420,7 +420,7 @@ local function term_winbar(n)
 	return WINBAR_TAG .. n .. ")%}"
 end
 
--- Label Term<n> and refresh its winbar if it is on screen.
+-- Label Term <n> and refresh its winbar if it is on screen.
 local function set_term_name(n, name)
 	term_names[n] = name
 	local win = slot_win(n)
@@ -436,7 +436,7 @@ local function setup_term_buf(n, buf)
 	-- The side windows' gutter and cursor slab (utils.winbar): now, since the
 	-- window already showed the buffer when the shell started in it (so no
 	-- BufWinEnter), and again on every later display. The buffer gets a
-	-- fresh window every time Term<n> is reopened; Neovim sets its terminal
+	-- fresh window every time Term <n> is reopened; Neovim sets its terminal
 	-- window options only once, on TermOpen, so after the buffer has been
 	-- shown elsewhere (the buffer popup's preview float) a new split can
 	-- come up with line numbers etc.
@@ -504,7 +504,7 @@ local function setup_term_buf(n, buf)
 		})
 	end
 	-- When the shell exits (any status), drop the dead buffer and free the
-	-- slot so the next Term<n> starts a fresh shell instead of reopening
+	-- slot so the next Term <n> starts a fresh shell instead of reopening
 	-- "[Process exited N]".
 	vim.api.nvim_create_autocmd("TermClose", {
 		buffer = buf,
@@ -520,7 +520,7 @@ local function setup_term_buf(n, buf)
 	})
 end
 
--- Show Term<n>, spawning a shell if none exists. Never toggles it closed.
+-- Show Term <n>, spawning a shell if none exists. Never toggles it closed.
 -- Leaves the terminal window current; callers move focus themselves.
 -- Returns the buffer and whether a new shell was spawned. `cwd` (optional)
 -- is the directory a newly spawned shell starts in.
@@ -561,13 +561,13 @@ local function ensure_term(n, cwd)
 	buf = vim.api.nvim_get_current_buf()
 	term_bufs[n] = buf
 	pending[n] = nil
-	vim.api.nvim_buf_set_name(buf, "Term" .. n)
+	vim.api.nvim_buf_set_name(buf, "Term " .. n)
 	setup_term_buf(n, buf)
 	vim.cmd("stopinsert")
 	return buf, true
 end
 
--- Toggle Term<n>. Opening it (or showing a hidden one) puts the cursor in
+-- Toggle Term <n>. Opening it (or showing a hidden one) puts the cursor in
 -- it ready to type; closing it leaves the cursor wherever it lands, in
 -- normal mode.
 local function toggle_term(n)
@@ -582,7 +582,7 @@ local function toggle_term(n)
 end
 
 -- Slot number for a `:Term` / `:TermRun` argument: a number 1-10 or a label
--- given with `:Term<n> <name>`. nil when it is neither.
+-- given with `:Term <n> <name>`. nil when it is neither.
 local function resolve_term(arg)
 	local n = tonumber(arg)
 	if n then return (n >= 1 and n <= 10) and n or nil end
@@ -599,7 +599,7 @@ end
 
 -----------------------------------------------------------
 -- Session support (utils.session): terminals can't be saved by :mksession,
--- so record which Term<n> windows are visible, each shell's directory, size
+-- so record which Term <n> windows are visible, each shell's directory, size
 -- and name, and which terminal (if any) had focus, then respawn fresh shells
 -- on restore. :mksession also can't point its final `wincmd w` at a skipped
 -- terminal window, so `focus` is what puts the cursor back in it.
@@ -669,7 +669,7 @@ local session_provider = {
 		end
 		suppress_layout = false
 	end,
-	-- The Term<n> slot shown in a window, or nil for any other window.
+	-- The Term <n> slot shown in a window, or nil for any other window.
 	slot = function(win)
 		local buf = vim.api.nvim_win_get_buf(win)
 		for n, b in pairs(term_bufs) do
@@ -775,7 +775,7 @@ local session_provider = {
 								end, 300)
 							else
 								vim.notify(
-									("Term%d was running %s but its conversation id is unknown; opened a plain shell"):format(t.n, tostring(t.agent.name)),
+									("Term %d was running %s but its conversation id is unknown; opened a plain shell"):format(t.n, tostring(t.agent.name)),
 									vim.log.levels.WARN,
 									{ title = "Terminals" }
 								)
@@ -801,7 +801,7 @@ local session_provider = {
 -----------------------------------------------------------
 -- :TermRun -- paste the current line / range into a terminal and press Enter
 -----------------------------------------------------------
--- `:TermRun [n|name]` targets Term<n> or the terminal labelled <name>,
+-- `:TermRun [n|name]` targets Term <n> or the terminal labelled <name>,
 -- default settings.send_term (plugins.lua).
 -- Nothing is interpreted: the text lands in whatever is in the terminal's
 -- foreground, so a bash line runs in the shell and a python line runs in a
@@ -856,7 +856,7 @@ end
 -- <leader><leader>e walks the terminals instead of the files.
 -----------------------------------------------------------
 -- Live slots in ascending order: { n, buf, label, visible }. The label is
--- "Term<n> (name) · title", with the same title filter as the winbar.
+-- "Term <n> (name) · title", with the same title filter as the winbar.
 function M.slots()
 	local out = {}
 	for n = 1, 10 do
@@ -868,22 +868,28 @@ function M.slots()
 	return out
 end
 
--- "Term<n> (name)" for slot n, as its winbar and the pickers show it.
+-- "Term <n> (name)" for slot n, as its winbar and the pickers show it.
 function M.label(n)
 	return term_label(n)
 end
 
--- Slot number of a terminal buffer, nil if it is not a Term<n>.
+-- Slot number of a terminal buffer, nil if it is not a Term <n>.
 function M.slot_of(buf)
 	for n, b in pairs(term_bufs) do
 		if b == buf then return n end
 	end
 end
 
--- Put the cursor in Term<n>, opening it in its slot if hidden. Normal mode;
+-- Put the cursor in Term <n>, opening it in its slot if hidden. Normal mode;
 -- the caller decides when to start insert.
 function M.focus(n)
 	ensure_term(n)
+end
+
+-- Toggle Term <n>: close its window if it is on screen in this tab, else
+-- show it in insert mode (<C-/>, and the buffer popup's dd).
+function M.toggle(n)
+	toggle_term(n)
 end
 
 -----------------------------------------------------------
@@ -980,46 +986,37 @@ function M.setup()
 		vim.cmd("startinsert")
 	end
 
-	-- `:Term<n>` toggles the terminal. `:Term<n> <name>` never closes it: the
-	-- terminal is shown (spawned or re-opened if needed) and labelled <name>.
-	-- `:Term<n> -` does the same but clears the label. Either way, when the
-	-- terminal is up afterwards the cursor is in it in insert mode.
-	-- `:Term1,2,5` and `:Term1-4,10` (no space: the rest of a list, not a
-	-- name) open every terminal listed.
-	for n = 1, 10 do
-		vim.api.nvim_create_user_command("Term" .. n, function(opts)
-			if opts.args == "" then return toggle_term(n) end
-			if opts.args:match("^[,%-]%d[%d,%-]*$") then return open_slots(n .. opts.args) end
-			ensure_term(n)
-			set_term_name(n, opts.args ~= "-" and opts.args or nil)
-			vim.cmd("startinsert")
-		end, { nargs = "*" })
-	end
-
-	-- Lowercase `:term9` is the built-in `:terminal 9` ("run the shell command
-	-- 9 in this window"), an easy slip for `:Term9`. User commands must start
-	-- with a capital, so rewrite it instead -- only when it is the whole
-	-- command typed so far. Plain `:term` / `:terminal` are left alone.
-	for n = 1, 10 do
-		local lower, upper = "term" .. n, "Term" .. n
-		vim.keymap.set("ca", lower, function()
-			return (vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == lower) and upper or lower
-		end, { expr = true })
-	end
-
-	-- `:Term <name>` (or `:Term <n>`) toggles a terminal by its label, like
-	-- Term<n>; `:Term 1,3-5` opens a list, like `:Term1,3-5`.
+	-- `:Term <n>` goes to Term n in insert mode, spawning or re-opening it if
+	-- needed; it never closes one (<C-/> toggles). `:Term <n> <name>` also
+	-- labels it <name> and `:Term <n> -` clears the label. `:Term <name>`
+	-- goes to the terminal labelled so (the whole argument, so a label can
+	-- have spaces). `:Term 1,3-5` opens every terminal listed. The same
+	-- shapes as `:Tab` (utils.tabs).
 	vim.api.nvim_create_user_command("Term", function(opts)
-		if opts.args:match("^%d[%d,%-]*$") and opts.args:match("[,%-]") then return open_slots(opts.args) end
-		local n = resolve_term(opts.args)
-		if not n then
-			vim.notify("No terminal named " .. opts.args, vim.log.levels.ERROR, { title = "Terminals" })
+		local args = vim.trim(opts.args)
+		if args:match("^%d[%d,%-]*$") and args:match("[,%-]") then return open_slots(args) end
+		local first, rest = args:match("^(%S+)%s*(.-)$")
+		local n = tonumber(first)
+		if n then
+			if n < 1 or n > 10 or n ~= math.floor(n) then
+				vim.notify("No terminal " .. first .. " (slots are 1-10)", vim.log.levels.ERROR, { title = "Terminals" })
+				return
+			end
+			ensure_term(n)
+			if rest ~= "" then set_term_name(n, rest ~= "-" and rest or nil) end
+			vim.cmd("startinsert")
 			return
 		end
-		toggle_term(n)
-	end, { nargs = "+", complete = complete_term_names, desc = "Toggle terminal by name or number" })
+		n = resolve_term(args)
+		if not n then
+			vim.notify("No terminal named " .. args, vim.log.levels.ERROR, { title = "Terminals" })
+			return
+		end
+		ensure_term(n)
+		vim.cmd("startinsert")
+	end, { nargs = "+", complete = complete_term_names, desc = "Go to (or open) Term <n>, labelling it with <name>; or go to Term <name>" })
 
-	-- `:TermFocus [n|name]` shows the terminal (default Term10) and puts the
+	-- `:TermFocus [n|name]` shows the terminal (default Term 10) and puts the
 	-- cursor in it in insert mode. Unlike the toggle it never closes anything.
 	-- Bound to <C-S-Space> in keymaps.lua, where a count picks the terminal.
 	vim.api.nvim_create_user_command("TermFocus", function(opts)
@@ -1033,8 +1030,7 @@ function M.setup()
 		end
 		ensure_term(n)
 		vim.cmd("startinsert")
-	end, { nargs = "*", complete = complete_term_names, desc = "Focus Term<n|name> in insert mode (default Term10)" })
-	vim.api.nvim_create_user_command("Term10Focus", "TermFocus 10", {})
+	end, { nargs = "*", complete = complete_term_names, desc = "Focus Term <n|name> in insert mode (default Term 10)" })
 
 	vim.api.nvim_create_user_command("TermRun", function(opts)
 		local n = settings.send_term or 1
@@ -1055,7 +1051,7 @@ function M.setup()
 		range = true,
 		nargs = "*",
 		complete = complete_term_names,
-		desc = "Run line/range in Term<n|name> (default settings.send_term)",
+		desc = "Run line/range in Term <n|name> (default settings.send_term)",
 	})
 
 	require("utils.session").term = session_provider

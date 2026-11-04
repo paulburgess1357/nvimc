@@ -1,4 +1,4 @@
--- Winbars that name their window, laid out like the Term<n> titles in
+-- Winbars that name their window, laid out like the Term <n> titles in
 -- utils.terms (" <icon> <name> ●") and colored like the buffer popup: with
 -- several splits open, every pane says what it shows, the same way every
 -- terminal says which slot it is.
@@ -7,7 +7,7 @@
 --   side windows   " <icon> <name>"           aerial, quickfix, help, the
 --                                             diffview and dap-ui panels
 --                                             (utils.ui.windows, by filetype)
---   terminals      " <devicon> Term<n> (name) · title"
+--   terminals      " <devicon> Term <n> (name) · title"
 --                                             set by utils.terms, drawn by
 --                                             M.render here, so the three
 --                                             cannot drift apart

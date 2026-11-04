@@ -137,7 +137,7 @@ local function buffer_previewer(title_of)
 		entry.do_not_cache = true
 		self:set_preview_buf(entry.bufnr, true)
 		pcall(vim.keymap.del, "n", "i", { buffer = entry.bufnr })
-		vim.wo[self.win.preview_winid][0].winbar = "" -- the buffer brings its Term<n> winbar along
+		vim.wo[self.win.preview_winid][0].winbar = "" -- the buffer brings its Term <n> winbar along
 		if tmpbuf ~= entry.bufnr then self:safe_buf_delete(tmpbuf) end
 		self:preview_buf_post(entry, true)
 	end
@@ -178,7 +178,7 @@ local function buffer_previewer(title_of)
 end
 
 -- :Terms is :Buffers for the Term slots (utils.terms): one line per open
--- slot, "Term<n> (name) · title", with the builtin previewer showing the
+-- slot, "Term <n> (name) · title", with the builtin previewer showing the
 -- terminal's output. Picking one focuses it, opening its window if hidden.
 cmd("Terms", function()
 	local terms = require("utils.terms")
@@ -196,8 +196,8 @@ cmd("Terms", function()
 	for _, slot in ipairs(slots) do
 		-- "[bufnr]" before the nbsp separator is how fzf-lua's previewer and
 		-- actions find the buffer (as in its own buffers picker). Colored like
-		-- that picker too: Term<n> as the buffer number, the rest as the name.
-		local n, rest = slot.label:match("^(Term%d+)(.*)$")
+		-- that picker too: "Term <n>" as the buffer number, the rest as the name.
+		local n, rest = slot.label:match("^(Term %d+)(.*)$")
 		local label = utils.ansi_from_hl("FzfLuaBufNr", n) .. utils.ansi_from_hl("FzfLuaBufName", rest)
 		entries[#entries + 1] = string.format("[%d]%s%s%s", slot.buf, utils.nbsp, icon, label)
 	end
@@ -209,7 +209,7 @@ cmd("Terms", function()
 		fzf_opts = { ["--delimiter"] = utils.nbsp, ["--with-nth"] = "2.." },
 		actions = {
 			["default"] = function(selected)
-				local n = selected[1] and utils.strip_ansi_coloring(selected[1]):match("Term(%d+)")
+				local n = selected[1] and utils.strip_ansi_coloring(selected[1]):match("Term (%d+)")
 				if n then
 					terms.focus(tonumber(n))
 					vim.cmd("startinsert")
@@ -218,20 +218,20 @@ cmd("Terms", function()
 		},
 	})
 end, { desc = "Terminals" })
--- :Tabs lists the tab pages (utils.tabs): "Tab<n> (name) · what its windows
--- show", colored like :Terms (Tab<n> as the buffer number, the name as the
--- buffer name), with the buffer of the tab's current window in the preview.
--- Picking one goes to it.
+-- :Tabs lists the tab pages (utils.tabs): "Tab <n> (name) · what its windows
+-- show", colored like :Terms ("Tab <n>" as the buffer number, the name as
+-- the buffer name), with the buffer of the tab's current window in the
+-- preview. Picking one goes to it.
 cmd("Tabs", function()
 	local tabs = require("utils.tabs")
 	local utils = require("fzf-lua.utils")
 	local sep = require("utils.ui").sep
 	local icon = utils.ansi_from_hl("Function", "\u{F04DD}") .. utils.nbsp -- md-tab, as the side windows' icons
 	local entries = {}
-	for nr, tab in ipairs(vim.api.nvim_list_tabpages()) do
+	for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
 		local buf = vim.api.nvim_win_get_buf(vim.api.nvim_tabpage_get_win(tab))
 		local name = tabs.name(tab)
-		local label = utils.ansi_from_hl("FzfLuaBufNr", "Tab" .. nr)
+		local label = utils.ansi_from_hl("FzfLuaBufNr", "Tab " .. tabs.slot(tab))
 			.. (name and utils.ansi_from_hl("FzfLuaBufName", " (" .. name .. ")") or "")
 		local contents = table.concat(tabs.contents(tab), ", ")
 		-- Label and contents as separate fields, so the preview title is the label alone.
@@ -244,14 +244,15 @@ cmd("Tabs", function()
 		fzf_opts = { ["--delimiter"] = utils.nbsp, ["--with-nth"] = "2.." },
 		actions = {
 			["default"] = function(selected)
-				local nr = selected[1] and tonumber(utils.strip_ansi_coloring(selected[1]):match("Tab(%d+)"))
-				if nr then tabs.go(nr) end
+				local n = selected[1] and tonumber(utils.strip_ansi_coloring(selected[1]):match("Tab (%d+)"))
+				if n then tabs.go(n) end
 			end,
 		},
 	})
 end, { desc = "Tabs" })
 -- :Sessions lists the saved sessions (utils.session), one per directory,
--- most recent first: "~/dir · 3 tabs, 2 terms", with the session's tabs,
+-- most recent first: "~/dir (name) · 3 tabs, 2 terms" (the name from
+-- :Session <name>, colored like a tab's in :Tabs), with the session's tabs,
 -- terminals and files in the preview. Picking one saves the current session
 -- (when there is one) and restores that one in its directory.
 cmd("Sessions", function()
@@ -265,6 +266,7 @@ cmd("Sessions", function()
 	local entries = {}
 	for i, s in ipairs(list) do
 		local label = utils.ansi_from_hl("FzfLuaBufName", vim.fn.fnamemodify(s.path, ":~"))
+			.. (s.name and utils.ansi_from_hl("FzfLuaBufName", " (" .. s.name .. ")") or "")
 			.. (s.current and utils.ansi_from_hl("FzfLuaBufFlagCur", " (current)") or "")
 		local summary = plural(s.tabs, "tab")
 		if #s.terms > 0 then summary = summary .. ", " .. plural(#s.terms, "term") end
@@ -288,7 +290,9 @@ cmd("Sessions", function()
 		local buf = self:get_tmp_buffer()
 		vim.api.nvim_buf_set_lines(buf, 0, -1, false, s and session.describe(s) or {})
 		self:set_preview_buf(buf)
-		if s then self.win:update_preview_title(" " .. vim.fn.fnamemodify(s.path, ":~") .. " ") end
+		if s then
+			self.win:update_preview_title(" " .. vim.fn.fnamemodify(s.path, ":~") .. (s.name and (" (" .. s.name .. ")") or "") .. " ")
+		end
 	end
 	fzf.fzf_exec(entries, {
 		prompt = "> ",

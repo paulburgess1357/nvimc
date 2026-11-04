@@ -120,17 +120,17 @@ keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Comment" })
 -- Per-directory sessions: auto-save on quit, restore from the dashboard (`s`)
 require("utils.session").setup()
 
--- Tab pages as a numbered, nameable list: :NewTab, :CloseTab, :Tab, :TabName
+-- Tab pages as numbered, nameable slots: :Tab <n> [name], :CloseTab
 -- (utils.tabs; :Tabs is in plugin/editor/fzf.lua)
 require("utils.tabs").setup()
 
 -- Keep split proportions when the screen is resized (utils.winscale)
 require("utils.winscale").setup()
 
--- Filename winbar on file windows, matching the Term<n> titles (utils.winbar)
+-- Filename winbar on file windows, matching the Term <n> titles (utils.winbar)
 require("utils.winbar").setup()
 
--- Terminal: Term1-10 slots, :Term / :TermRun, session support (utils.terms)
+-- Terminal: Term 1-10 slots, :Term / :TermRun, session support (utils.terms)
 require("utils.terms").setup()
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 -- <C-q>: back to normal mode from wherever you are. In a terminal it is the
@@ -145,19 +145,19 @@ keymap.set("c", "<C-q>", "<C-c>", { desc = "Normal mode" })
 -- Smart Wrap Copy: yanks in terminal buffers rejoin soft-wrapped lines so
 -- pasted commands/output keep their real line breaks (toggle: <leader><leader>t)
 require("utils.smart_wrap_copy").setup()
-keymap.set("n", "<C-/>", "<cmd>Term1<CR>", { desc = "Toggle terminal" })
+keymap.set("n", "<C-/>", function() require("utils.terms").toggle(1) end, { desc = "Toggle terminal (Term 1)" })
 -- <C-S-Space> always goes TO a terminal, in insert mode, opening it if
--- needed: Term10 by default, or Term<count> (8<C-S-Space> focuses Term8).
+-- needed: Term 10 by default, or Term <count> (8<C-S-Space> focuses Term 8).
 -- It never jumps back. Works while typing in a terminal too (no count there).
 keymap.set("n", "<C-S-Space>", function()
 	vim.cmd("TermFocus " .. (vim.v.count > 0 and vim.v.count or 10))
-end, { desc = "Focus terminal (default Term10, count picks another)" })
-keymap.set("t", "<C-S-Space>", "<cmd>TermFocus 10<CR>", { desc = "Focus Term10" })
+end, { desc = "Focus terminal (default Term 10, count picks another)" })
+keymap.set("t", "<C-S-Space>", "<cmd>TermFocus 10<CR>", { desc = "Focus Term 10" })
 -- <C-Space> flips to the previous window and back (like <C-w>p). Works while
 -- typing in a terminal; arriving in a terminal starts in insert mode.
 keymap.set({ "n", "t" }, "<C-Space>", require("utils.terms").prev_window, { desc = "Previous window" })
 -- <F9> runs in the default terminal (settings.send_term); a count picks
--- another one: 3<F9> runs in Term3. The visual map leaves visual mode first
+-- another one: 3<F9> runs in Term 3. The visual map leaves visual mode first
 -- so '< '> are set, then runs the command on the old selection.
 keymap.set("n", "<F9>", function()
 	vim.cmd("TermRun " .. (vim.v.count > 0 and vim.v.count or ""))

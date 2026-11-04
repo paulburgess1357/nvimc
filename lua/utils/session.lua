@@ -8,7 +8,8 @@ local M = {}
 -- M.switch, behind the :Sessions picker, does):
 --   <dir>.vim   the :mksession script
 --   <dir>.json  what :mksession can't see: the directory itself (for
---               M.list), buffer-tab order (utils.buftabs), tab page names
+--               M.list), the session's name (:Session <name>), buffer-tab
+--               order (utils.buftabs), tab page slots and names
 --               (utils.tabs), the visible terminals in each tab (M.term),
 --               the quickfix list, the current window of each tab (which
 --               :mksession keeps for the current tab only) and the window
@@ -43,6 +44,13 @@ M.term = nil
 
 local deleted = false
 
+-- The session's name (:Session <name>), a label like a tab's or a terminal's:
+-- the directory stays what identifies the session. Kept here and written
+-- with the .json on save, as tab names are. Read from the .json on first
+-- use, not at startup, so a run that never restores (open a file, quit)
+-- still keeps the name it had.
+local name, name_loaded = nil, false
+
 -- Quickfix: :mksession skips the window (a nofile buffer) and never saves the
 -- list itself, so both are recorded here. Only the current list, not the
 -- whole stack; location lists are per-window and not covered.
@@ -74,7 +82,7 @@ end
 
 -- `:copen` always opens full-width at the bottom of the screen, so it lands
 -- under the terminal row just as it would have when the list was first opened.
--- The right columns (Term7-10) are cut short by that too; utils.terms
+-- The right columns (Term 7-10) are cut short by that too; utils.terms
 -- repairs it on the FileType event, but scheduled, so it is also done here,
 -- now, for layouts_restore to find the layout the sizes were saved in.
 local function qf_restore(qf)
@@ -108,7 +116,7 @@ end
 -- :mksession leaves behind: a tab whose windows it could not record (a
 -- dashboard, or only terminals, which M.term brings back) comes back as
 -- one [No Name] window. Beside other windows it is closed; alone in its
--- tab it gets the dashboard, as :NewTab makes it. Tab names are on the
+-- tab it gets the dashboard, as `:Tab <n>` makes it. Tab names are on the
 -- tab handles by now, so closing a tab shifts no name.
 local function tidy()
 	for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
@@ -289,6 +297,37 @@ local function read_extra(b)
 	return (ok and type(extra) == "table") and extra or nil
 end
 
+-- The current session's name, nil when it has none.
+function M.name()
+	if not name_loaded then
+		local extra = read_extra(base)
+		name = extra and type(extra.name) == "string" and extra.name ~= "" and extra.name or nil
+		name_loaded = true
+	end
+	return name
+end
+
+-- Re-assigning 'titlestring' makes Neovim redraw the terminal title now;
+-- a name change is no event it watches.
+local function refresh_title()
+	if vim.o.title then vim.o.titlestring = vim.o.titlestring end
+end
+
+function M.set_name(new)
+	name = (new and new ~= "") and new or nil
+	name_loaded = true
+	refresh_title()
+end
+
+-- The terminal title (config/options.lua 'titlestring'): the working
+-- directory, with ~ for home, and the session's name after it,
+-- "~/proj (refactor auth)". Evaluated on every title redraw; the name is
+-- read from disk once (M.name), about 25 us.
+function M.title()
+	local n = M.name()
+	return vim.fn.fnamemodify(vim.fn.getcwd(), ":~") .. (n and (" (" .. n .. ")") or "")
+end
+
 local function has_files()
 	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
 		if vim.bo[buf].buflisted and vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= "" then
@@ -309,8 +348,10 @@ function M.save()
 	vim.cmd("mksession! " .. vim.fn.fnameescape(base .. ".vim"))
 	local extra = {
 		cwd = root,
+		name = M.name(),
 		tabs = require("utils.buftabs").names(),
 		tabnames = require("utils.tabs").names(),
+		tabslots = require("utils.tabs").slots(),
 		terms = M.term and M.term.snapshot() or {},
 		qf = qf_snapshot(),
 		curwins = curwins_snapshot(),
@@ -333,9 +374,13 @@ function M.restore()
 	local views = views_snapshot()
 	local extra = read_extra(base)
 	if not extra then return end
+	M.set_name(type(extra.name) == "string" and extra.name or nil)
 	if type(extra.curwins) == "table" then curwins_restore(extra.curwins) end
 	if type(extra.tabs) == "table" then require("utils.buftabs").restore(extra.tabs) end
-	if type(extra.tabnames) == "table" then require("utils.tabs").restore(extra.tabnames) end
+	require("utils.tabs").restore(
+		type(extra.tabnames) == "table" and extra.tabnames or {},
+		type(extra.tabslots) == "table" and extra.tabslots or {}
+	)
 	if M.term and type(extra.terms) == "table" then M.term.restore(extra.terms) end
 	if type(extra.qf) == "table" then qf_restore(extra.qf) end
 	tidy()
@@ -362,8 +407,10 @@ local function is_hidden(path)
 end
 
 -- Every saved session, most recently saved first, for the :Sessions picker
--- (plugin/editor/fzf.lua). Each: { path, current (this run's session),
+-- (plugin/editor/fzf.lua). Each: { path, name (:Session <name>; the current
+-- session's as it is now, not as last saved), current (this run's session),
 -- saved (epoch seconds), tabs (count), tabnames ({ ["2"] = "build" }),
+-- tabslots ({ ["2"] = 4 }, by position; missing in older sessions),
 -- terms ({ { n, tab, name }, ...}) and files (the buffer-tab order,
 -- absolute) }. The directory comes from
 -- the .json; a file from before it was recorded there is named back from
@@ -393,12 +440,21 @@ function M.list()
 				end
 			end
 			local stat = vim.uv.fs_stat(vimfile)
+			local current = b == base
+			local name_now
+			if current then
+				name_now = M.name()
+			elseif type(extra.name) == "string" and extra.name ~= "" then
+				name_now = extra.name
+			end
 			out[#out + 1] = {
 				path = path,
-				current = b == base,
+				name = name_now,
+				current = current,
 				saved = stat and stat.mtime.sec or 0,
 				tabs = tabs,
 				tabnames = type(extra.tabnames) == "table" and extra.tabnames or {},
+				tabslots = type(extra.tabslots) == "table" and extra.tabslots or {},
 				terms = terms,
 				files = type(extra.tabs) == "table" and extra.tabs or {},
 			}
@@ -415,11 +471,11 @@ function M.describe(s)
 	local by_tab = {}
 	for _, t in ipairs(s.terms) do
 		by_tab[t.tab] = by_tab[t.tab] or {}
-		table.insert(by_tab[t.tab], "Term" .. t.n .. (t.name and (" (" .. t.name .. ")") or ""))
+		table.insert(by_tab[t.tab], "Term " .. t.n .. (t.name and (" (" .. t.name .. ")") or ""))
 	end
 	for nr = 1, s.tabs do
 		local name = s.tabnames[tostring(nr)]
-		local label = "Tab" .. nr .. (name and (" (" .. name .. ")") or "")
+		local label = "Tab " .. (s.tabslots[tostring(nr)] or nr) .. (name and (" (" .. name .. ")") or "")
 		local terms = by_tab[nr] and (" " .. require("utils.ui").sep .. " " .. table.concat(by_tab[nr], ", ")) or ""
 		lines[#lines + 1] = label .. terms
 	end
@@ -499,13 +555,16 @@ function M.switch(path)
 	vim.fn.setqflist({}, "f")
 	vim.cmd.cd(vim.fn.fnameescape(path))
 	root, base, deleted = path, b, false
+	name, name_loaded = nil, false
 	M.restore()
+	refresh_title()
 	if moving then vim.defer_fn(stop_idle_lsp, 500) end
 end
 
 -- Also stops this run from re-saving on quit, so the delete sticks.
 function M.delete()
 	deleted = true
+	M.set_name(nil)
 	vim.fn.delete(base .. ".vim")
 	vim.fn.delete(base .. ".json")
 end
@@ -527,6 +586,15 @@ function M.setup()
 	vim.api.nvim_create_user_command("SessionSave", M.save, { desc = "Save session for the launch directory" })
 	vim.api.nvim_create_user_command("SessionRestore", M.restore, { desc = "Restore session for the launch directory" })
 	vim.api.nvim_create_user_command("SessionDelete", M.delete, { desc = "Delete session for the launch directory" })
+	-- `:Session <name>` names the session and `:Session -` clears the name,
+	-- as `:Term 4 <name>` and `:Tab 4 <name>` do (there is one current
+	-- session, so no number). Saved with the session, so the name is on
+	-- disk once the session is (quit, :SessionSave).
+	vim.api.nvim_create_user_command("Session", function(opts)
+		local arg = vim.trim(opts.args)
+		M.set_name(arg ~= "-" and arg or nil)
+		notify(name and ("Session named " .. name) or "Session name cleared", vim.log.levels.INFO)
+	end, { nargs = "+", bar = true, desc = "Name the current session (`-` clears it)" })
 end
 
 return M

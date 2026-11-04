@@ -150,6 +150,8 @@ require("utils.folds").setup()
 require("utils.quickfix").setup()
 
 -- Terminal window title (kitty's title bar / tab): the working directory,
--- with ~ for home. The active file is already named by its winbar.
+-- with ~ for home, and the session's name (:Session <name>) after it, as
+-- "~/proj (refactor auth)" (utils.session.title). The active file is
+-- already named by its winbar.
 vim.opt.title = true
-vim.opt.titlestring = "%{fnamemodify(getcwd(), ':~')}"
+vim.opt.titlestring = "%{v:lua.require'utils.session'.title()}"

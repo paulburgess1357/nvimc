@@ -14,7 +14,7 @@ return {
 		aerial_max_lines = 50000, -- Disable aerial for files with more lines
 		context_max_lines = 3, -- Sticky context: how many enclosing scopes to pin at the top (0 = no limit)
 		cppcheck = false, -- Enable cppcheck for C/C++ linting (requires nvim-lint)
-		send_term = 1, -- Term<n> (1-10) that <F9> / :TermRun pastes into
+		send_term = 1, -- Term <n> (1-10) that <F9> / :TermRun pastes into
 		-- Session restore reopens the agent conversation (claude, codex, qwen)
 		-- each Term was running, by its id; see lua/utils/agents.lua. false:
 		-- every Term comes back as a plain shell.

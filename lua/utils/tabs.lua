@@ -1,30 +1,36 @@
--- Tab pages as a numbered list, named like the Term slots (utils.terms).
+-- Tab pages as numbered slots, named and addressed like the Term slots
+-- (utils.terms).
 --
 -- A Vim tab page is a window layout: each tab holds its own splits, and
--- the buffers (and the Term shells) are shared between tabs. Here the tabs
--- are a list that only grows at the end, each one a numbered workspace:
+-- the buffers (and the Term shells) are shared between tabs. Here each tab
+-- is a numbered workspace, "Tab 4", and keeps its number for life, as Term 4
+-- is always Term 4: closing Tab 2 leaves Tab 1 and Tab 3, and `:Tab 2` later
+-- makes a new Tab 2 between them. Tabs are kept in slot order on screen.
 --
---   :NewTab [file]      a new tab after the last, showing the dashboard
---                       (or `file`). Plain :tabnew is rewritten to it.
+--   :Tab <n>            go to Tab <n>, creating it (after the last lower
+--                       slot, showing the dashboard) if there is none
+--   :Tab <n> <name>     the same, and name it; `:Tab <n> -` clears the name
+--   :Tab <name>         go to the tab named <name>
 --   :CloseTab [n|name]  close the current tab (or that one). Closing the
 --                       last tab leaves one window with the dashboard,
 --                       like a fresh start; the buffers stay loaded and
 --                       the Term shells keep running, hidden, as they do
---                       behind any closed terminal window. Plain :tabclose
---                       is rewritten to it.
---   :Tab <n|name>       go to a tab. `:Tab <n> <name>` also names it and
---                       `:Tab <n> -` clears the name. `:Tab` alone: :Tabs.
---   :TabName [name|-]   name (or unname) the current tab
+--                       behind any closed terminal window. Also :TabClose.
 --   :Tabs               fzf-lua picker: each tab with what its windows
 --                       show, the tab's current buffer in the preview
 --                       (plugin/editor/fzf.lua)
 --   H / L               previous / next tab (config/keymaps.lua)
 --
--- A name lives in t:tabname (which lualine's tabs component reads too) and
--- shows as "Tab2 (build)" in the picker and "2 (build)" in the statusline
--- (plugin/ui/lualine.lua, only with two or more tabs; Vim's own tabline is
--- off). utils.session saves the names; :mksession saves the tabs and their
--- windows, and utils.terms the terminals in each.
+-- Lowercase is Neovim's: `:tabnew` and `:tabclose` do what they always do.
+-- A tab made any other way (Neovim's :tabnew, diffview's diff tab) takes
+-- the number after the highest in use, so every tab has one.
+--
+-- The slot lives in t:tabslot and the name in t:tabname (lualine's tabs
+-- component reads both) and show as "Tab 2 (build)" in the picker and
+-- "2 (build)" in the statusline (plugin/ui/lualine.lua, only with two or
+-- more tabs; Vim's own tabline is off). utils.session saves slots and names
+-- by tab position; :mksession saves the tabs and their windows, and
+-- utils.terms the terminals in each.
 
 local M = {}
 
@@ -32,9 +38,38 @@ local function tabpages()
 	return vim.api.nvim_list_tabpages()
 end
 
--- Tab handle for a 1-based number, nil if there is none.
-local function handle(nr)
-	return tabpages()[nr]
+-- The tab's slot number (t:tabslot), nil when it has none yet. `tab` is a
+-- handle, 0 for the current tab.
+function M.slot(tab)
+	local ok, n = pcall(vim.api.nvim_tabpage_get_var, tab or 0, "tabslot")
+	return (ok and type(n) == "number") and n or nil
+end
+
+local function set_slot(tab, n)
+	vim.api.nvim_tabpage_set_var(tab, "tabslot", n)
+end
+
+-- Handle of the tab in slot n, nil if there is none.
+local function by_slot(n)
+	for _, tab in ipairs(tabpages()) do
+		if M.slot(tab) == n then return tab end
+	end
+end
+
+-- Every tab without a slot gets the number after the highest in use, in
+-- tab order: Neovim's own :tabnew, diffview's tab, the tabs of a session
+-- saved before slots were recorded.
+local function assign_slots()
+	local max = 0
+	for _, tab in ipairs(tabpages()) do
+		max = math.max(max, M.slot(tab) or 0)
+	end
+	for _, tab in ipairs(tabpages()) do
+		if not M.slot(tab) then
+			max = max + 1
+			set_slot(tab, max)
+		end
+	end
 end
 
 -- The tab's name (t:tabname), nil when it has none. `tab` is a handle, 0
@@ -55,15 +90,18 @@ function M.set_name(tab, name)
 	if ok then lualine.refresh() end
 end
 
--- "Tab<n> (name)" for tab number nr, as the picker shows it.
-function M.label(nr)
-	return "Tab" .. M.short_label(nr)
+-- "<n> (name)": the label without the word, for the statusline. `nr` is
+-- the tab's position (what lualine's tabs component passes).
+function M.short_label(nr)
+	local tab = tabpages()[nr]
+	if not tab then return tostring(nr) end
+	local name = M.name(tab)
+	return (M.slot(tab) or nr) .. (name and (" (" .. name .. ")") or "")
 end
 
--- "<n> (name)": the label without the word, for the statusline.
-function M.short_label(nr)
-	local name = M.name(handle(nr))
-	return nr .. (name and (" (" .. name .. ")") or "")
+-- "Tab <n> (name)" for a tab handle, as the picker shows it.
+function M.label(tab)
+	return "Tab " .. M.short_label(vim.api.nvim_tabpage_get_number(tab))
 end
 
 -- What a tab's windows show, one short name each, in window order: a
@@ -101,19 +139,26 @@ function M.contents(tab)
 	return out
 end
 
--- Tab number for a `:Tab` argument: a number, or a name. nil if neither.
-local function resolve(arg)
+-- A slot number from a command argument: a positive integer, else nil.
+local function slot_arg(arg)
 	local n = tonumber(arg)
-	if n then return (n >= 1 and n <= #tabpages() and n == math.floor(n)) and n or nil end
-	for nr, tab in ipairs(tabpages()) do
-		if M.name(tab) == arg then return nr end
+	if n and n >= 1 and n == math.floor(n) then return n end
+end
+
+-- Tab handle for a `:Tab` / `:CloseTab` argument: a slot number, or a
+-- name. nil if no tab has it.
+local function resolve(arg)
+	local n = slot_arg(arg)
+	if n then return by_slot(n) end
+	for _, tab in ipairs(tabpages()) do
+		if M.name(tab) == arg then return tab end
 	end
 end
 
 local function complete(lead)
 	local out = {}
-	for nr, tab in ipairs(tabpages()) do
-		out[#out + 1] = tostring(nr)
+	for _, tab in ipairs(tabpages()) do
+		out[#out + 1] = tostring(M.slot(tab))
 		local name = M.name(tab)
 		if name then out[#out + 1] = name end
 	end
@@ -121,7 +166,7 @@ local function complete(lead)
 end
 
 local function no_such_tab(arg)
-	vim.notify(("No tab %s (there are %d; :NewTab adds one)"):format(arg, #tabpages()), vim.log.levels.ERROR, { title = "Tabs" })
+	vim.notify("No tab named " .. arg, vim.log.levels.ERROR, { title = "Tabs" })
 end
 
 -- The dashboard in `win`, as Neovim starts: in the window's own buffer when
@@ -163,35 +208,41 @@ function M.dashboard(win)
 	vim.api.nvim_create_augroup("snacks_dashboard", { clear = true })
 end
 
--- A new tab after the last one, with the dashboard, or `file` when given.
-function M.new(file)
-	vim.cmd("$tabnew")
-	if file and file ~= "" then
-		vim.cmd.edit(file)
-	else
-		M.dashboard(vim.api.nvim_get_current_win())
+-- Make Tab n: a new tab after the last tab with a lower slot, with the
+-- dashboard. Returns its handle. The caller checks the slot is free.
+function M.new(n)
+	local after = 0
+	for _, tab in ipairs(tabpages()) do
+		if (M.slot(tab) or 0) < n then after = vim.api.nvim_tabpage_get_number(tab) end
 	end
+	vim.cmd(after .. "tabnew")
+	local tab = vim.api.nvim_get_current_tabpage()
+	set_slot(tab, n)
+	M.dashboard(vim.api.nvim_get_current_win())
+	return tab
 end
 
--- Close tab number nr (default: the current one). The last tab is not
--- closed (Vim has no "no tabs"); its windows are closed down to one, which
--- gets the dashboard.
-function M.close(nr)
-	nr = nr or vim.fn.tabpagenr()
+-- Close a tab (default: the current one). The last tab is not closed (Vim
+-- has no "no tabs"); its windows are closed down to one, which gets the
+-- dashboard. Its slot stays, as a terminal's does.
+function M.close(tab)
+	tab = tab or vim.api.nvim_get_current_tabpage()
 	if #tabpages() > 1 then
-		vim.cmd(nr .. "tabclose")
+		vim.cmd(vim.api.nvim_tabpage_get_number(tab) .. "tabclose")
 		return
 	end
 	vim.cmd("silent! only")
 	M.dashboard(vim.api.nvim_get_current_win())
 end
 
-function M.go(nr)
-	local tab = handle(nr)
-	if tab then vim.api.nvim_set_current_tabpage(tab) end
+-- Go to Tab n, by slot, making it if there is none.
+function M.go(n)
+	local tab = by_slot(n) or M.new(n)
+	vim.api.nvim_set_current_tabpage(tab)
+	return tab
 end
 
--- Names by tab number, { ["2"] = "build" }, for utils.session to save
+-- Names by tab position, { ["2"] = "build" }, for utils.session to save
 -- (:mksession does not keep t: variables). String keys: a list with holes
 -- does not survive JSON.
 function M.names()
@@ -203,10 +254,26 @@ function M.names()
 	return out
 end
 
--- Re-apply saved M.names(), once the session's tabs exist.
-function M.restore(names)
-	for nr, name in pairs(names) do
-		local tab = handle(tonumber(nr))
+-- Slots by tab position, { ["1"] = 1, ["2"] = 4 }, for utils.session.
+function M.slots()
+	local out = {}
+	for nr, tab in ipairs(tabpages()) do
+		out[tostring(nr)] = M.slot(tab)
+	end
+	return out
+end
+
+-- Re-apply saved M.names() and M.slots(), once the session's tabs exist. A
+-- session from before slots were saved numbers its tabs by position.
+function M.restore(names, slots)
+	local tabs = tabpages()
+	for nr, n in pairs(slots or {}) do
+		local tab = tabs[tonumber(nr)]
+		if tab and type(n) == "number" then set_slot(tab, n) end
+	end
+	assign_slots()
+	for nr, name in pairs(names or {}) do
+		local tab = tabs[tonumber(nr)]
 		if tab and type(name) == "string" then M.set_name(tab, name) end
 	end
 end
@@ -214,64 +281,41 @@ end
 function M.setup()
 	local cmd = vim.api.nvim_create_user_command
 
-	cmd("NewTab", function(opts) M.new(opts.args) end, {
-		nargs = "?",
-		bar = true,
-		complete = "file",
-		desc = "New tab after the last, with the dashboard (or a file)",
-	})
+	-- The first tab is Tab 1; any tab made outside `:Tab <n>` gets the next
+	-- number as it appears.
+	assign_slots()
+	vim.api.nvim_create_autocmd("TabNew", { callback = assign_slots, desc = "Number a new tab page" })
 
-	cmd("CloseTab", function(opts)
-		local nr = vim.fn.tabpagenr()
-		if opts.args ~= "" then
-			nr = resolve(opts.args)
-			if not nr then return no_such_tab(opts.args) end
-		end
-		M.close(nr)
-	end, { nargs = "?", bar = true, complete = complete, desc = "Close the current tab (or tab <n|name>)" })
-
-	-- `:Tab <n|name>` goes to the tab; `:Tab <n> <name>` also names it and
-	-- `:Tab <n> -` clears the name (as `:Term<n> <name>` / `:Term<n> -`).
+	-- `:Tab <n>` goes to Tab n, making it if there is none; `:Tab <n> <name>`
+	-- also names it and `:Tab <n> -` clears the name, as `:Term <n>`,
+	-- `:Term <n> <name>` and `:Term <n> -`. `:Tab <name>` goes to the tab
+	-- named so (the whole argument, so a name can have spaces).
 	cmd("Tab", function(opts)
-		if opts.args == "" then
-			if vim.fn.exists(":Tabs") == 2 then vim.cmd("Tabs") end
+		local args = vim.trim(opts.args)
+		local first, rest = args:match("^(%S+)%s*(.-)$")
+		local n = slot_arg(first)
+		if n then
+			local tab = M.go(n)
+			if rest ~= "" then M.set_name(tab, rest ~= "-" and rest or nil) end
 			return
 		end
-		local target, name = opts.args:match("^(%S+)%s*(.-)$")
-		local nr = resolve(target)
-		if not nr then return no_such_tab(target) end
-		M.go(nr)
-		if name ~= "" then M.set_name(handle(nr), name ~= "-" and name or nil) end
-	end, { nargs = "*", bar = true, complete = complete, desc = "Go to tab <n|name>; `:Tab <n> <name>` names it" })
+		local tab = resolve(args)
+		if not tab then return no_such_tab(args) end
+		vim.api.nvim_set_current_tabpage(tab)
+	end, { nargs = "+", bar = true, complete = complete, desc = "Go to (or make) Tab <n>, naming it with <name>; or go to Tab <name>" })
 
-	cmd("TabName", function(opts)
-		if opts.args == "" then
-			vim.notify(M.label(vim.fn.tabpagenr()), vim.log.levels.INFO, { title = "Tabs" })
-			return
+	-- :CloseTab and :TabClose, both word orders.
+	local function close_tab(opts)
+		local tab
+		if opts.args ~= "" then
+			tab = resolve(opts.args)
+			if not tab then return no_such_tab(opts.args) end
 		end
-		M.set_name(0, opts.args ~= "-" and opts.args or nil)
-	end, { nargs = "*", bar = true, desc = "Name the current tab (`-` clears it)" })
-
-	-- `:tabnew` and `:tabclose` typed on their own become :NewTab and
-	-- :CloseTab (so the new tab goes to the end with the dashboard, and the
-	-- last tab can be "closed"), and so do the other spellings: lowercase
-	-- `:newtab` and `:closetab` (user commands must start with a capital)
-	-- and the word order reversed, `:TabNew` and `:TabClose`. As `:term9`
-	-- becomes :Term9 in utils.terms: only when it is the whole command
-	-- typed so far.
-	local spellings = {
-		tabnew = "NewTab",
-		newtab = "NewTab",
-		TabNew = "NewTab",
-		tabclose = "CloseTab",
-		closetab = "CloseTab",
-		TabClose = "CloseTab",
-	}
-	for typed, command in pairs(spellings) do
-		vim.keymap.set("ca", typed, function()
-			return (vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == typed) and command or typed
-		end, { expr = true })
+		M.close(tab)
 	end
+	local close_opts = { nargs = "?", bar = true, complete = complete, desc = "Close the current tab (or Tab <n|name>)" }
+	cmd("CloseTab", close_tab, close_opts)
+	cmd("TabClose", close_tab, close_opts)
 end
 
 return M

@@ -9,7 +9,7 @@ Leader key is `Space`.
 | `<C-h/j/k/l>` | Window navigation. Works while typing in a Term terminal too. Arriving in a terminal starts insert mode; arriving in a file is normal mode |
 | `<C-Space>` | Previous window; press again to flip back. Works while typing in a terminal, and lands in insert mode when it arrives in one |
 | `<A-h/j/k/l>` | Resize window (drags the divider on that side) |
-| `H` / `L` | Previous / next tab page, wrapping round; `3L` goes to tab 3. The statusline shows the tabs when there are two or more; see [Tabs](COMMANDS.md#tabs) |
+| `H` / `L` | Previous / next tab page, wrapping round; `3L` goes to the third tab. The statusline shows the tabs when there are two or more; see [Tabs](COMMANDS.md#tabs) |
 | `<C-S-j/k>` | Bisect jump — binary-search the visible window for a line |
 | `<leader><leader>e` | Buffer popup: lists buffers in open order (Term slots when in a terminal) with a preview. `j/k` or `J/K` move, `gg`/`G` first/last, `l`/`<CR>` switch, `dd` delete the buffer (or close that terminal's window), `q`/`<Esc>` close |
 | `/` `?` in the popup | Search like Vim: incremental, `<CR>` keeps the match, `<Esc>` goes back, then `n`/`N` step through matches |
@@ -159,11 +159,11 @@ Leader key is `Space`.
 
 | Key | Action |
 | --- | ------ |
-| `<C-/>` | Toggle bottom terminal (Term1) |
-| `<C-S-Space>` | Focus Term10 in insert mode, opening it if needed. Works from a file or while typing in another terminal |
-| `{n}<C-S-Space>` | Same, for Term{n}: `8<C-S-Space>` focuses Term8 |
+| `<C-/>` | Toggle bottom terminal (Term 1) |
+| `<C-S-Space>` | Focus Term 10 in insert mode, opening it if needed. Works from a file or while typing in another terminal |
+| `{n}<C-S-Space>` | Same, for Term {n}: `8<C-S-Space>` focuses Term 8 |
 | `<F9>` | Paste current line (visual: selection) into the default terminal and press Enter, then move down (`:TermRun`; default set by `settings.send_term`) |
-| `{n}<F9>` | Same, into Term{n}: `3<F9>` runs in Term3 (`:TermRun 3`) |
+| `{n}<F9>` | Same, into Term {n}: `3<F9>` runs in Term 3 (`:TermRun 3`) |
 | `<Esc><Esc>` (terminal mode) | Back to normal mode |
 | `<C-q>` | Back to normal mode from anywhere: terminal, insert, visual, command line (except in an fzf picker, where it sends lines to quickfix). A single `Esc` in a terminal reaches the program (an agent's interrupt) untouched |
 | `Esc` (in terminal normal mode) | Jump to leftmost window |
@@ -188,8 +188,7 @@ Leader key is `Space`.
 | `Esc` | Clear search highlights |
 | `q` / `<Esc>` (in a zoomed window) | Leave the zoom (normal mode) |
 | `q` (in quickfix, help, man, checkhealth) | Close that window |
-| `s` (on dashboard) | Restore this directory's session (auto-saved on quit); also `:SessionRestore` / `:SessionSave` / `:SessionDelete` |
-| `S` (on dashboard) | Pick a saved session of any directory (`:Sessions`) |
+| `s` (on dashboard) | Restore this directory's session (auto-saved on quit); also `:SessionRestore` / `:SessionSave` / `:SessionDelete` / `:Session <name>` |
 
 ## FZF Picker (inside a picker)
 
