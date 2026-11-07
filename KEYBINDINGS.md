@@ -91,6 +91,7 @@ Leader key is `Space`.
 | `gd` | Diff view (toggle): opens in its own tab at the end (`diff`); from another tab it goes back to the open diff, from the diff tab it closes it |
 | `gh` | File history (current file), in a `history` tab |
 | `q` in a diff | Close the diff from the view or either panel. `H` / `L` still switch tabs there; the panels' commit log is `gL` |
+| `<leader>o` in a diff | Show / hide the file panel (the outline toggle everywhere else) |
 | `hs` / `hr` | Stage / reset hunk (visual: selected lines) |
 | `hS` / `hR` | Stage / reset buffer |
 | `hu` | Undo stage hunk |
@@ -169,7 +170,7 @@ Leader key is `Space`.
 | `q` (in terminal normal mode) | Close the terminal window (shell keeps running) |
 | `<leader>e` | File explorer (directory of current file; the dashboard opens the cwd, a terminal or quickfix window warns) |
 | `<leader>E` | File explorer (cwd) |
-| `<leader>o` | Toggle outline |
+| `<leader>o` | Toggle outline (in a diff: the file panel) |
 | `<leader>n` | Notification history |
 | `<leader>w` | Save |
 | `<leader>q` | Quit |

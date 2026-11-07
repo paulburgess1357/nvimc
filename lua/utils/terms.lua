@@ -441,12 +441,17 @@ local function setup_term_buf(n, buf)
 	-- shown elsewhere (the buffer popup's preview float) a new split can
 	-- come up with line numbers etc.
 	require("utils.winbar").plain_gutter(0)
+	-- The window is Term <n>'s from now on (w:term_slot): the guard in
+	-- M.setup sends any other buffer that lands in it away again. Not a
+	-- float (the buffer popup's preview, the zoom), which only borrows it.
+	if not is_float(vim.api.nvim_get_current_win()) then vim.w.term_slot = n end
 	vim.api.nvim_create_autocmd("BufWinEnter", {
 		buffer = buf,
 		callback = function()
 			vim.wo.winbar = term_winbar(n)
 			require("utils.winbar").plain_gutter(0)
 			vim.wo[0][0].wrap = false
+			if not is_float(vim.api.nvim_get_current_win()) then vim.w.term_slot = n end
 		end,
 	})
 	vim.keymap.set("n", "q", function()
@@ -953,12 +958,40 @@ function M.setup()
 
 	vim.api.nvim_create_autocmd("FileType", { pattern = "qf", callback = on_quickfix })
 	vim.api.nvim_create_autocmd("WinClosed", { callback = on_win_closed })
-	-- winbar is window-local: drop it if a non-terminal buffer lands in the window.
+	-- A Term window shows its terminal and nothing else. A window that has
+	-- shown Term <n> is marked (w:term_slot, setup_term_buf); when another
+	-- buffer lands in it (a mistyped :e, a picker or the buffer popup used
+	-- from the terminal), the terminal is put back and a notice says so.
+	-- Scheduled: the command that brought the buffer in finishes with the
+	-- buffer it expects, and the terminal's own BufWinEnter (winbar, gutter)
+	-- runs as usual. A window whose shell has exited is released. A split of
+	-- the window starts unmarked (WinNew) and is marked again only if it
+	-- shows a terminal itself; window variables are copied on :split.
+	vim.api.nvim_create_autocmd("WinNew", {
+		callback = function() vim.w.term_slot = nil end,
+	})
 	vim.api.nvim_create_autocmd("BufWinEnter", {
 		callback = function()
-			if vim.bo.buftype ~= "terminal" and vim.wo.winbar:find(WINBAR_TAG, 1, true) then
-				vim.wo.winbar = ""
+			local n = vim.w.term_slot
+			local buf = n and term_bufs[n]
+			if not (buf and vim.api.nvim_buf_is_valid(buf)) then
+				vim.w.term_slot = nil
+				-- winbar is window-local: drop it if a non-terminal buffer lands in the window.
+				if vim.bo.buftype ~= "terminal" and vim.wo.winbar:find(WINBAR_TAG, 1, true) then
+					vim.wo.winbar = ""
+				end
+				return
 			end
+			local win, intruder = vim.api.nvim_get_current_win(), vim.api.nvim_get_current_buf()
+			if intruder == buf then return end
+			vim.schedule(function()
+				if not vim.api.nvim_win_is_valid(win) or vim.api.nvim_win_get_buf(win) ~= intruder then return end
+				if not vim.api.nvim_buf_is_valid(buf) then return end
+				vim.api.nvim_win_set_buf(win, buf)
+				local name = vim.api.nvim_buf_get_name(intruder)
+				name = name ~= "" and vim.fn.fnamemodify(name, ":t") or "that buffer"
+				vim.notify(("Term %d shows only its terminal; %s was not opened here"):format(n, name), vim.log.levels.WARN, { title = "Terminals" })
+			end)
 		end,
 	})
 
@@ -986,12 +1019,13 @@ function M.setup()
 		vim.cmd("startinsert")
 	end
 
-	-- `:Term <n>` goes to Term n in insert mode, spawning or re-opening it if
-	-- needed; it never closes one (<C-/> toggles). `:Term <n> <name>` also
-	-- labels it <name> and `:Term <n> -` clears the label. `:Term <name>`
-	-- goes to the terminal labelled so (the whole argument, so a label can
-	-- have spaces). `:Term 1,3-5` opens every terminal listed. The same
-	-- shapes as `:Tab` (utils.tabs).
+	-- `:Term <n>` toggles Term n, like <C-/> does Term 1: hidden, it is
+	-- shown (spawning the shell if needed) in insert mode; on screen in this
+	-- tab, its window is closed (the shell keeps running). `:Term <n> <name>`
+	-- shows it and labels it <name>, never closing it; `:Term <n> -` clears
+	-- the label. `:Term <name>` toggles the terminal labelled so (the whole
+	-- argument, so a label can have spaces). `:Term 1,3-5` opens every
+	-- terminal listed. The same shapes as `:Tab` (utils.tabs).
 	vim.api.nvim_create_user_command("Term", function(opts)
 		local args = vim.trim(opts.args)
 		if args:match("^%d[%d,%-]*$") and args:match("[,%-]") then return open_slots(args) end
@@ -1002,8 +1036,9 @@ function M.setup()
 				vim.notify("No terminal " .. first .. " (slots are 1-10)", vim.log.levels.ERROR, { title = "Terminals" })
 				return
 			end
+			if rest == "" then return toggle_term(n) end
 			ensure_term(n)
-			if rest ~= "" then set_term_name(n, rest ~= "-" and rest or nil) end
+			set_term_name(n, rest ~= "-" and rest or nil)
 			vim.cmd("startinsert")
 			return
 		end
@@ -1012,9 +1047,8 @@ function M.setup()
 			vim.notify("No terminal named " .. args, vim.log.levels.ERROR, { title = "Terminals" })
 			return
 		end
-		ensure_term(n)
-		vim.cmd("startinsert")
-	end, { nargs = "+", complete = complete_term_names, desc = "Go to (or open) Term <n>, labelling it with <name>; or go to Term <name>" })
+		toggle_term(n)
+	end, { nargs = "+", complete = complete_term_names, desc = "Toggle Term <n|name>; with <name>, show Term <n> and label it" })
 
 	-- `:TermFocus [n|name]` shows the terminal (default Term 10) and puts the
 	-- cursor in it in insert mode. Unlike the toggle it never closes anything.

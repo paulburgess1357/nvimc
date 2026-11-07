@@ -286,23 +286,27 @@ function M.setup()
 	assign_slots()
 	vim.api.nvim_create_autocmd("TabNew", { callback = assign_slots, desc = "Number a new tab page" })
 
-	-- `:Tab <n>` goes to Tab n, making it if there is none; `:Tab <n> <name>`
-	-- also names it and `:Tab <n> -` clears the name, as `:Term <n>`,
-	-- `:Term <n> <name>` and `:Term <n> -`. `:Tab <name>` goes to the tab
-	-- named so (the whole argument, so a name can have spaces).
+	-- `:Tab <n>` goes to Tab n, making it if there is none, and, given in
+	-- Tab n itself, closes it: a toggle, as `:Term <n>` is for a terminal.
+	-- `:Tab <n> <name>` goes there and names it (never closes) and
+	-- `:Tab <n> -` clears the name, as `:Term <n> <name>` and `:Term <n> -`.
+	-- `:Tab <name>` toggles the tab named so (the whole argument, so a name
+	-- can have spaces).
 	cmd("Tab", function(opts)
 		local args = vim.trim(opts.args)
 		local first, rest = args:match("^(%S+)%s*(.-)$")
 		local n = slot_arg(first)
 		if n then
+			if rest == "" and M.slot(0) == n then return M.close() end
 			local tab = M.go(n)
 			if rest ~= "" then M.set_name(tab, rest ~= "-" and rest or nil) end
 			return
 		end
 		local tab = resolve(args)
 		if not tab then return no_such_tab(args) end
+		if tab == vim.api.nvim_get_current_tabpage() then return M.close() end
 		vim.api.nvim_set_current_tabpage(tab)
-	end, { nargs = "+", bar = true, complete = complete, desc = "Go to (or make) Tab <n>, naming it with <name>; or go to Tab <name>" })
+	end, { nargs = "+", bar = true, complete = complete, desc = "Go to (or make) Tab <n|name>, or close it from inside; with <name>, go and name it" })
 
 	-- :CloseTab and :TabClose, both word orders.
 	local function close_tab(opts)

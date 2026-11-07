@@ -43,20 +43,27 @@ require("diffview").setup({
 	-- `L` is diffview's "open commit log" in both panels; that would shadow
 	-- the global L (next tab, config/keymaps.lua), so it is dropped and the
 	-- commit log moves to gL. H is untouched by diffview, so both work.
+	-- `<leader>o` shows / hides the file panel, as it toggles the outline
+	-- (aerial, plugin/ui/aerial.lua) everywhere else: the side pane of
+	-- wherever you are. Diffview's maps are buffer-local, so inside the diff
+	-- this one wins; outside it <leader>o is still the outline.
 	keymaps = {
 		view = {
 			{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" } },
 			{ "n", "<leader><leader>e", "<Nop>", { desc = "Disabled in diffview" } },
+			{ "n", "<leader>o", actions.toggle_files, { desc = "Toggle the file panel" } },
 		},
 		file_panel = {
 			{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" } },
 			{ "n", "<leader><leader>e", "<Nop>", { desc = "Disabled in diffview" } },
+			{ "n", "<leader>o", actions.toggle_files, { desc = "Toggle the file panel" } },
 			{ "n", "L", false },
 			{ "n", "gL", actions.open_commit_log, { desc = "Open the commit log" } },
 		},
 		file_history_panel = {
 			{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" } },
 			{ "n", "<leader><leader>e", "<Nop>", { desc = "Disabled in diffview" } },
+			{ "n", "<leader>o", actions.toggle_files, { desc = "Toggle the file panel" } },
 			{ "n", "L", false },
 			{ "n", "gL", actions.open_commit_log, { desc = "Open the commit log" } },
 		},
