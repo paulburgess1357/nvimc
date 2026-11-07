@@ -34,6 +34,28 @@ require("diffview").setup({
 			vim.cmd("tabmove $")
 			local kind = view and view.class and view.class.__name
 			require("utils.tabs").set_name(0, kind == "FileHistoryView" and "history" or "diff")
+			-- Coming back to the tab (H / L) leaves the file panel as it was.
+			-- Diffview's own tab_enter re-shows the current file with the
+			-- cursor put on it in the panel, which opens the folder it is in
+			-- if closed, and then refreshes, which does the same once more.
+			-- Replaced with the same two steps while the panel holds its
+			-- folds and cursor (FilePanel.highlight_file below) until the
+			-- refresh is done, or a second at most.
+			if kind ~= "DiffView" then return end
+			local emitter = view.emitter
+			for _, l in ipairs(emitter:get("tab_enter") or {}) do
+				emitter:off(l.callback, "tab_enter")
+			end
+			emitter:on("tab_enter", function()
+				view.panel.hold_folds_until = vim.uv.now() + 1000
+				local file = view.panel.cur_file
+				if file then view:set_file(file, false, false) end
+				if view.ready then
+					view:update_files(function() view.panel.hold_folds_until = nil end)
+				else
+					view.panel.hold_folds_until = nil
+				end
+			end)
 		end,
 	},
 	-- `q` closes the diff from anywhere inside it (view or either panel).
@@ -69,6 +91,50 @@ require("diffview").setup({
 		},
 	},
 })
+
+-- Closed folders in the file panel stay closed across a refresh. Diffview
+-- refreshes the file list on every save, index change and re-entry of its
+-- tab (H / L and back), and each time it rebuilds the panel's folder tree
+-- with every folder open, so the ones you had closed come back open. Here
+-- the closed folders are noted by path before the rebuild and closed again
+-- after it, per section (changes / staged). Diffview still opens the
+-- folder of the file on screen, to point at it, as it did before.
+local FilePanel = require("diffview.scene.views.diff.file_panel").FilePanel
+local update_components = FilePanel.update_components
+local SECTIONS = { "conflicting", "working", "staged" }
+-- While a tab re-entry (the view_opened hook above) is settling, the panel
+-- neither opens the current file's folder nor moves its cursor.
+local highlight_file = FilePanel.highlight_file
+function FilePanel:highlight_file(...)
+	if self.hold_folds_until and vim.uv.now() < self.hold_folds_until then return end
+	return highlight_file(self, ...)
+end
+function FilePanel:update_components(...)
+	local closed = {}
+	for i, section in ipairs(SECTIONS) do
+		local files = self.components and self.components[section] and self.components[section].files
+		if files and files.comp then
+			closed[i] = {}
+			files.comp:deep_some(function(comp)
+				if comp.name == "directory" and comp.context and comp.context.collapsed then
+					closed[i][comp.context.path] = true
+				end
+			end)
+		end
+	end
+	local ret = update_components(self, ...)
+	for i, section in ipairs(SECTIONS) do
+		local files = closed[i] and self.components[section] and self.components[section].files
+		if files and files.comp then
+			files.comp:deep_some(function(comp)
+				if comp.name == "directory" and comp.context and closed[i][comp.context.path] then
+					comp.context.collapsed = true
+				end
+			end)
+		end
+	end
+	return ret
+end
 end)
 
 -- Toggle the working-tree diff: open if nothing is showing, else close.

@@ -63,7 +63,7 @@ A tab page is a window layout: each tab has its own splits, while buffers and Te
 
 - A tab made any other way (Neovim's `:tabnew`, the diff tab) takes the number after the highest in use.
 - Slots and names are saved with the session, as are the current tab and the current window of every tab (`:mksession` keeps only the current tab's); `:mksession` saves the tabs and their windows. The file windows above restored terminals get their cursor and view back once the terminals are in place. A tab holding only the dashboard or only terminals comes back the same way.
-- A diff (`<leader>gd`, `<leader>gh`) opens in its own tab at the end, named `diff` or `history`, and closes with `q` or the toggle from any tab. It is never saved in a session.
+- A diff (`<leader>gd`, `<leader>gh`) opens in its own tab at the end, named `diff` or `history`, and closes with `q` or the toggle from any tab. It is never saved in a session. Folders closed in its file panel stay closed when you come back to the tab or after a refresh (a save, a stage); diffview on its own reopens them all.
 - Code lives in `lua/utils/tabs.lua` (`:Tabs` in `plugin/editor/fzf.lua`).
 
 ## Git / Diff
