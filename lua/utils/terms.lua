@@ -477,12 +477,15 @@ local function setup_term_buf(n, buf)
 	-- Ctrl+h/j/k/l move windows and Alt+h/j/k/l resize them even while
 	-- typing (M.win_move, utils.resize). Buffer-local on purpose: fzf-lua
 	-- pickers are terminals too and need Ctrl+j/k for themselves. With no
-	-- window in that direction, or with M.window_keys off, the key goes
-	-- through to the shell as usual.
+	-- window in that direction Ctrl+h/j/k/l do nothing: they never reach
+	-- the program, where a missed window move would be Backspace, Enter,
+	-- kill-line or clear-screen (which wipes an agent chat's scrollback).
+	-- With M.window_keys off the keys go through to the program as usual.
 	for dir, side in pairs({ h = "left", j = "down", k = "up", l = "right" }) do
 		local key = "<C-" .. dir .. ">"
 		vim.keymap.set("t", key, function()
-			if not M.window_keys or vim.fn.winnr(dir) == vim.fn.winnr() then return key end
+			if not M.window_keys then return key end
+			if vim.fn.winnr(dir) == vim.fn.winnr() then return "" end
 			return "<C-\\><C-n><cmd>lua require('utils.terms').win_move('" .. dir .. "')<CR>"
 		end, { buffer = buf, expr = true, desc = "Move to window " .. dir })
 		local akey = "<A-" .. dir .. ">"

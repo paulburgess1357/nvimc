@@ -150,7 +150,7 @@ Leader key is `Space`.
 | `c` | Toggle sticky context (enclosing function/class pinned at the top; `settings.context_max_lines`) |
 | `w` | Toggle line wrap |
 | `t` | Toggle smart wrap copy (rejoin soft-wrapped lines yanked from terminals) |
-| `k` | Toggle terminal window keys: on, `Ctrl/Alt+hjkl` in a terminal move/resize Neovim windows; off, they reach the program (nested vim, TUIs) |
+| `k` | Toggle terminal window keys: on, `Ctrl/Alt+hjkl` in a terminal move/resize Neovim windows (with no window that way, `Ctrl+hjkl` do nothing rather than reach the program); off, they reach the program (nested vim, TUIs) |
 | `p` | Toggle parent directory in the buffer popup: always shown, not only when two files share a name |
 | `z` | Toggle zoom: current window (file or terminal) fills the screen; again, or `q`/`<Esc>` in normal mode, restores the layout |
 | `.` | Cycle the search root for all files/grep pickers: working directory (default) → project root (nearest `.git` or project marker above the current file) → file directory. Shows a notification; the picker title shows the active root |
