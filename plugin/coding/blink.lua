@@ -28,6 +28,19 @@ require("blink.cmp").setup({
 		["<C-j>"] = { "select_next", "fallback" },
 		["<C-k>"] = { "select_prev", "fallback" },
 	},
+	-- Command line: Tab accepts the candidate shown as ghost text (the top
+	-- match, or the one moved to), as it does in insert mode, instead of the
+	-- preset's Tab, which cycles to the next candidate on every press.
+	-- <C-j>/<C-k> (or the preset's <C-n>/<C-p>) move through the candidates.
+	cmdline = {
+		keymap = {
+			preset = "cmdline",
+			["<Tab>"] = { "select_and_accept", "show_and_insert_or_accept_single" },
+			["<S-Tab>"] = { "select_prev", "fallback" },
+			["<C-j>"] = { "select_next", "fallback" },
+			["<C-k>"] = { "select_prev", "fallback" },
+		},
+	},
 	appearance = {
 		kind_icons = ui.kinds, -- shared with aerial and fzf-lua
 	},
